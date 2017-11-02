@@ -15,7 +15,7 @@
             <posy>0</posy>
             <width>1280</width>
             <height>720</height>
-            <texture>tvguide-background-default.jpg</texture>
+            <texture>background-test.jpg</texture>
             <visible>true</visible>
 
         </control>
@@ -31,8 +31,6 @@
         </control>
         
         
-        
-    
         <control type="group">
             <description>TV Guide group</description>
             <posx>0</posx>
@@ -65,7 +63,7 @@
                     <width>180</width>
                     <height>50</height>
                     <textcolor>ffffffff</textcolor>
-                    <font>font13</font>
+                    <font>font11</font>
                     <align>center</align>
                     <aligny>center</aligny>
                 </control>
