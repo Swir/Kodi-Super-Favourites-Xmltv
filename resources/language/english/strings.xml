@@ -1,0 +1,34 @@
+<strings>
+    <string id="32100">General</string>
+    <string id="32010">Update EPG on Kodi startup</string>
+    <string id="32011">Background image</string>
+    <string id="32012">Update Frequency</string>
+    <string id="32013">Where do I get the XMLTV file ?</string>
+    
+    <!-- id="image.background" -->
+    <string id="32200">No background</string>
+    <string id="32201">Background 1 (grey and black)</string>
+    <string id="32202">Background 2 (grey and black)</string>
+    <string id="32203">Background 3 (grey and black)</string>
+    <string id="32204">Background 4 (grey and black)</string>
+    <string id="32205">Background 5 (grey and black)</string>
+    <string id="32206">Background 6 (grey and black)</string>
+    <string id="32207">Background 7 (grey and black)</string>
+    <string id="32208">Background 8 (grey and black)</string>
+    <string id="32209">Background 9 (grey and black)</string>
+    <string id="32210">Background 10 (grey and black)</string>
+    
+    <!-- id="update.frequency" -->
+    <string id="32211">Every day</string>
+    <string id="32212">Every two days</string>
+    <string id="32213">Every three days</string>
+    <string id="32214">Every four days</string>
+    <string id="32215">Every five days</string>
+    <string id="32216">Every six days</string>
+    <string id="32217">Every seven days</string>
+
+    <!-- id="xmltv.source.type" -->
+    <string id="32218">URL</string>
+    <string id="32219">File system</string>
+    
+</strings>

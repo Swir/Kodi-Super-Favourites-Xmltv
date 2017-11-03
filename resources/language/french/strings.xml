@@ -1,0 +1,35 @@
+<strings>
+    <string id="32100">Général</string>
+    <string id="32010">Mettre à jour l'EPG au démarrage de Kodi</string>
+    <string id="32011">Image d'arrière plan</string>
+    <string id="32012">Fréquence de mise à jour</string>
+    <string id="32013">Ou doi-je prendre le fichier XMLTV ?</string>
+    
+    
+    <!-- id="image.background" -->
+    <string id="32200">Pas d'image de fond</string>
+    <string id="32201">Image de fond 1 (gris et noir)</string>
+    <string id="32202">Image de fond 2 (gris et noir)</string>
+    <string id="32203">Image de fond 3 (gris et noir)</string>
+    <string id="32204">Image de fond 4 (gris et noir)</string>
+    <string id="32205">Image de fond 5 (gris et noir)</string>
+    <string id="32206">Image de fond 6 (gris et noir)</string>
+    <string id="32207">Image de fond 7 (gris et noir)</string>
+    <string id="32208">Image de fond 8 (gris et noir)</string>
+    <string id="32209">Image de fond 9 (gris et noir)</string>
+    <string id="32210">Image de fond 10 (gris et noir)</string>
+    
+    <!-- id="update.frequency" -->
+    <string id="32211">Tous les jours</string>
+    <string id="32212">Tous les deux jours</string>
+    <string id="32213">Tous les trois jours</string>
+    <string id="32214">Tous les quatre jours</string>
+    <string id="32215">Tous les cinq jours</string>
+    <string id="32216">Tous les six jours</string>
+    <string id="32217">Tous les sept jours</string>
+    
+    <!-- id="xmltv.source.type" -->
+    <string id="32218">URL</string>
+    <string id="32219">Système de fichiers</string>
+    
+</strings>
