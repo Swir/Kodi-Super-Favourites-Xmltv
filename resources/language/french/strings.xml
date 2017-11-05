@@ -5,19 +5,18 @@
     <string id="32012">Fréquence de mise à jour</string>
     <string id="32013">Ou doi-je prendre le fichier XMLTV ?</string>
     
-    
     <!-- id="image.background" -->
     <string id="32200">Pas d'image de fond</string>
-    <string id="32201">Image de fond 1 (gris et noir)</string>
-    <string id="32202">Image de fond 2 (gris et noir)</string>
-    <string id="32203">Image de fond 3 (gris et noir)</string>
-    <string id="32204">Image de fond 4 (gris et noir)</string>
-    <string id="32205">Image de fond 5 (gris et noir)</string>
-    <string id="32206">Image de fond 6 (gris et noir)</string>
-    <string id="32207">Image de fond 7 (gris et noir)</string>
-    <string id="32208">Image de fond 8 (gris et noir)</string>
-    <string id="32209">Image de fond 9 (gris et noir)</string>
-    <string id="32210">Image de fond 10 (gris et noir)</string>
+    <string id="32201">Gris et noir</string>
+    <string id="32202">Bleu clair et foncé</string>
+    <string id="32203">Le manoir de l'horreur</string>
+    <string id="32204">Bleu fonçé et Noir</string>
+    <string id="32205">La ligne rouge</string>
+    <string id="32206">Odyssée de l'espace</string>
+    <string id="32207">La voie lactée</string>
+    <string id="32208">Android</string>
+    <string id="32209">Simplement bleu</string>
+    <string id="32210">Verdoyant</string>
     
     <!-- id="update.frequency" -->
     <string id="32211">Tous les jours</string>

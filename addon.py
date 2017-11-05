@@ -45,11 +45,19 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     CHANNEL_LOGO_9 = 4118
     
     start_time = 0
+    addon_id = 'plugin.program.super.favourites.xmltv'
+    addon_settings = None
+    addon_path = None
+    addon_bg_base = None
         
     '''
     Class init.
     '''    
     def __init__(self, strXMLname, strFallbackPath):
+        self.addon_settings = xbmcaddon.Addon(self.addon_id)
+        self.addon_path = addon.getAddonInfo('path')
+        self.addon_bg_base = self.addon_path + '/resources/skins/Default/media/backgrounds/bg'
+        
         xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
         self.start_time = dt.datetime.today()
         
@@ -59,6 +67,18 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Gui values init.
     '''
     def onInit(self):
+        # Defining background
+        background = self.addon_settings.getSetting('image.background')
+        bg = self.getControl(XMLWindowEPG.BACKGROUND_IMAGE)
+        
+        if background == '' or background == None: 
+            bg.setImage(self.addon_bg_base + '1.jpg', useCache=False)
+        elif int(background) == 0:
+            bg.setImage(self.addon_bg_base + '-transparent.png', useCache=False)
+        else:
+            bg.setImage(self.addon_bg_base + background + '.jpg', useCache=False)
+            
+                        
         # Setting current day date.
         labelCurrentDate = self.getControl(XMLWindowEPG.DATE_TIME_TODAY_LABEL)
         labelCurrentDate.setLabel(time.strftime("%d/%m/%Y"))
@@ -133,14 +153,12 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         pass
             
 
-''''''''''''''''''''''''''''''''''''''''''
-''''''''''''''''''''''''''''''''''''''''''    
+''''''''''''''''''''''''''''''
+'''    Plugin entry point. '''
+''''''''''''''''''''''''''''''    
     
-# Basic addons information.
-addonid      = 'plugin.program.super.favourites.xmltv'
-settings     = xbmcaddon.Addon(addonid)
-    
-EPGgui = XMLWindowEPG('epg.xml', settings.getAddonInfo('path'))
-EPGgui.doModal()
-    
-del EPGgui
+if __name__ == '__main__':
+    addon = xbmcaddon.Addon('plugin.program.super.favourites.xmltv')
+    EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
+    EPGgui.doModal() 
+    del EPGgui

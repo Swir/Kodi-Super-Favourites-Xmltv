@@ -7,16 +7,16 @@
     
     <!-- id="image.background" -->
     <string id="32200">No background</string>
-    <string id="32201">Background 1 (grey and black)</string>
-    <string id="32202">Background 2 (grey and black)</string>
-    <string id="32203">Background 3 (grey and black)</string>
-    <string id="32204">Background 4 (grey and black)</string>
-    <string id="32205">Background 5 (grey and black)</string>
-    <string id="32206">Background 6 (grey and black)</string>
-    <string id="32207">Background 7 (grey and black)</string>
-    <string id="32208">Background 8 (grey and black)</string>
-    <string id="32209">Background 9 (grey and black)</string>
-    <string id="32210">Background 10 (grey and black)</string>
+    <string id="32201">Grey and black</string>
+    <string id="32202">Light and dark blue</string>
+    <string id="32203">The horror castle</string>
+    <string id="32204">Dark blue and black</string>
+    <string id="32205">Red line</string>
+    <string id="32206">Sky is the limit</string>
+    <string id="32207">The milky way</string>
+    <string id="32208">Android buddies</string>
+    <string id="32209">Simply blue</string>
+    <string id="32210">Greeny</string>
     
     <!-- id="update.frequency" -->
     <string id="32211">Every day</string>

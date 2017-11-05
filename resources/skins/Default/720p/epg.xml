@@ -15,7 +15,7 @@
             <posy>0</posy>
             <width>1280</width>
             <height>720</height>
-            <texture>background-test.jpg</texture>
+            <texture>backgrounds/bg2.jpg</texture>
             <visible>true</visible>
 
         </control>
