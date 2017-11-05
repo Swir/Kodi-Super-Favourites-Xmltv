@@ -1,0 +1,34 @@
+<strings>
+    <string id="32100">fkkh</string>
+    <string id="32010">עדכן את מדריך השידורים כשקודי עולה</string>
+    <string id="32011">תמונת רקע</string>
+    <string id="32012">תדירות עדכון</string>
+    <string id="32013">היכן אני משיג את קובץ XMLTV?</string>
+    
+    <!-- id="image.רקע" -->
+    <string id="32200">ללא רקע</string>
+    <string id="32201">רקע 1 (אפור ושחור)</string>
+    <string id="32202">רקע 2 (אפור ושחור)</string>
+    <string id="32203">רקע 3 (אפור ושחור)</string>
+    <string id="32204">רקע 4 (אפור ושחור)</string>
+    <string id="32205">רקע 5 (אפור ושחור)</string>
+    <string id="32206">רקע 6 (אפור ושחור)</string>
+    <string id="32207">רקע 7 (אפור ושחור)</string>
+    <string id="32208">רקע 8 (אפור ושחור)</string>
+    <string id="32209">רקע 9 (אפור ושחור)</string>
+    <string id="32210">רקע 10 (אפור ושחור)</string>
+    
+    <!-- id="update.frequency" -->
+    <string id="32211">בכל יום</string>
+    <string id="32212">בכל שתי ימים</string>
+    <string id="32213">בכל שלושה ימים</string>
+    <string id="32214">בכל ארבעה ימים</string>
+    <string id="32215">בכל חמישה ימים</string>
+    <string id="32216">בכל שישה ימים</string>
+    <string id="32217">בכל שבעה ימים</string>
+
+    <!-- id="xmltv.source.type" -->
+    <string id="32218">קישור</string>
+    <string id="32219">מערכת קבצים</string>
+    
+</strings>
