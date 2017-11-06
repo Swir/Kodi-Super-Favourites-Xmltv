@@ -45,7 +45,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     CHANNEL_LOGO_9 = 4118
     
     # Predefined const.
-    BACKGROUND_BUILTIN = True
+    BACKGROUND_BUILTIN = 'true'
     EPG_FROM_URL       = 0
     
     start_time = 0
@@ -79,7 +79,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         labelCurrentDate = self.getControl(XMLWindowEPG.DATE_TIME_TODAY_LABEL)
         labelCurrentDate.setLabel(time.strftime("%d/%m/%Y"))
 
-
         #Setting date and time controls.
         labelTime1 = self.getControl(XMLWindowEPG.DATE_TIME_FIRST_COLUMN)
         labelTime2 = self.getControl(XMLWindowEPG.DATE_TIME_SECOND_COLUMN)
@@ -96,10 +95,12 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Set the EPG background with customer settings.
     '''
     def setEPGBackground(self):
+        
         bg = self.getControl(XMLWindowEPG.BACKGROUND_IMAGE)
         background_type = self.addon_settings.getSetting('type.background')
         
-        if background_type == XMLWindowEPG.BACKGROUND_BUILTIN:
+        if str(background_type) == XMLWindowEPG.BACKGROUND_BUILTIN:
+
             background = self.addon_settings.getSetting('image.background')
         
             if background == '' or background == None: 
