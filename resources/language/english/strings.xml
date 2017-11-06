@@ -20,7 +20,6 @@
     <string id="32220">Use built in background ( disable this to use a custom one )</string>
     <string id="32221">Choose your background image</string>
 
-    
     <!-- id="update.frequency" -->
     <string id="32211">Every day</string>
     <string id="32212">Every two days</string>
@@ -33,7 +32,14 @@
     <!-- id="xmltv.source.type" -->
     <string id="32218">URL</string>
     <string id="32219">File system</string>
-    <string id="32222">Local path to the XMLTV file</string>
-    <string id="32223">XMLTV file URL</string>
+    <string id="32222">Enter path to the xmltv</string>
+    <string id="32223">Enter xmltv URL</string>
+    
+    <!--  id="super.favourites.folder" -->
+    <string id="32224">Super Favourites IPTV base Folder</string>
+    
+    <!--  Settings separators lsep -->
+    <string id="32225">Where is XMLTV located ?</string>
+    <string id="32226">Where should I create sub folders that will contains IPTV channels</string>
     
 </strings>

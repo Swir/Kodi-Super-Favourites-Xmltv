@@ -35,4 +35,12 @@
     <string id="32222">Chemin vers le XMLTV</string>
     <string id="32223">URL du XMLTV</string>
     
+    <!--  id="super.favourites.folder" -->
+    <string id="32224">Dossier super favourites de base</string>
+    
+    <!--  Settings separators lsep -->
+    <string id="32225">Ou se trouve le fichier xmltv</string>
+    <string id="32226">Ou créer les sous dossiers qui contiendront les chaines IPTV? (ex:TV) </string>
+    
+    
 </strings>
