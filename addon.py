@@ -47,6 +47,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     # Predefined const.
     BACKGROUND_BUILTIN = 'true'
     EPG_FROM_URL       = 0
+    XMLTV_LOCAL_VALUE  = ""
+    XMLTV_URL_VALUE = ""
     
     start_time = 0
     addon_id = 'plugin.program.super.favourites.xmltv'
@@ -174,10 +176,42 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
 
 ''''''''''''''''''''''''''''''
 '''    Plugin entry point. '''
-''''''''''''''''''''''''''''''    
+''''''''''''''''''''''''''''''
+def checkSettings(addon): # TODO  ----------------------------------------------------
+    settings_ok = True
+    error_msg   = ''
+    
+    # Checking xmltv type
+    if int(addon.getSetting('xmltv.source.type')) == 0:
+        if addon.getSetting('xmltv.url.value') == "":
+            settings_ok = False
+            error_msg = addon.getLocalizedString(33302)
+            
+    elif int(addon.getSetting('xmltv.source.type')) == 1:
+        if addon.getSetting('xmltv.local.value') == "":
+            settings_ok = False
+            error_msg = addon.getLocalizedString(33304)
+                
+    # Checking Super Favourites settings  
+    return settings_ok, error_msg
+    
+
+
 
 if __name__ == '__main__':
     addon = xbmcaddon.Addon('plugin.program.super.favourites.xmltv')
-    EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
-    EPGgui.doModal() 
-    del EPGgui
+    
+    # Checking for bad configuration.   
+    ok, error_msg = checkSettings(addon)
+    
+    # Checking if some settings were completed.
+    if not ok:
+        title      = addon.getLocalizedString(33301)
+        conclusion = addon.getLocalizedString(33303)
+        xbmcgui.Dialog().ok(addon.getAddonInfo('name'), title, error_msg, conclusion)
+        addon.openSettings()
+    
+    else:
+        EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
+        EPGgui.doModal() 
+        del EPGgui

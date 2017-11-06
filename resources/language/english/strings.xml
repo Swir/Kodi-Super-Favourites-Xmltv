@@ -42,4 +42,11 @@
     <string id="32225">Where is XMLTV located ?</string>
     <string id="32226">Where should I create sub folders that will contains IPTV channels</string>
     
+    <!-- Addon code localized strings -->
+    <string id="33301">XMLTV addon not configured properly</string>
+    <string id="33302">You choose URL setting for XMLTV but did not provided any URL</string>
+    <string id="33303">Please, take time for configuration</string>
+    <string id="33304">You choose file setting for XMLTV but did not specified any file location</string>
+    
+    
 </strings>
