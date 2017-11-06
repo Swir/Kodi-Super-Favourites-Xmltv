@@ -136,7 +136,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
             later = current
         
         return str(("%02d:%02d") % (later.hour, later.minute))
-            
+           
         
     
     '''
@@ -174,7 +174,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
 ''''''''''''''''''''''''''''''
 '''    Plugin entry point. '''
 ''''''''''''''''''''''''''''''    
-    
+
 if __name__ == '__main__':
     addon = xbmcaddon.Addon('plugin.program.super.favourites.xmltv')
     EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
