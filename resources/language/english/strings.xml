@@ -17,6 +17,9 @@
     <string id="32208">Android buddies</string>
     <string id="32209">Simply blue</string>
     <string id="32210">Greeny</string>
+    <string id="32220">Use built in background ( disable this to use a custom one )</string>
+    <string id="32221">Choose your background image</string>
+
     
     <!-- id="update.frequency" -->
     <string id="32211">Every day</string>

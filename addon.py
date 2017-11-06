@@ -44,6 +44,9 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     CHANNEL_LOGO_8 = 4117
     CHANNEL_LOGO_9 = 4118
     
+    # Predefined const.
+    BACKGROUND_BUILTIN = True
+    
     start_time = 0
     addon_id = 'plugin.program.super.favourites.xmltv'
     addon_settings = None
@@ -67,17 +70,23 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Gui values init.
     '''
     def onInit(self):
-        # Defining background
-        background = self.addon_settings.getSetting('image.background')
-        bg = self.getControl(XMLWindowEPG.BACKGROUND_IMAGE)
         
-        if background == '' or background == None: 
-            bg.setImage(self.addon_bg_base + '1.jpg', useCache=False)
-        elif int(background) == 0:
-            bg.setImage(self.addon_bg_base + '-transparent.png', useCache=False)
+        # Defining background
+        bg = self.getControl(XMLWindowEPG.BACKGROUND_IMAGE)
+        background_type = self.addon_settings.getSetting('type.background')
+        
+        if background_type == XMLWindowEPG.BACKGROUND_BUILTIN:
+            background = self.addon_settings.getSetting('image.background')
+        
+            if background == '' or background == None: 
+                bg.setImage(self.addon_bg_base + '1.jpg', useCache=False)
+            elif int(background) == 0:
+                bg.setImage(self.addon_bg_base + '-transparent.png', useCache=False)
+            else:
+                bg.setImage(self.addon_bg_base + background + '.jpg', useCache=False)
         else:
-            bg.setImage(self.addon_bg_base + background + '.jpg', useCache=False)
-            
+            bg_image = self.addon_settings.getSetting('custom.background')   
+            bg.setImage(bg_image, useCache=False)            
                         
         # Setting current day date.
         labelCurrentDate = self.getControl(XMLWindowEPG.DATE_TIME_TODAY_LABEL)

@@ -17,6 +17,8 @@
     <string id="32208">Android</string>
     <string id="32209">Simplement bleu</string>
     <string id="32210">Verdoyant</string>
+    <string id="32220">Utiliser un fond pré installé (désactivez pour choisir le vôtre)</string>    
+    <string id="32221">Sélectionnez votre image de fond</string>
     
     <!-- id="update.frequency" -->
     <string id="32211">Tous les jours</string>
