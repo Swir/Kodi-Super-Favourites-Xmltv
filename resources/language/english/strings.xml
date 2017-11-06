@@ -33,5 +33,7 @@
     <!-- id="xmltv.source.type" -->
     <string id="32218">URL</string>
     <string id="32219">File system</string>
+    <string id="32222">Local path to the XMLTV file</string>
+    <string id="32223">XMLTV file URL</string>
     
 </strings>
