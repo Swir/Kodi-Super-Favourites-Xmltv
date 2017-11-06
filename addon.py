@@ -46,6 +46,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     
     # Predefined const.
     BACKGROUND_BUILTIN = True
+    EPG_FROM_URL       = 0
     
     start_time = 0
     addon_id = 'plugin.program.super.favourites.xmltv'
@@ -72,6 +73,29 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     def onInit(self):
         
         # Defining background
+        self.setEPGBackground()
+                        
+        # Setting current day date.
+        labelCurrentDate = self.getControl(XMLWindowEPG.DATE_TIME_TODAY_LABEL)
+        labelCurrentDate.setLabel(time.strftime("%d/%m/%Y"))
+
+
+        #Setting date and time controls.
+        labelTime1 = self.getControl(XMLWindowEPG.DATE_TIME_FIRST_COLUMN)
+        labelTime2 = self.getControl(XMLWindowEPG.DATE_TIME_SECOND_COLUMN)
+        labelTime3 = self.getControl(XMLWindowEPG.DATE_TIME_THIRD_COLUMN)
+        labelTime4 = self.getControl(XMLWindowEPG.DATE_TIME_FOURTH_COLUMN)
+        
+        labelTime1.setLabel(self.setTimesLabels(str(self.start_time.hour) + ":" + str(self.start_time.minute), halfInc=False))
+        labelTime2.setLabel(self.setTimesLabels(labelTime1.getLabel()))
+        labelTime3.setLabel(self.setTimesLabels(labelTime2.getLabel()))
+        labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
+    
+    
+    '''
+    Set the EPG background with customer settings.
+    '''
+    def setEPGBackground(self):
         bg = self.getControl(XMLWindowEPG.BACKGROUND_IMAGE)
         background_type = self.addon_settings.getSetting('type.background')
         
@@ -86,23 +110,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                 bg.setImage(self.addon_bg_base + background + '.jpg', useCache=False)
         else:
             bg_image = self.addon_settings.getSetting('custom.background')   
-            bg.setImage(bg_image, useCache=False)            
-                        
-        # Setting current day date.
-        labelCurrentDate = self.getControl(XMLWindowEPG.DATE_TIME_TODAY_LABEL)
-        labelCurrentDate.setLabel(time.strftime("%d/%m/%Y"))
-
-        #Setting date and time controls.
-        labelTime1 = self.getControl(XMLWindowEPG.DATE_TIME_FIRST_COLUMN)
-        labelTime2 = self.getControl(XMLWindowEPG.DATE_TIME_SECOND_COLUMN)
-        labelTime3 = self.getControl(XMLWindowEPG.DATE_TIME_THIRD_COLUMN)
-        labelTime4 = self.getControl(XMLWindowEPG.DATE_TIME_FOURTH_COLUMN)
-        
-        labelTime1.setLabel(self.setTimesLabels(str(self.start_time.hour) + ":" + str(self.start_time.minute), halfInc=False))
-        labelTime2.setLabel(self.setTimesLabels(labelTime1.getLabel()))
-        labelTime3.setLabel(self.setTimesLabels(labelTime2.getLabel()))
-        labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
-    
+            bg.setImage(bg_image, useCache=False)  
+            
     
     
     '''
