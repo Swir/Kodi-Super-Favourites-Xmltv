@@ -1,10 +1,8 @@
-import os, sys, time
+import time
 import datetime as dt
-import urlparse
-import xbmcvfs, xbmc, xbmcplugin, xbmcaddon, xbmcgui  
+import xbmc, xbmcaddon, xbmcgui  
 
 from resources.lib import EPGXML
-
 
 
 '''
