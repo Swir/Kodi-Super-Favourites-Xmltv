@@ -47,6 +47,7 @@
     <string id="33302">You choose URL setting for XMLTV but did not provided any URL</string>
     <string id="33303">Please, take time for configuration</string>
     <string id="33304">You choose file setting for XMLTV but did not specified any file location</string>
+    <string id="33305">Please, enter a Super Favourites folder path</string>
     
     
 </strings>

@@ -183,16 +183,21 @@ def checkSettings(addon): # TODO  ----------------------------------------------
     
     # Checking xmltv type
     if int(addon.getSetting('xmltv.source.type')) == 0:
-        if addon.getSetting('xmltv.url.value') == "":
+        if not addon.getSetting('xmltv.url.value'):
             settings_ok = False
             error_msg = addon.getLocalizedString(33302)
             
     elif int(addon.getSetting('xmltv.source.type')) == 1:
-        if addon.getSetting('xmltv.local.value') == "":
+        if not addon.getSetting('xmltv.local.value') :
             settings_ok = False
             error_msg = addon.getLocalizedString(33304)
-                
-    # Checking Super Favourites settings  
+      
+    # Checking Super Favourites settings    
+    sp_folder = addon.getSetting('super.favourites.folder')   
+    if sp_folder == 'special://home':
+        settings_ok = False
+        error_msg = addon.getLocalizedString(33305)
+    
     return settings_ok, error_msg
     
 

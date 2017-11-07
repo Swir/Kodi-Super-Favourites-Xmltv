@@ -18,7 +18,7 @@
         
         <!-- Super favourites folder -->
         <setting label="32226" type="lsep"/>
-        <setting id="super.favourites.folder" type="folder" label="32224"/>      
+        <setting id="super.favourites.folder" type="folder" source="auto" default="special://home" option="writeable" label="32224"/>      
             
     </category>
 </settings>

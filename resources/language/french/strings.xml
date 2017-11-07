@@ -47,5 +47,6 @@
     <string id="33302">Vous avez choisi le paramètre URL pour le XMLTV mais n'avez pas fourni d'URL</string>
     <string id="33303">S'il vous plaît, prenez le temps pour la configuration !</string>
     <string id="33304">Vous avez choisi le paramètre fichier pour le XMLTV mais n'avez pas donné de chemin</string>
-    
+    <string id="33305">Entrez le chemin vers un dossier Super Favoris</string>
+   
 </strings>
