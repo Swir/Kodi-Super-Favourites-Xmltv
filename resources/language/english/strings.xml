@@ -49,5 +49,10 @@
     <string id="33304">You choose file setting for XMLTV but did not specified any file location</string>
     <string id="33305">Please, enter a Super Favourites folder path</string>
     
+    <!-- Inside notifications -->
+    <string id="33401">EPG database connection error</string>
+    <string id="33402">Error creating channels table</string>
+    
     
 </strings>
+

@@ -2,7 +2,7 @@ import time
 import datetime as dt
 import xbmc, xbmcaddon, xbmcgui  
 
-from resources.lib import EPGXML
+from resources.lib import EPGXML, utils
 
 
 '''
@@ -215,6 +215,17 @@ if __name__ == '__main__':
         addon.openSettings()
     
     else:
-        EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
-        EPGgui.doModal() 
-        del EPGgui
+        epg_database = EPGXML.EpgDb(addon)
+        
+        if epg_database.isDBInitOk():
+            EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
+            EPGgui.doModal() 
+            del EPGgui
+        
+        
+        
+        
+        
+        
+        
+        

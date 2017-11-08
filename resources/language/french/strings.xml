@@ -49,4 +49,9 @@
     <string id="33304">Vous avez choisi le paramètre fichier pour le XMLTV mais n'avez pas donné de chemin</string>
     <string id="33305">Entrez le chemin vers un dossier Super Favoris</string>
    
+    <!-- Inside notifications -->
+    <string id="33401">Erreur de connexion a la database EPG</string>
+    <string id="33402">Erreur en créant la table channels</string>
+    
+    
 </strings>
