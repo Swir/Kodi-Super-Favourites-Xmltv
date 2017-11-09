@@ -60,7 +60,7 @@ class EpgDb(object):
             return False
         
         channels_str = "CREATE TABLE channels (id TEXT, display_name TEXT, logo TEXT, source TEXT, visible BOOLEAN, PRIMARY KEY (id))"
-        programs_str = "CREATE TABLE programs(channel TEXT, title TEXT, start_date TIMESTAMP, end_date TIMESTAMP, description TEXT)"
+        programs_str = "CREATE TABLE programs(id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TIMESTAMP, end_date TIMESTAMP, description TEXT)"
                 
         try:
             self.cursor.execute(channels_str)
