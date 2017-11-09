@@ -56,6 +56,8 @@
     <string id="33404">Erreur en modifiant une chaine</string>
     <string id="33405">Erreur en supprimant une chaine</string>
     <string id="33406">Erreur en récupérant une chaine</string>
+    <string id="33407">Erreur en ajoutant un programme</string>
+    <string id="33408">Erreur en supprimant un programme</string>
     
     
 </strings>

@@ -56,6 +56,8 @@
     <string id="33404">Error updating a channel</string>
     <string id="33405">Error deleting a channel</string>
     <string id="33406">Error getting a channel</string>
+    <string id="33407">Error adding a program</string>
+    <string id="33408">Error removing a program</string>
     
     
 </strings>

@@ -177,3 +177,46 @@ class EpgDb(object):
     
     
     
+    '''
+    Add a program into the program table.
+    '''
+    def addProgram(self, channel, title, start_date, end_date, description):
+        try:
+            program = "INSERT INTO programs (channel, title, start_date, end_date, description) "
+            values  = 'VALUES ("%s","%s",%i,%i,"%s")' % (channel,title,start_date,end_date,description)
+            self.cursor.execute(program + values)
+            self.database.commit()
+        except sqlite3.Error:
+            utils.notify(self.addon, 33407)
+            return False
+        return True
+    
+    '''
+    Update a program into the tale.
+    '''
+    def updateProgram(self, channel, title, start_date, end_date, description):
+        pass
+    
+    
+    
+    '''
+    Remove a program from the program tale.
+    '''
+    def removeProgram(self, id_channel, id_program):
+        try:
+            program = 'DELETE FROM programs WHERE channel="%s" AND id_program=%i' % (id_channel, id_program)
+            self.cursor.execute(program)
+            self.database.commit()
+        except sqlite3.Error:
+            utils.notify(self.addon, 33408)
+            return False
+        
+        return True
+    
+    
+    '''
+    Return asked program.
+    '''
+    def getProgram(self):
+        pass
+    
