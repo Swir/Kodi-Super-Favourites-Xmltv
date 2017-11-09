@@ -218,6 +218,8 @@ if __name__ == '__main__':
         epg_database = EPGXML.EpgDb(addon)
         
         if epg_database.isDBInitOk():
+            #epg_database.addChannel('test.id', 'test.display_name', 'test.logo', 'test.source', visible=False)
+            #epg_database.removeChannel("test.id")
             EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
             EPGgui.doModal() 
             del EPGgui

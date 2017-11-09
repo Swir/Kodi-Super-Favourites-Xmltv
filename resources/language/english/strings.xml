@@ -52,6 +52,10 @@
     <!-- Inside notifications -->
     <string id="33401">EPG database connection error</string>
     <string id="33402">Error creating channels table</string>
+    <string id="33403">Error adding a channel</string>
+    <string id="33404">Error updating a channel</string>
+    <string id="33405">Error deleting a channel</string>
+    <string id="33406">Error getting a channel</string>
     
     
 </strings>

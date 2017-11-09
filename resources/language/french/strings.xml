@@ -52,6 +52,10 @@
     <!-- Inside notifications -->
     <string id="33401">Erreur de connexion a la database EPG</string>
     <string id="33402">Erreur en créant la table channels</string>
+    <string id="33403">Erreur en ajoutant une chaine</string>
+    <string id="33404">Erreur en modifiant une chaine</string>
+    <string id="33405">Erreur en supprimant une chaine</string>
+    <string id="33406">Erreur en récupérant une chaine</string>
     
     
 </strings>

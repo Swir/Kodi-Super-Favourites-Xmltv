@@ -3,7 +3,7 @@ import xbmc
 '''
 Display a basic notification
     '''    
-def notify(self, addon, message):
+def notify(addon, message):
     n_time  = '10000'
     n_title = 'Super Favourites XMLTV'
     n_logo  = addon.getAddonInfo('icon')
