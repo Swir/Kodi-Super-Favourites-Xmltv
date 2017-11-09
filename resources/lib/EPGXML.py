@@ -9,6 +9,7 @@ Handle SQL EPG guide
 '''
 class EpgDb(object):
     
+    DEBUG = False
     
     database = None
     cursor = None
@@ -19,12 +20,13 @@ class EpgDb(object):
     '''
     EPG DB init.
     '''
-    def __init__(self, addon_obj):
+    def __init__(self, addon_obj, debug=False):
         self.addon = addon_obj
+        self.DEBUG = debug
         #base = os.path.dirname(os.path.realpath(__file__))
         
         base = self.addon.getAddonInfo('path')
-        base = base.replace('addons', os.path.join('userdata', 'addon_data'), 1)
+        base = base.replace('addons', os.path.join('azertyuserdata', 'addon_data'), 1)
         self.db_path = base + "/epg.db"
         
         if not os.path.isfile(self.db_path):
@@ -41,8 +43,9 @@ class EpgDb(object):
         try:
             self.database = sqlite3.connect(self.db_path)
             self.cursor = self.database.cursor()
-        except sqlite3.Error:
-            utils.notify(self.addon, 33401)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33401, e.message)
             self.database = None
             return False
         
@@ -65,8 +68,9 @@ class EpgDb(object):
         try:
             self.cursor.execute(channels_str)
             self.cursor.execute(programs_str)
-        except sqlite3.Error:
-            utils.notify(self.addon, 33402)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33402, e.mesage)
             self.database = None
             return False
         return True
@@ -94,8 +98,9 @@ class EpgDb(object):
             self.cursor.execute(channel + values)
             self.database.commit()
         
-        except sqlite3.Error:
-            utils.notify(self.addon, 33403)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33403, e.message)
             return False
         
         return True
@@ -135,8 +140,9 @@ class EpgDb(object):
             self.cursor.execute(update) 
             self.database.commit()
             
-        except sqlite3.Error:
-            utils.notify(self.addon, 33404)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33404, e.message)
             return False
         
         return True
@@ -154,8 +160,9 @@ class EpgDb(object):
             self.cursor.execute(delete)
             self.cursor.execute(programs)
             self.database.commit()
-        except sqlite3.Error:
-            utils.notify(self.addon, 33405)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33405, e.message)
             return False
         
         return True
@@ -169,8 +176,9 @@ class EpgDb(object):
             get = 'SELECT * FROM channels WHERE id="%s"' % (id_channel, )
             self.cursor.execute(get)
             return self.cursor.fetchone()
-        except sqlite3.Error:
-            utils.notify(self.addon, 33406)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33406, e.message)
             return False
         
         return False
@@ -186,8 +194,9 @@ class EpgDb(object):
             values  = 'VALUES ("%s","%s",%i,%i,"%s")' % (channel,title,start_date,end_date,description)
             self.cursor.execute(program + values)
             self.database.commit()
-        except sqlite3.Error:
-            utils.notify(self.addon, 33407)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33407, e.message)
             return False
         return True
     
@@ -220,8 +229,9 @@ class EpgDb(object):
             self.cursor.execute(update) 
             self.database.commit()
             
-        except sqlite3.Error:
-            utils.notify(self.addon, 33410)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33410, e.message)
             return False
         
         return True
@@ -236,8 +246,9 @@ class EpgDb(object):
             program = 'DELETE FROM programs WHERE channel="%s" AND id_program=%i' % (id_channel, id_program)
             self.cursor.execute(program)
             self.database.commit()
-        except sqlite3.Error:
-            utils.notify(self.addon, 33408)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33408, e.message)
             return False
         
         return True
@@ -251,8 +262,9 @@ class EpgDb(object):
             get = 'SELECT * FROM programs WHERE channel="%s" AND id_program=%i' % (id_channel, id_program)
             self.cursor.execute(get)
             return self.cursor.fetchone()
-        except sqlite3.Error:
-            utils.notify(self.addon, 33409)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33409, e.message)
             return False
         
         return False

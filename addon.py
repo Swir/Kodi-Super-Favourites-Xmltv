@@ -9,6 +9,7 @@ from resources.lib import EPGXML, utils
 Global class handling EPG Gui.
 '''
 class XMLWindowEPG(xbmcgui.WindowXMLDialog):
+    DEBUG = True
     
     # XML gui structure.
     BACKGROUND_IMAGE = 4600
@@ -215,11 +216,9 @@ if __name__ == '__main__':
         addon.openSettings()
     
     else:
-        epg_database = EPGXML.EpgDb(addon)
+        epg_database = EPGXML.EpgDb(addon, XMLWindowEPG.DEBUG)
         
         if epg_database.isDBInitOk():
-            p = epg_database.getProgram("test.id", 2)
-            xbmc.log(p[1], xbmc.LOGERROR)
             EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
             EPGgui.doModal() 
             del EPGgui
