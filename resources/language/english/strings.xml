@@ -58,6 +58,9 @@
     <string id="33406">Error getting a channel</string>
     <string id="33407">Error adding a program</string>
     <string id="33408">Error removing a program</string>
+    <string id="33409">Error getting a program</string>
+    <string id="33410">Error updating a program</string>
+    <string id="33411">Global start error</string>
     
     
 </strings>

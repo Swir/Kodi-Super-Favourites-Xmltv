@@ -58,6 +58,9 @@
     <string id="33406">Erreur en récupérant une chaine</string>
     <string id="33407">Erreur en ajoutant un programme</string>
     <string id="33408">Erreur en supprimant un programme</string>
+    <string id="33409">Erreur en récupérant un programme</string>
+    <string id="33410">Erreur en modifiant un programme</string>
+    <string id="33411">Erreur générale de connection bdd</string>
     
     
 </strings>

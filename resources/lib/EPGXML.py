@@ -191,11 +191,40 @@ class EpgDb(object):
             return False
         return True
     
+    
     '''
     Update a program into the tale.
     '''
-    def updateProgram(self, channel, title, start_date, end_date, description):
-        pass
+    def updateProgram(self, id_program, channel=None, title=None, start_date=None, end_date=None, description=None):
+        try:
+            update = "UPDATE programs set "
+            
+            if not channel is None:
+                update += 'channel="%s",' % channel
+            
+            if not title is None:
+                update += 'title="%s",' % title
+             
+            if not start_date is None:   
+                update += 'start_date=%i,' % start_date
+            
+            if not end_date is None:
+                update += 'end_date=%i,' % end_date
+            
+            if not description is None:
+                update += 'description="%s" ,' % description
+            
+            update += ' WHERE id_program=%i' % (id_program,)
+            update = ''.join(update.rsplit(",", 1))
+
+            self.cursor.execute(update) 
+            self.database.commit()
+            
+        except sqlite3.Error:
+            utils.notify(self.addon, 33410)
+            return False
+        
+        return True
     
     
     
@@ -217,6 +246,14 @@ class EpgDb(object):
     '''
     Return asked program.
     '''
-    def getProgram(self):
-        pass
+    def getProgram(self, id_channel, id_program):
+        try:
+            get = 'SELECT * FROM programs WHERE channel="%s" AND id_program=%i' % (id_channel, id_program)
+            self.cursor.execute(get)
+            return self.cursor.fetchone()
+        except sqlite3.Error:
+            utils.notify(self.addon, 33409)
+            return False
+        
+        return False
     
