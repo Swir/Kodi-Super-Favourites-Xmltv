@@ -4,6 +4,7 @@
     <string id="32011">Background image</string>
     <string id="32012">Update Frequency</string>
     <string id="32013">Where do I get the XMLTV file ?</string>
+    <string id="32013">Cleanup programs older than </string>
     
     <!-- id="image.background" -->
     <string id="32200">No background</string>
@@ -28,6 +29,15 @@
     <string id="32215">Every five days</string>
     <string id="32216">Every six days</string>
     <string id="32217">Every seven days</string>
+    
+    <!-- id="cleanup.treshold" -->
+    <string id="33501">1 day</string>
+    <string id="33502">2 days</string>
+    <string id="33503">3 days</string>
+    <string id="33504">4 days</string>
+    <string id="33505">5 days</string>
+    <string id="33506">6 days</string>
+    <string id="33507">7 days</string>
 
     <!-- id="xmltv.source.type" -->
     <string id="32218">URL</string>
@@ -65,6 +75,7 @@
     <string id="33413">Error getting channel programs</string>
     <string id="33414">Error whith programs truncate</string>
     <string id="33415">Error whith channels truncate</string>    
+    <string id="33416">Error cleaning up programs</string>    
     
 </strings>
 

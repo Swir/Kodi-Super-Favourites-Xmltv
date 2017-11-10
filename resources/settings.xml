@@ -4,6 +4,7 @@
         <!-- EPG update settings. -->
         <setting id="startup.update"    type="bool" label="32010"  default="false" />
         <setting id="update.frequency"  type="enum" label="32012"  lvalues="32211|32212|32213|32214|32215|32216|32217" />
+        <setting id="cleanup.treshold"  type="enum" label="32014"  lvalues="33501|33502|33503|33504|33505|33506|33507" />
         
         <!-- EPG background selection settings. -->
         <setting id="type.background"   type="bool" label="32220"  default="true"></setting>        
