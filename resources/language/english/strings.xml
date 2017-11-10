@@ -61,7 +61,10 @@
     <string id="33409">Error getting a program</string>
     <string id="33410">Error updating a program</string>
     <string id="33411">Global start error</string>
-    
+    <string id="33412">Error getting channels</string>
+    <string id="33413">Error getting channel programs</string>
+    <string id="33414">Error whith programs truncate</string>
+    <string id="33415">Error whith channels truncate</string>    
     
 </strings>
 

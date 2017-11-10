@@ -1,6 +1,5 @@
 import os
 import sqlite3
-import xbmc
 
 from resources.lib import utils
 
@@ -26,7 +25,7 @@ class EpgDb(object):
         #base = os.path.dirname(os.path.realpath(__file__))
         
         base = self.addon.getAddonInfo('path')
-        base = base.replace('addons', os.path.join('azertyuserdata', 'addon_data'), 1)
+        base = base.replace('addons', os.path.join('userdata', 'addon_data'), 1)
         self.db_path = base + "/epg.db"
         
         if not os.path.isfile(self.db_path):
@@ -269,3 +268,90 @@ class EpgDb(object):
         
         return False
     
+    
+    '''
+    Return all available channels
+    '''
+    def getAllChannels(self):
+        try:
+            get = 'SELECT * FROM channels WHERE 1'
+            self.cursor.execute(get)
+            return self.cursor.fetchall()
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33412, e.message)
+            return False
+        
+        return False
+    
+    
+    
+    '''
+    Return all programs for a given channel
+    ''' 
+    def getChannelPrograms(self, id_channel):
+        try:
+            get = 'SELECT * FROM programs WHERE channel="%s"' % id_channel
+            self.cursor.execute(get)
+            return self.cursor.fetchall()
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33413, e.message)
+            return False
+        
+        return False
+    
+    
+    '''
+    Return True if the given channel has programs into the db.
+    '''
+    def hasPrograms(self, id_channel):
+        return len(self.getChannelPrograms(id_channel)) > 0
+    
+    
+    '''
+    Truncate the programs table
+    '''
+    def truncatePrograms(self):
+        return self.__truncate('programs', 33414)
+    
+    
+    '''
+    Truncate the channels table
+    '''
+    def truncateChannels(self):
+        return self.__truncate('channels', 33415)
+    
+    
+    '''
+    Clean both channels and programs
+    '''
+    def getCleanAll(self):
+        a = self.truncateChannels()
+        b = self.truncatePrograms()
+        return a and b
+    
+    
+    '''
+    Delete all passed programs
+    '''
+    def getCleanOld(self):
+        #33417
+        pass
+    
+    
+    '''
+    Global truncate
+    '''
+    def __truncate(self, table, error=None):
+        try:
+            request = "DELETE FROM %s" % table
+            self.cursor.execute(request)
+            self.database.commit()
+        except sqlite3.Error as err:
+            if self.DEBUG and not error is None:
+                utils.notify(self.addon, 33414, err.message)
+            return False
+        return True
+        
+        
