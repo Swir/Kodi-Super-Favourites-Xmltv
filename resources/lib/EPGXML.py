@@ -12,6 +12,8 @@ Handle XMLTV itself.
 '''
 class EpgXml():
     
+    DEBUG = False
+    
     XMLTV_SOURCE_URL   = 0
     XMLTV_SOURCE_LOCAL = 1
     
@@ -22,7 +24,8 @@ class EpgXml():
     xmltv_source = 0
     
         
-    def __init__(self, addon_obj, db_obj):
+    def __init__(self, addon_obj, db_obj, debug = False):
+        self.DEBUG = debug
         self.addon = addon_obj
         self.epg_db = db_obj
         self.xmltv_source = int(self.addon.getSetting("xmltv.source.type"))
@@ -44,10 +47,7 @@ class EpgXml():
         else:
             utils.notify(self.addon, 33417, "Bad configuration.")
         
-        if self.xmltv_file is None:
-            utils.notify(self.addon, 33417, "Bad XMLTV Source or file not found.")
-    
-        else:
+        if not self.xmltv_file is None:
             # parsing xmltv file
             pass
     
@@ -134,6 +134,36 @@ class EpgXml():
 
 
     def __uncompress(self, zfile):
+        
+        dest = self.addon.getAddonInfo('path')
+        dest = dest.replace('addons', os.path.join('userdata', 'addon_data'), 1)
+        dest = os.path.join(dest, "epg")                
+        
+        if zipfile.is_zipfile(zfile):
+            try:
+                with zipfile.ZipFile(zfile, "r") as xmltv_zip:
+                    xmltv_zip.extractall(dest)
+                    xmltv_zip.close()
+            except zipfile.BadZipfile, zipfile.LargeZipFile:
+                if os.path.isdir(dest):
+                    os.rmdir(dest)
+                utils.notify(self.addon, 33612)
+                return None
+            
+        elif tarfile.is_tarfile(zfile):
+                try:
+                    with tarfile.TarFile(zfile) as xmltv_tar:
+                        xmltv_tar.extractall(dest)
+                        xmltv_tar.close()
+                except tarfile.ReadError:
+                    if os.path.isdir(dest):
+                        os.rmdir(dest)
+                    utils.notify(self.addon, 33613)
+                    return None
+        else:
+            utils.notify(self.addon, 33611)
+            return None
+        
         return zfile
 
 

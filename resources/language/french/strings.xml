@@ -97,5 +97,9 @@
     <string id="33607">XMLTV charge serveur trop elevee</string>
     <string id="33609">XMLTV serveur timeout</string>
     <string id="33610">XMLTV serveur non joignable</string>  
+    <string id="33611">XMLTV format de compression non supporte</string>  
+    <string id="33612">Erreur en decompressant l archive Zip</string>  
+    <string id="33613">Erreur en decompressant l archive Tar</string>  
+    
       
 </strings>

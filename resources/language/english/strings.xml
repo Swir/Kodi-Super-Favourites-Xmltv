@@ -79,8 +79,8 @@
     <string id="33411">Global start error</string>
     <string id="33412">Error getting channels</string>
     <string id="33413">Error getting channel programs</string>
-    <string id="33414">Error whith programs truncate</string>
-    <string id="33415">Error whith channels truncate</string>    
+    <string id="33414">Error with programs truncate</string>
+    <string id="33415">Error with channels truncate</string>    
     <string id="33416">Error cleaning up programs</string>    
     <string id="33417">Unable to load XMLTV file</string>    
     <string id="33418">Bad XMLTV file type</string>
@@ -95,9 +95,12 @@
     <string id="33606">XMLTV internal server error</string>
     <string id="33607">XMLTV server bad gateway</string>
     <string id="33607">XMLTV server bad gateway</string>
-    <string id="33608">XMLTV server hight load</string>
+    <string id="33608">XMLTV server high load</string>
     <string id="33609">XMLTV server timeout</string>
     <string id="33610">XMLTV unreachable</string>  
+    <string id="33611">XMLTV unsupported compression format</string>  
+    <string id="33612">Error while uncompressing zip archive</string>  
+    <string id="33613">Error while uncompressing tar archive</string>  
     
 </strings>
 
