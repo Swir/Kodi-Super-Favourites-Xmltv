@@ -5,21 +5,27 @@
         <setting id="startup.update"    type="bool" label="32010"  default="false" />
         <setting id="update.frequency"  type="enum" label="32012"  lvalues="32211|32212|32213|32214|32215|32216|32217" />
         <setting id="cleanup.treshold"  type="enum" label="32014"  lvalues="33501|33502|33503|33504|33505|33506|33507" />
-        
+    </category>
+    
+    <category label="32101">    
         <!-- EPG background selection settings. -->
         <setting id="type.background"   type="bool" label="32220"  default="true"></setting>        
         <setting id="image.background"  type="enum" label="32011"  visible="eq(-1,true)"  lvalues="32200|32201|32202|32203|32204|32205|32206|32207|32208|32209|32210" />
         <setting id="custom.background" type="image" label="32221"  visible="eq(-2,false)" value="path_to_files"/>
-        
+    </category>  
+    
+    <category label="32102">
         <!-- XMLTV file selection -->
         <setting label="32225" type="lsep"/>
         <setting id="xmltv.source.type" type="enum" label="32013"  lvalues="32218|32219"/>
         <setting id="xmltv.local.value" type="file" label="32222"  visible="eq(-1,1)" value="path_to_files"/>
         <setting id="xmltv.url.value"   type="text" label="32223"  visible="eq(-2,0)" option="urlencoded"/>
-        
+    </category>  
+    
+    <category label="32103">  
         <!-- Super favourites folder -->
         <setting label="32226" type="lsep"/>
         <setting id="super.favourites.folder" type="folder" source="auto" default="special://home" option="writeable" label="32224"/>      
-            
     </category>
+            
 </settings>

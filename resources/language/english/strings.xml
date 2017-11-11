@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <strings>
     <string id="32100">General</string>
+    <string id="32101">Style</string>
+    <string id="32102">XMLTV</string>
+    <string id="32103">Super Favourites</string>
+    
     <string id="32010">Update EPG on Kodi startup</string>
     <string id="32011">Background image</string>
     <string id="32012">Update Frequency</string>
