@@ -45,6 +45,7 @@
     <string id="33507">7 jours</string>
     
     <!-- id="xmltv.source.type" -->
+    <string id="32227">Le fichier XMLTV est compresse ? ( Zip, Tar, Gzip or Bz2 )</string>
     <string id="32218">URL</string>
     <string id="32219">Système de fichiers</string>
     <string id="32222">Chemin vers le XMLTV</string>

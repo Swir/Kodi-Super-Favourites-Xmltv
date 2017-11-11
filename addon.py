@@ -45,9 +45,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     
     # Predefined const.
     BACKGROUND_BUILTIN = 'true'
-    EPG_FROM_URL       = 0
-    XMLTV_LOCAL_VALUE  = ""
-    XMLTV_URL_VALUE = ""
     
     start_time = 0
     addon_id = 'plugin.program.super.favourites.xmltv'

@@ -1,9 +1,30 @@
 import os, time
 import datetime
 import sqlite3
+
+import zipfile, tarfile
 import xbmc
 
 from resources.lib import utils
+
+'''
+Handle XMLTV itself.
+'''
+class EpgXml():
+    
+    XMLTV_SOURCE_URL   = 0
+    XMLTV_SOURCE_LOCAL = 1
+    
+    addon  = None
+    epg_db = None
+        
+    def __init__(self, addon_obj, db_obj):
+        self.addon = addon_obj
+        self.epg_db = db_obj
+        
+    
+    
+    
 
 '''
 Handle SQL EPG guide
@@ -377,6 +398,7 @@ class EpgDb(object):
         except sqlite3.Error as e:
             if self.DEBUG :
                 utils.notify(self.addon, 33416, e.message)
+                
     
     '''
     Global truncate
