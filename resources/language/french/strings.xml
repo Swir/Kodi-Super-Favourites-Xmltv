@@ -82,6 +82,20 @@
     <string id="33414">Erreur de suppression des programmes</string>
     <string id="33415">Erreur de suppression des chaines</string>     
     <string id="33416">Erreur lors du nettoyage des programmes</string>    
+    <string id="33417">Impossible de charger le fichier XMLTV</string>    
+    <string id="33418">Maivais type de fichier XMLTV</string>
+    <string id="33419">Fichier XMLTV non trouve</string>
     
-    
+    <!-- HTTP errors responses -->
+    <string id="33601">Le fichier XMLTV du serveur n a pas change</string>
+    <string id="33602">L URL du fichier a change</string>
+    <string id="33603">XMLTV URL mauvaise requete</string>
+    <string id="33604">XMLTV URL non autorise</string>
+    <string id="33605">XMLTV non trouve</string>
+    <string id="33606">XMLTV erreur interne sur le serveur</string>
+    <string id="33607">XMLTV mauvaise passerelle</string>
+    <string id="33607">XMLTV charge serveur trop elevee</string>
+    <string id="33609">XMLTV serveur timeout</string>
+    <string id="33610">XMLTV serveur non joignable</string>  
+      
 </strings>

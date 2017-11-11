@@ -1,7 +1,7 @@
 import os, time
 import datetime
 import sqlite3
-
+import urllib2
 import zipfile, tarfile
 import xbmc
 
@@ -15,16 +15,127 @@ class EpgXml():
     XMLTV_SOURCE_URL   = 0
     XMLTV_SOURCE_LOCAL = 1
     
-    addon  = None
-    epg_db = None
+    addon    = None
+    epg_db   = None
+    
+    xmltv_file   = None
+    xmltv_source = 0
+    
         
     def __init__(self, addon_obj, db_obj):
         self.addon = addon_obj
         self.epg_db = db_obj
+        self.xmltv_source = int(self.addon.getSetting("xmltv.source.type"))
         
+        # Getting xmltv
+        self.getXMLTV()
+        
+        
+    '''
+    '''
+    def getXMLTV(self): 
+                
+        if  self.xmltv_source == EpgXml.XMLTV_SOURCE_LOCAL:
+            self.xmltv_file = self.__getLocalXmltv(self.addon.getSetting('xmltv.local.value'))
+        
+        elif self.xmltv_source == EpgXml.XMLTV_SOURCE_URL:
+            self.xmltv_file = self.__getUrlXmltv(self.addon.getSetting('xmltv.url.value'))
+        
+        else:
+            utils.notify(self.addon, 33417, "Bad configuration.")
+        
+        if self.xmltv_file is None:
+            utils.notify(self.addon, 33417, "Bad XMLTV Source or file not found.")
+    
+        else:
+            # parsing xmltv file
+            pass
     
     
+    '''
+    Basic xml file checks
+    '''
+    def __getLocalXmltv(self, local_file):
+        
+        compressed = True if self.addon.getSetting('xmltv.compressed') == 'true' else False 
+        
+        if not os.path.isfile(local_file):
+            utils.notify(self.addon, 33419)
+        else:
+            if not compressed and not local_file.endswith(".xml"):
+                utils.notify(self.addon, 33418)
+                return None
+            elif not compressed:
+                return local_file
+            else:
+                return self.__uncompress(local_file)
     
+    
+    '''
+    '''
+    def __getUrlXmltv(self, url_file_source):
+        
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
+        
+        dest_file = self.addon.getAddonInfo('path')
+        dest_file = dest_file.replace('addons', os.path.join('userdata', 'addon_data'), 1)
+        dest_file = os.path.join(dest_file, "epg.xml")        
+        
+        try:
+            download = urllib2.urlopen(url_file_source, timeout=30)    
+        except urllib2.HTTPError as e:
+            # Server send 'no file changes'
+            if e.code == 304:
+                utils.notify(self.addon, 33601, e.reason)
+            # Moved permanently   
+            elif e.code == 301:    
+                utils.notify(self.addon, 33602, e.reason)
+            # Bad request
+            elif e.code == 400:
+                utils.notify(self.addon, 33603, e.reason)
+            # Unauthorized
+            elif e.code == 401:
+                utils.notify(self.addon, 33604, e.reason)
+            # Forbidden    
+            elif e.code == 403:
+                utils.notify(self.addon, 33604, e.reason)
+            # Not found    
+            elif e.code == 404:
+                utils.notify(self.addon, 33605, e.reason)
+            # Internal server error.
+            elif e.code == 500:
+                utils.notify(self.addon, 33606, e.reason)
+            # Bad gateway
+            elif e.code == 502:
+                utils.notify(self.addon, 33607, e.reason)
+            # Server high load.
+            elif e.code == 503:
+                utils.notify(self.addon, 33608, e.reason)
+            # Gateway timeout
+            elif e.code == 504:
+                utils.notify(self.addon, 33609, e.reason)
+            # Unhandled error.    
+            else:
+                utils.notify(self.addon, 33610, e.reason)
+                
+            return None
+        
+        if os.path.isfile(dest_file):
+            os.remove(dest_file)
+            
+        tsf = open(dest_file, "w")
+        tsf.write(download.read())
+        tsf.close()
+        
+        return self.__getLocalXmltv(dest_file)
+    
+
+
+
+    def __uncompress(self, zfile):
+        return zfile
+
 
 '''
 Handle SQL EPG guide
@@ -49,7 +160,7 @@ class EpgDb(object):
         
         base = self.addon.getAddonInfo('path')
         base = base.replace('addons', os.path.join('userdata', 'addon_data'), 1)
-        self.db_path = base + "/epg.db"
+        self.db_path = os.path.join(base, "epg.db")
         
         if not os.path.isfile(self.db_path):
             # This is a fresh install or a hard reset ,
@@ -75,8 +186,7 @@ class EpgDb(object):
             return False
         
         return True
-        
-            
+                 
             
     ''' 
     Create the global DB structure.
@@ -211,8 +321,7 @@ class EpgDb(object):
             return False
         
         return False
-    
-    
+        
     
     '''
     Add a program into the program table.
@@ -265,8 +374,7 @@ class EpgDb(object):
         
         return True
     
-    
-    
+       
     '''
     Remove a program from the program tale.
     '''
@@ -313,8 +421,7 @@ class EpgDb(object):
             return False
         
         return False
-    
-    
+       
     
     '''
     Return all programs for a given channel
@@ -365,7 +472,6 @@ class EpgDb(object):
     '''
     Delete all passed programs
     '''
-    # TODO
     def getCleanOld(self): 
         programs = "SELECT id_program, end_date FROM programs"
         try:

@@ -19,7 +19,7 @@
         <setting label="32225" type="lsep"/>
         <setting id="xmltv.source.type" type="enum" label="32013"  lvalues="32218|32219"/>
         <setting id="xmltv.local.value" type="file" label="32222"  visible="eq(-1,1)" value="path_to_files"/>
-        <setting id="xmltv.url.value"   type="text" label="32223"  visible="eq(-2,0)" option="urlencoded"/>
+        <setting id="xmltv.url.value"   type="text" label="32223"  visible="eq(-2,0)" />
         <setting id="xmltv.compressed"  type="bool" label="32227"  default="false"/>
     
     </category>  

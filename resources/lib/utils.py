@@ -14,11 +14,3 @@ def notify(addon, message, plus=None):
         xbmc.log(plus, xbmc.LOGERROR)
         
     xbmc.executebuiltin('Notification(%s,%s,%s,%s)'%(n_title, message, n_time, n_logo))
-    
-    
-
-'''
-Unzip given file taking care of compression type.
-'''
-def unzip(file, dest):
-    pass

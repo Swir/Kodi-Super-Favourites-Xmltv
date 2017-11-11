@@ -213,9 +213,12 @@ if __name__ == '__main__':
         addon.openSettings()
     
     else:
+        
         epg_database = EPGXML.EpgDb(addon, XMLWindowEPG.DEBUG)
+    
         #epg_database.addProgram('test1', 'title', "201711101654", "20171110185400", 'description')
         if epg_database.isDBInitOk():
+            epg_xml = EPGXML.EpgXml(addon, epg_database)
             EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
             EPGgui.doModal() 
             del EPGgui

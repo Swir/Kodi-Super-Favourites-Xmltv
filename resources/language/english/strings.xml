@@ -82,6 +82,22 @@
     <string id="33414">Error whith programs truncate</string>
     <string id="33415">Error whith channels truncate</string>    
     <string id="33416">Error cleaning up programs</string>    
+    <string id="33417">Unable to load XMLTV file</string>    
+    <string id="33418">Bad XMLTV file type</string>
+    <string id="33419">XMLTV file not found</string>
+    
+    <!-- HTTP errors responses -->
+    <string id="33601">URL xmltv file did not changed</string>
+    <string id="33602">XMLTV URL has moved</string>
+    <string id="33603">XMLTV URL bad request</string>
+    <string id="33604">XMLTV URL not authorized</string>
+    <string id="33605">XMLTV not found</string>
+    <string id="33606">XMLTV internal server error</string>
+    <string id="33607">XMLTV server bad gateway</string>
+    <string id="33607">XMLTV server bad gateway</string>
+    <string id="33608">XMLTV server hight load</string>
+    <string id="33609">XMLTV server timeout</string>
+    <string id="33610">XMLTV unreachable</string>  
     
 </strings>
 
