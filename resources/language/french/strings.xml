@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <strings>
     <string id="32100">Général</string>
     <string id="32010">Mettre à jour l'EPG au démarrage de Kodi</string>
@@ -54,21 +55,21 @@
     
     <!-- Addon code localized strings -->
     <string id="33301">XMLTV addon n'est pas configuré correctement</string>
-    <string id="33302">Vous avez choisi le paramètre URL pour le XMLTV mais n'avez pas fourni d'URL</string>
-    <string id="33303">S'il vous plaît, prenez le temps pour la configuration !</string>
-    <string id="33304">Vous avez choisi le paramètre fichier pour le XMLTV mais n'avez pas donné de chemin</string>
+    <string id="33302">Vous avez choisi le parametre URL pour le XMLTV mais n'avez pas fourni d'URL</string>
+    <string id="33303">SVP, prenez le temps pour la configuration !</string>
+    <string id="33304">Vous avez choisi le parametre fichier pour le XMLTV mais n'avez pas donné de chemin</string>
     <string id="33305">Entrez le chemin vers un dossier Super Favoris</string>
    
     <!-- Inside notifications -->
     <string id="33401">Erreur de connexion a la database EPG</string>
-    <string id="33402">Erreur en créant la table channels</string>
+    <string id="33402">Erreur en creant la table channels</string>
     <string id="33403">Erreur en ajoutant une chaine</string>
     <string id="33404">Erreur en modifiant une chaine</string>
     <string id="33405">Erreur en supprimant une chaine</string>
-    <string id="33406">Erreur en récupérant une chaine</string>
+    <string id="33406">Erreur en recuperant une chaine</string>
     <string id="33407">Erreur en ajoutant un programme</string>
     <string id="33408">Erreur en supprimant un programme</string>
-    <string id="33409">Erreur en récupérant un programme</string>
+    <string id="33409">Erreur en recuperant un programme</string>
     <string id="33410">Erreur en modifiant un programme</string>
     <string id="33411">Erreur generale de connexion bdd</string>
     <string id="33412">Erreur en recuperant les chaines</string>

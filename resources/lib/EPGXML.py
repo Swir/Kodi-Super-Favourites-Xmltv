@@ -1,5 +1,7 @@
-import os
+import os, time
+import datetime
 import sqlite3
+import xbmc
 
 from resources.lib import utils
 
@@ -33,6 +35,9 @@ class EpgDb(object):
             self.init_result = self.create_db()
         else:
             self.init_result = self.connect()
+        
+        # Cleaning up the programs database.
+        self.getCleanOld()
 
     
     '''
@@ -62,14 +67,18 @@ class EpgDb(object):
             return False
         
         channels_str = "CREATE TABLE channels (id TEXT, display_name TEXT, logo TEXT, source TEXT, visible BOOLEAN, PRIMARY KEY (id))"
-        programs_str = "CREATE TABLE programs(id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TIMESTAMP, end_date TIMESTAMP, description TEXT)"
-                
+        programs_str = "CREATE TABLE programs (id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TEXT, end_date TEXT, description TEXT)"
+        updates      = "CREATE TABLE updates (id_update INTEGER PRIMARY KEY AUTOINCREMENT, time TIMESTAMP)"        
+        
         try:
             self.cursor.execute(channels_str)
             self.cursor.execute(programs_str)
+            self.cursor.execute(updates)
+            self.database.commit()
+            
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33402, e.mesage)
+                utils.notify(self.addon, 33402, e.message)
             self.database = None
             return False
         return True
@@ -187,10 +196,10 @@ class EpgDb(object):
     '''
     Add a program into the program table.
     '''
-    def addProgram(self, channel, title, start_date, end_date, description):
+    def addProgram(self, channel, title, dtd_start_date, dtd_end_date, description):
         try:
             program = "INSERT INTO programs (channel, title, start_date, end_date, description) "
-            values  = 'VALUES ("%s","%s",%i,%i,"%s")' % (channel,title,start_date,end_date,description)
+            values  = 'VALUES ("%s","%s","%s","%s","%s")' % (channel, title, dtd_start_date, dtd_end_date, description)
             self.cursor.execute(program + values)
             self.database.commit()
         except sqlite3.Error as e:
@@ -214,10 +223,10 @@ class EpgDb(object):
                 update += 'title="%s",' % title
              
             if not start_date is None:   
-                update += 'start_date=%i,' % start_date
+                update += 'start_date="%s",' % start_date
             
             if not end_date is None:
-                update += 'end_date=%i,' % end_date
+                update += 'end_date="%s",' % end_date
             
             if not description is None:
                 update += 'description="%s" ,' % description
@@ -335,10 +344,39 @@ class EpgDb(object):
     '''
     Delete all passed programs
     '''
-    def getCleanOld(self):
-        #33416
-        pass
-    
+    # TODO
+    def getCleanOld(self): 
+        programs = "SELECT id_program, end_date FROM programs"
+        try:
+            self.cursor.execute(programs)
+            pcheck = self.cursor.fetchall()
+            
+            if len(pcheck) > 0:
+                for program in pcheck:
+                    
+                    program_end_date = program[1]
+                    
+                    treshold = self.addon.getSetting('cleanup.treshold')
+                    if treshold is None or treshold == '':
+                        treshold = '1'
+                    
+                    current_time = datetime.datetime.fromtimestamp(time.time())
+                    try:
+                        program_time = datetime.datetime.strptime(program_end_date, "%Y%m%d%H%M%S")
+                    except TypeError:
+                        program_time = datetime.datetime(*(time.strptime(program_end_date, "%Y%m%d%H%M%S")[0:6]))
+                    
+                    delta = current_time - program_time
+                    
+                    if delta.days >= int(treshold) + 1 :
+                        # Then delete old ones.
+                        request = "DELETE FROM programs WHERE id_program=%i" % program[0]
+                        self.cursor.execute(request)
+                        self.database.commit()
+                
+        except sqlite3.Error as e:
+            if self.DEBUG :
+                utils.notify(self.addon, 33416, e.message)
     
     '''
     Global truncate
