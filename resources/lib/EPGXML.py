@@ -1,10 +1,11 @@
-import os, time
+import os, time, glob, shutil
 import datetime
 import sqlite3
 import urllib2
 import zipfile, tarfile
 import xbmc
 
+from xml.dom import minidom
 from resources.lib import utils
 
 '''
@@ -22,6 +23,7 @@ class EpgXml():
     
     xmltv_file   = None
     xmltv_source = 0
+    xmltv_global_path = None
     
         
     def __init__(self, addon_obj, db_obj, debug = False):
@@ -30,13 +32,19 @@ class EpgXml():
         self.epg_db = db_obj
         self.xmltv_source = int(self.addon.getSetting("xmltv.source.type"))
         
+        self.xmltv_global_path = self.addon.getAddonInfo('path')
+        self.xmltv_global_path = self.xmltv_global_path.replace('addons', os.path.join('userdata', 'addon_data'), 1)       
+        
         # Getting xmltv
         self.getXMLTV()
         
         
     '''
     '''
-    def getXMLTV(self): 
+    def getXMLTV(self):
+        
+        if os.path.isfile(os.path.join(self.xmltv_global_path, "epg.xml")):
+            os.remove(os.path.join(self.xmltv_global_path, "epg.xml")) 
                 
         if  self.xmltv_source == EpgXml.XMLTV_SOURCE_LOCAL:
             self.xmltv_file = self.__getLocalXmltv(self.addon.getSetting('xmltv.local.value'))
@@ -47,7 +55,10 @@ class EpgXml():
         else:
             utils.notify(self.addon, 33417, "Bad configuration.")
         
+        
+        
         if not self.xmltv_file is None:
+            xbmc.log(self.xmltv_file, xbmc.LOGERROR)
             # parsing xmltv file
             pass
     
@@ -66,9 +77,15 @@ class EpgXml():
                 utils.notify(self.addon, 33418)
                 return None
             elif not compressed:
+                # Moving to userdata
+                if not self.xmltv_source == EpgXml.XMLTV_SOURCE_URL:
+                    utils.copyfile(local_file, os.path.join(self.xmltv_global_path, "epg.xml"))
+                
+                local_file = os.path.join(self.xmltv_global_path, "epg.xml")
                 return local_file
             else:
-                return self.__uncompress(local_file)
+                # Uncompress and moving to userdata
+                return self.__uncompressAndMove(local_file)
     
     
     '''
@@ -78,9 +95,7 @@ class EpgXml():
         import ssl
         ssl._create_default_https_context = ssl._create_unverified_context
         
-        dest_file = self.addon.getAddonInfo('path')
-        dest_file = dest_file.replace('addons', os.path.join('userdata', 'addon_data'), 1)
-        dest_file = os.path.join(dest_file, "epg.xml")        
+        dest_file = os.path.join(self.xmltv_global_path, "epg.xml")        
         
         try:
             download = urllib2.urlopen(url_file_source, timeout=30)    
@@ -133,11 +148,9 @@ class EpgXml():
 
 
 
-    def __uncompress(self, zfile):
+    def __uncompressAndMove(self, zfile):
         
-        dest = self.addon.getAddonInfo('path')
-        dest = dest.replace('addons', os.path.join('userdata', 'addon_data'), 1)
-        dest = os.path.join(dest, "epg")                
+        dest = os.path.join(self.xmltv_global_path, "epg.archive")                
         
         if zipfile.is_zipfile(zfile):
             try:
@@ -146,7 +159,7 @@ class EpgXml():
                     xmltv_zip.close()
             except zipfile.BadZipfile, zipfile.LargeZipFile:
                 if os.path.isdir(dest):
-                    os.rmdir(dest)
+                    shutil.rmtree(dest)
                 utils.notify(self.addon, 33612)
                 return None
             
@@ -157,9 +170,32 @@ class EpgXml():
                         xmltv_tar.close()
                 except tarfile.ReadError:
                     if os.path.isdir(dest):
-                        os.rmdir(dest)
+                        shutil.rmtree(dest)
                     utils.notify(self.addon, 33613)
                     return None
+        else:
+            utils.notify(self.addon, 33611)
+            return None
+        
+        if os.path.isdir(dest):
+            paths = glob.glob(os.path.join(dest, "*.xml"))
+            if len(paths) <= 0:
+                utils.notify(self.addon, 33614)
+                shutil.rmtree(dest)
+                return None
+            else:
+                zfile = None
+                for ptest in paths:
+                    xmltest = minidom.parse(ptest) 
+                    
+                    channels = True if xmltest.getElementsByTagName('channel').length > 0 else False
+                    programs = True if xmltest.getElementsByTagName('programme').length > 0 else False
+                    
+                    if channels and programs:
+                        os.rename(ptest, os.path.join(self.xmltv_global_path, "epg.xml"))
+                        shutil.rmtree(dest)
+                        zfile = os.path.join(self.xmltv_global_path, "epg.xml")
+                        break
         else:
             utils.notify(self.addon, 33611)
             return None

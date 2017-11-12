@@ -100,6 +100,7 @@
     <string id="33611">XMLTV format de compression non supporte</string>  
     <string id="33612">Erreur en decompressant l archive Zip</string>  
     <string id="33613">Erreur en decompressant l archive Tar</string>  
+    <string id="33614">Erreur aucun fichier xmltv trouve dans l archive</string>  
     
       
 </strings>
