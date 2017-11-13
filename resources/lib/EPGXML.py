@@ -3,16 +3,15 @@ import datetime
 import sqlite3
 import urllib2
 import zipfile, tarfile
-import xbmc
+import xbmcgui
 
 from xml.dom import minidom
 from resources.lib import utils
-from __builtin__ import str
 
 '''
 Handle XMLTV itself.
 '''
-class EpgXml():
+class EpgXml(object):
     
     DEBUG = False
     
@@ -21,29 +20,61 @@ class EpgXml():
     
     addon    = None
     epg_db   = None
+    database = None
+    cursor   = None
     
     xmltv_file   = None
     xmltv_source = 0
     xmltv_global_path = None
+    xmltv_progress_bar = None
     
         
-    def __init__(self, addon_obj, db_obj, debug = False):
+    def __init__(self, addon_obj, debug = False):
         self.DEBUG = debug
         self.addon = addon_obj
-        self.epg_db = db_obj
+        
+        self.epg_db = EpgDb(self.addon, debug)
+        
         self.xmltv_source = int(self.addon.getSetting("xmltv.source.type"))
         
         self.xmltv_global_path = self.addon.getAddonInfo('path')
         self.xmltv_global_path = self.xmltv_global_path.replace('addons', os.path.join('userdata', 'addon_data'), 1)       
-        
-        # Getting xmltv
-        self.getXMLTV()
-        
-        
+     
+     
+     
+    '''
+    Set the database object ( multi threading purpose )
+    '''
+    def setDatabaseObj(self, db):
+        self.database = db
+        self.init_result = True if not self.database is None else False
+    
+    
+    
+    '''
+    Set the cursor object ( multi threading purpose )
+    '''
+    def setCursorObj(self, cursor):
+        self.cursor = cursor   
+    
+    
+    
     '''
     Global entry point to get / parse and push xmltv data into db.
     '''
-    def getXMLTV(self):
+    def getXMLTV(self, progress=True):
+        
+        if self.database is None or self.cursor is None:
+            return
+        
+        self.epg_db.setCursorObj(self.cursor)
+        self.epg_db.setDatabaseObj(self.database)
+        
+        if progress:
+            self.xmltv_progress_bar = xbmcgui.DialogProgress()
+        else:
+            self.xmltv_progress_bar = xbmcgui.DialogProgressBG()
+            
         
         if os.path.isfile(os.path.join(self.xmltv_global_path, "epg.xml")):
             os.remove(os.path.join(self.xmltv_global_path, "epg.xml")) 
@@ -61,7 +92,7 @@ class EpgXml():
         
         if not self.xmltv_file is None:
             # parsing xmltv file
-            self.parseXMLTV(self.xmltv_file)
+            self.__parseXMLTV(self.xmltv_file)
     
     
     '''
@@ -211,7 +242,7 @@ class EpgXml():
     '''
     Parse the xmltv file and return the result.
     '''
-    def parseXMLTV(self, xmltv):
+    def __parseXMLTV(self, xmltv):
         xmltv = minidom.parse(xmltv)
         channels = xmltv.getElementsByTagName('channel')
         programs = xmltv.getElementsByTagName('programme')
@@ -263,7 +294,9 @@ class EpgXml():
                 desc = self.addon.getLocalizedString(33702)
             
             self.epg_db.addProgram(id_channel, ptitle, start_date, end_date, desc)
-            #8662
+            
+
+
 
 
 '''
@@ -290,60 +323,22 @@ class EpgDb(object):
         base = self.addon.getAddonInfo('path')
         base = base.replace('addons', os.path.join('userdata', 'addon_data'), 1)
         self.db_path = os.path.join(base, "epg.db")
-        
-        if not os.path.isfile(self.db_path):
-            # This is a fresh install or a hard reset ,
-            self.init_result = self.create_db()
-        else:
-            self.init_result = self.connect()
-        
-        # Cleaning up the programs database.
-        self.getCleanOld()
-
+            
     
     '''
-    Database connection.
+    Set the database object ( multi threading purpose )
     '''
-    def connect(self):
-        try:
-            self.database = sqlite3.connect(self.db_path)
-            self.database.text_factory = str
-            self.cursor = self.database.cursor()
-        except sqlite3.Error as e:
-            if self.DEBUG:
-                utils.notify(self.addon, 33401, e.message)
-            self.database = None
-            return False
-        
-        return True
+    def setDatabaseObj(self, db):
+        self.database = db
+        self.init_result = True if not self.database is None else False
+    
+    
+    '''
+    Set the cursor object ( multi threading purpose )
+    '''
+    def setCursorObj(self, cursor):
+        self.cursor = cursor
                  
-            
-    ''' 
-    Create the global DB structure.
-    '''
-    def create_db(self):
-        
-        self.connect()
-        if self.database is None:
-            return False
-        
-        channels_str = "CREATE TABLE channels (id TEXT, display_name TEXT, logo TEXT, source TEXT, visible BOOLEAN, PRIMARY KEY (id))"
-        programs_str = "CREATE TABLE programs (id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TEXT, end_date TEXT, description TEXT)"
-        updates      = "CREATE TABLE updates (id_update INTEGER PRIMARY KEY AUTOINCREMENT, time TIMESTAMP)"        
-        
-        try:
-            self.cursor.execute(channels_str)
-            self.cursor.execute(programs_str)
-            self.cursor.execute(updates)
-            self.database.commit()
-            
-        except sqlite3.Error as e:
-            if self.DEBUG:
-                utils.notify(self.addon, 33402, e.message)
-            self.database = None
-            return False
-        return True
-    
     
     '''
     Return the initialization state.
@@ -617,6 +612,9 @@ class EpgDb(object):
     def getCleanOld(self): 
         programs = "SELECT id_program, end_date FROM programs"
         try:
+            if self.cursor is None or self.database is None:
+                return
+            
             self.cursor.execute(programs)
             pcheck = self.cursor.fetchall()
             
