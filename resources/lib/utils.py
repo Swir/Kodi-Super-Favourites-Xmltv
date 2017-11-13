@@ -7,7 +7,7 @@ def notify(addon, message, plus=None):
     n_time  = '10000'
     n_title = 'Super Favourites XMLTV'
     n_logo  = addon.getAddonInfo('icon')
-    message = addon.getLocalizedString(message)
+    message = addon.getLocalizedString(message).encode("utf-8")
     
     xbmc.log(message, xbmc.LOGERROR)
     if not plus is None:

@@ -7,6 +7,7 @@ import xbmc
 
 from xml.dom import minidom
 from resources.lib import utils
+from __builtin__ import str
 
 '''
 Handle XMLTV itself.
@@ -40,6 +41,7 @@ class EpgXml():
         
         
     '''
+    Global entry point to get / parse and push xmltv data into db.
     '''
     def getXMLTV(self):
         
@@ -58,9 +60,8 @@ class EpgXml():
         
         
         if not self.xmltv_file is None:
-            xbmc.log(self.xmltv_file, xbmc.LOGERROR)
             # parsing xmltv file
-            pass
+            self.parseXMLTV(self.xmltv_file)
     
     
     '''
@@ -89,6 +90,7 @@ class EpgXml():
     
     
     '''
+    Retrive an xmltv file from a given url.
     '''
     def __getUrlXmltv(self, url_file_source):
         
@@ -147,7 +149,9 @@ class EpgXml():
     
 
 
-
+    '''
+    Uncompress zip, tar, ... archive and moves it into the right directory.
+    '''
     def __uncompressAndMove(self, zfile):
         
         dest = os.path.join(self.xmltv_global_path, "epg.archive")                
@@ -201,6 +205,65 @@ class EpgXml():
             return None
         
         return zfile
+    
+    
+    
+    '''
+    Parse the xmltv file and return the result.
+    '''
+    def parseXMLTV(self, xmltv):
+        xmltv = minidom.parse(xmltv)
+        channels = xmltv.getElementsByTagName('channel')
+        programs = xmltv.getElementsByTagName('programme')
+        
+        for channel in channels:
+            id_channel   = channel.getAttribute('id').encode('utf-8', 'ignore') 
+            display_name = channel.getElementsByTagName('display-name')[0].firstChild.data.encode('utf-8', 'ignore')
+            
+            if not self.epg_db.channelExists(id_channel):
+                self.epg_db.addChannel(id_channel, display_name, notify_errors=False)
+        
+        
+        self.epg_db.truncatePrograms()
+        
+        for program in programs:
+            
+            id_channel = program.getAttribute('channel') .encode('utf-8', 'ignore')           
+            
+            
+            start_date = program.getAttribute('start')
+            if start_date.find(' +'):
+                start_date = start_date[:start_date.find(" +")]
+            start_date = start_date.encode('utf-8', 'ignore')
+            
+            
+            end_date = program.getAttribute('start')
+            if end_date.find(' +'):
+                end_date = end_date[:end_date.find(" +")]
+            end_date = end_date.encode('utf-8', 'ignore')
+            
+            
+            if program.getElementsByTagName('title').length > 0:
+                try:
+                    ptitle = program.getElementsByTagName('title')[0].firstChild.data
+                    ptitle = ptitle.encode('utf-8', 'ignore')
+                except AttributeError:
+                    ptitle = self.addon.getLocalizedString(33701)
+            else:
+                ptitle = self.addon.getLocalizedString(33701)
+            
+            
+            if program.getElementsByTagName('desc').length > 0:
+                try:
+                    desc = program.getElementsByTagName('desc')[0].firstChild.data
+                    desc = desc.encode('utf-8', 'ignore')
+                except AttributeError:
+                    desc = self.addon.getLocalizedString(33702)
+            else:
+                desc = self.addon.getLocalizedString(33702)
+            
+            self.epg_db.addProgram(id_channel, ptitle, start_date, end_date, desc)
+            #8662
 
 
 '''
@@ -244,6 +307,7 @@ class EpgDb(object):
     def connect(self):
         try:
             self.database = sqlite3.connect(self.db_path)
+            self.database.text_factory = str
             self.cursor = self.database.cursor()
         except sqlite3.Error as e:
             if self.DEBUG:
@@ -291,7 +355,7 @@ class EpgDb(object):
     '''
     Add a channel definition into the database.
     '''
-    def addChannel(self, cid, display_name, logo='', source='', visible=True):
+    def addChannel(self, cid, display_name, logo='', source='', visible=True, notify_errors=True):
         try:
             if visible:
                 visible = '1'
@@ -304,7 +368,7 @@ class EpgDb(object):
             self.database.commit()
         
         except sqlite3.Error as e:
-            if self.DEBUG:
+            if self.DEBUG and notify_errors:
                 utils.notify(self.addon, 33403, e.message)
             return False
         
@@ -378,7 +442,7 @@ class EpgDb(object):
     '''
     def getChannel(self, id_channel):
         try:
-            get = 'SELECT * FROM channels WHERE id="%s"' % (id_channel, )
+            get = 'SELECT * FROM channels WHERE id="%s"' % id_channel
             self.cursor.execute(get)
             return self.cursor.fetchone()
         except sqlite3.Error as e:
@@ -387,16 +451,28 @@ class EpgDb(object):
             return False
         
         return False
-        
+    
+    
+    '''
+    Return True if channel exists.
+    '''
+    def channelExists(self, id_channel):
+        try:
+            check = 'SELECT count(*) FROM channels WHERE id="%s"' % id_channel
+            self.cursor.execute(check)
+            return self.cursor.fetchone() == 1
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33406, e.message)
     
     '''
     Add a program into the program table.
     '''
     def addProgram(self, channel, title, dtd_start_date, dtd_end_date, description):
+        
         try:
-            program = "INSERT INTO programs (channel, title, start_date, end_date, description) "
-            values  = 'VALUES ("%s","%s","%s","%s","%s")' % (channel, title, dtd_start_date, dtd_end_date, description)
-            self.cursor.execute(program + values)
+            program = 'INSERT INTO programs (channel, title, start_date, end_date, description) VALUES (?,?,?,?,?)'            
+            self.cursor.execute(program, (channel, title, dtd_start_date, dtd_end_date, description))
             self.database.commit()
         except sqlite3.Error as e:
             if self.DEBUG:

@@ -102,5 +102,7 @@
     <string id="33613">Erreur en decompressant l archive Tar</string>  
     <string id="33614">Erreur aucun fichier xmltv trouve dans l archive</string>  
     
-      
+    <string id="33701">Titre non disponible</string>
+    <string id="33702">Description non disponible</string>
+    
 </strings>

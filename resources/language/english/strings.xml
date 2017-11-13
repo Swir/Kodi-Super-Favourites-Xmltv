@@ -103,5 +103,8 @@
     <string id="33613">Error while uncompressing tar archive</string>  
     <string id="33614">Error no xmltv file found inside archive</string>  
     
+    <string id="33701">No title available</string>
+    <string id="33702">No descrption available</string>
+    
 </strings>
 
