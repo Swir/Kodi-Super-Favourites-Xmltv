@@ -86,6 +86,7 @@
     <string id="33418">Bad XMLTV file type</string>
     <string id="33419">XMLTV file not found</string>
     
+    
     <!-- HTTP errors responses -->
     <string id="33601">URL xmltv file did not changed</string>
     <string id="33602">XMLTV URL has moved</string>
@@ -111,7 +112,10 @@
     <string id="33802">Channel</string>
     <string id="33803">Program</string>
     <string id="33804">Downloading</string>
-    
+    <string id="33420">Error getting db state</string>
+    <string id="33421">Initialization ok, you can now restart Super Favourites XMLTV</string>
+    <string id="33422">Super Favourites XMLTV first time launching detected, the addon will automatically get the channels and xmltv file, so be patient</string>
+    <string id="33423">This operation can take a long time, so, be patient</string>
     
 </strings>
 

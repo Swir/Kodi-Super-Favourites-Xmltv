@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 import datetime as dt
 import xbmc, xbmcaddon, xbmcgui  
@@ -213,13 +214,31 @@ if __name__ == '__main__':
         addon.openSettings()
     
     else:      
+        epg_db = EPGXML.EpgDb(addon, True)
+        database, cursor = utils.connectEpgDB(epg_db, addon)   
+        epg_db.setDatabaseObj(database)
+        epg_db.setCursorObj(cursor)
+        
+        # Populate and create tables in case of first start
+        if epg_db.firstTimeRuning():
+            xbmcgui.Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33422))
+            epg_xml = EPGXML.EpgXml(addon, True, progress_bar=True)
+            epg_xml.setDatabaseObj(database)
+            epg_xml.setCursorObj(cursor)
+            epg_xml.getXMLTV()
+            epg_db.setFirstTimeRuning(0)
+            # Super favourites folder init.
             
-        # Updater object
-        epg_updater = utils.ThreadedUpdater(addon)
-        epg_updater.start()
+            # All is done, restart required
+            xbmcgui.Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33421))
+        # Else, update epg in a thread
+        else:
+            # Updater object
+            epg_updater = utils.ThreadedUpdater(addon)
+            epg_updater.start()
             
-        # Starting GUI
-        EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
-        EPGgui.doModal() 
-        del EPGgui        
+            # Starting GUI
+            EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
+            EPGgui.doModal() 
+            del EPGgui        
         

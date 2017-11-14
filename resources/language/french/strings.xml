@@ -110,6 +110,10 @@
     <string id="33802">Chaine</string>
     <string id="33803">Programme</string>
     <string id="33804">Telechargement</string>
+    <string id="33420">Erreur en obtenant le statut de la base</string>
+    <string id="33421">Initialisation ok, vous pouvez redémarrer Super Favourites XMLTV</string>
+    <string id="33422">Super Favourites XMLTV, premier lancement détecté, l'addon va automatiquement être configurée, soyez patient</string>
+    <string id="33423">Cette opération peut durer longtemps, soyez patient</string>
     
     
 </strings>

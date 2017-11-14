@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os, time, glob, shutil
 import datetime
 import sqlite3
@@ -260,11 +262,10 @@ class EpgXml(object):
     Parse the xmltv file and return the result.
     '''
     def __parseXMLTV(self, xmltv):
+        self.xmltv_progress_bar.create(self.addon.getLocalizedString(33801), self.addon.getLocalizedString(33423))
         xmltv = minidom.parse(xmltv)
         channels = xmltv.getElementsByTagName('channel')
         programs = xmltv.getElementsByTagName('programme')
-        
-        self.xmltv_progress_bar.create(self.addon.getLocalizedString(33801), "")
 
         i = 1
         for channel in channels:
@@ -486,9 +487,9 @@ class EpgDb(object):
     '''
     def channelExists(self, id_channel):
         try:
-            check = 'SELECT count(*) FROM channels WHERE id="%s"' % id_channel
+            check = 'SELECT count(*) as count FROM channels WHERE id="%s"' % id_channel
             self.cursor.execute(check)
-            return self.cursor.fetchone() == 1
+            return self.cursor.fetchone()[0] == 1
         except sqlite3.Error as e:
             if self.DEBUG:
                 utils.notify(self.addon, 33406, e.message)
@@ -638,6 +639,36 @@ class EpgDb(object):
         b = self.truncatePrograms()
         return a and b
     
+    
+    '''
+    Return True if this is the FIRST launch or eĝ.db ad epg.xml were deleted.
+    '''
+    def firstTimeRuning(self):
+        if self.cursor is None or self.database is None:
+            return
+        try:
+            check = "SELECT COUNT(*) as count FROM updates WHERE time='-1'"
+            self.cursor.execute(check)
+            return int(self.cursor.fetchone()[0]) == 1 
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33420, e.message)
+            return False
+    
+    
+    '''
+    Set the first time start flag..
+    '''
+    def setFirstTimeRuning(self, state):
+        if self.cursor is None or self.database is None:
+            return
+        try:
+            check = "UPDATE updates set time ='%s' WHERE id_update=1" % state
+            self.cursor.execute(check)
+            self.database.commit()
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33420, e.message)    
     
     '''
     Delete all passed programs

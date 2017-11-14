@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import xbmc
 import EPGXML
 import sqlite3
@@ -49,10 +51,12 @@ def connectEpgDB(epg_db_obj, addon):
         programs_str = "CREATE TABLE programs (id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TEXT, end_date TEXT, description TEXT)"
         updates      = "CREATE TABLE updates (id_update INTEGER PRIMARY KEY AUTOINCREMENT, time TIMESTAMP)"        
         
+        update_flag  = "INSERT INTO updates (time) VALUES ('-1')"
         try:
             cursor.execute(channels_str)
             cursor.execute(programs_str)
             cursor.execute(updates)
+            cursor.execute(update_flag)
             database.commit()
             
         except sqlite3.Error as e:
@@ -110,6 +114,7 @@ class ThreadedUpdater(Thread):
         self.epg_db.setDatabaseObj(database)
         self.epg_db.setCursorObj(cursor)
         
+        # Clean old entries ( see configuration )
         self.epg_db.getCleanOld()
         
         # Getting EPG xmltv file
