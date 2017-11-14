@@ -3,7 +3,7 @@ import datetime
 import sqlite3
 import urllib2
 import zipfile, tarfile
-import xbmcgui
+import xbmcgui, xbmc
 
 from xml.dom import minidom
 from resources.lib import utils
@@ -29,7 +29,7 @@ class EpgXml(object):
     xmltv_progress_bar = None
     
         
-    def __init__(self, addon_obj, debug = False):
+    def __init__(self, addon_obj, debug = False, progress_bar=True):
         self.DEBUG = debug
         self.addon = addon_obj
         
@@ -40,7 +40,12 @@ class EpgXml(object):
         self.xmltv_global_path = self.addon.getAddonInfo('path')
         self.xmltv_global_path = self.xmltv_global_path.replace('addons', os.path.join('userdata', 'addon_data'), 1)       
      
-     
+        if progress_bar:
+            self.xmltv_progress_bar = xbmcgui.DialogProgress()
+        else:
+            self.xmltv_progress_bar = xbmcgui.DialogProgressBG()        
+            
+            
      
     '''
     Set the database object ( multi threading purpose )
@@ -62,20 +67,14 @@ class EpgXml(object):
     '''
     Global entry point to get / parse and push xmltv data into db.
     '''
-    def getXMLTV(self, progress=True):
+    def getXMLTV(self):
         
         if self.database is None or self.cursor is None:
             return
         
         self.epg_db.setCursorObj(self.cursor)
         self.epg_db.setDatabaseObj(self.database)
-        
-        if progress:
-            self.xmltv_progress_bar = xbmcgui.DialogProgress()
-        else:
-            self.xmltv_progress_bar = xbmcgui.DialogProgressBG()
             
-        
         if os.path.isfile(os.path.join(self.xmltv_global_path, "epg.xml")):
             os.remove(os.path.join(self.xmltv_global_path, "epg.xml")) 
                 
@@ -93,13 +92,13 @@ class EpgXml(object):
         if not self.xmltv_file is None:
             # parsing xmltv file
             self.__parseXMLTV(self.xmltv_file)
-    
+            
     
     '''
     Basic xml file checks
     '''
     def __getLocalXmltv(self, local_file):
-        
+                
         compressed = True if self.addon.getSetting('xmltv.compressed') == 'true' else False 
         
         if not os.path.isfile(local_file):
@@ -118,6 +117,8 @@ class EpgXml(object):
             else:
                 # Uncompress and moving to userdata
                 return self.__uncompressAndMove(local_file)
+        
+        
     
     
     '''
@@ -131,7 +132,12 @@ class EpgXml(object):
         dest_file = os.path.join(self.xmltv_global_path, "epg.xml")        
         
         try:
-            download = urllib2.urlopen(url_file_source, timeout=30)    
+            self.xmltv_progress_bar.create(self.addon.getLocalizedString(33801), self.addon.getLocalizedString(33804))
+            download = urllib2.urlopen(url_file_source, timeout=30)
+            
+            # Most of tried servers are data chunked ( no content length header ) so faking progress
+            self.xmltv_progress_bar.update(25)
+                        
         except urllib2.HTTPError as e:
             # Server send 'no file changes'
             if e.code == 304:
@@ -166,15 +172,24 @@ class EpgXml(object):
             # Unhandled error.    
             else:
                 utils.notify(self.addon, 33610, e.reason)
-                
+            
+            self.xmltv_progress_bar.close()
+               
             return None
         
         if os.path.isfile(dest_file):
             os.remove(dest_file)
-            
+        
+        self.xmltv_progress_bar.update(35)
         tsf = open(dest_file, "w")
+        self.xmltv_progress_bar.update(60)
         tsf.write(download.read())
+        self.xmltv_progress_bar.update(8)
         tsf.close()
+        self.xmltv_progress_bar.update(100)
+
+        del tsf
+        self.xmltv_progress_bar.close()
         
         return self.__getLocalXmltv(dest_file)
     
@@ -192,6 +207,7 @@ class EpgXml(object):
                 with zipfile.ZipFile(zfile, "r") as xmltv_zip:
                     xmltv_zip.extractall(dest)
                     xmltv_zip.close()
+                    
             except zipfile.BadZipfile, zipfile.LargeZipFile:
                 if os.path.isdir(dest):
                     shutil.rmtree(dest)
@@ -203,6 +219,7 @@ class EpgXml(object):
                     with tarfile.TarFile(zfile) as xmltv_tar:
                         xmltv_tar.extractall(dest)
                         xmltv_tar.close()
+                        
                 except tarfile.ReadError:
                     if os.path.isdir(dest):
                         shutil.rmtree(dest)
@@ -247,17 +264,30 @@ class EpgXml(object):
         channels = xmltv.getElementsByTagName('channel')
         programs = xmltv.getElementsByTagName('programme')
         
+        self.xmltv_progress_bar.create(self.addon.getLocalizedString(33801), "")
+
+        i = 1
         for channel in channels:
+            
+            percent = int( ( i / float(channels.length) ) * 100)
+            message = self.addon.getLocalizedString(33802) + ' %i/%i' % (i, channels.length)
+            self.xmltv_progress_bar.update(percent, "", message)
+            
             id_channel   = channel.getAttribute('id').encode('utf-8', 'ignore') 
             display_name = channel.getElementsByTagName('display-name')[0].firstChild.data.encode('utf-8', 'ignore')
             
             if not self.epg_db.channelExists(id_channel):
                 self.epg_db.addChannel(id_channel, display_name, notify_errors=False)
-        
+            i += 1
+           
         
         self.epg_db.truncatePrograms()
-        
+        i = 1
         for program in programs:
+            
+            percent = int( ( i / float(programs.length) ) * 100)
+            message = self.addon.getLocalizedString(33803) + ' %i/%i' % (i, programs.length)
+            self.xmltv_progress_bar.update(percent, "", message)
             
             id_channel = program.getAttribute('channel') .encode('utf-8', 'ignore')           
             
@@ -294,6 +324,9 @@ class EpgXml(object):
                 desc = self.addon.getLocalizedString(33702)
             
             self.epg_db.addProgram(id_channel, ptitle, start_date, end_date, desc)
+            i += 1
+        
+        self.xmltv_progress_bar.close()
             
 
 

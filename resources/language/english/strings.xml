@@ -106,5 +106,12 @@
     <string id="33701">No title available</string>
     <string id="33702">No descrption available</string>
     
+    <!-- Progress bars -->
+    <string id="33801">SFX - EPG update</string>
+    <string id="33802">Channel</string>
+    <string id="33803">Program</string>
+    <string id="33804">Downloading</string>
+    
+    
 </strings>
 

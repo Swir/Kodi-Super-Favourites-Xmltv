@@ -98,7 +98,7 @@ class ThreadedUpdater(Thread):
         Thread.__init__(self)
         self.addon = addon
         self.epg_db = EPGXML.EpgDb(addon, True)
-        self.epg_xml = EPGXML.EpgXml(addon, True)
+        self.epg_xml = EPGXML.EpgXml(addon, True, progress_bar=False)
     
     
     '''

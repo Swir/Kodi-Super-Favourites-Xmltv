@@ -105,4 +105,11 @@
     <string id="33701">Titre non disponible</string>
     <string id="33702">Description non disponible</string>
     
+    <!-- Progress bars -->
+    <string id="33801">SFX - Mise a jour du guide</string>
+    <string id="33802">Chaine</string>
+    <string id="33803">Programme</string>
+    <string id="33804">Telechargement</string>
+    
+    
 </strings>
