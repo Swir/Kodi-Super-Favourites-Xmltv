@@ -114,6 +114,8 @@
     <string id="33421">Initialisation ok, vous pouvez redémarrer Super Favourites XMLTV</string>
     <string id="33422">Super Favourites XMLTV, premier lancement détecté, l'addon va automatiquement être configurée, soyez patient</string>
     <string id="33423">Cette opération peut durer longtemps, soyez patient</string>
+    <string id="33424">Impossible de trouver la date de dernière mise à jour</string>
+    <string id="33425">Impossible d'enregistrer la date de mise à jour</string>
     
     
 </strings>

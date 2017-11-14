@@ -709,6 +709,38 @@ class EpgDb(object):
             if self.DEBUG :
                 utils.notify(self.addon, 33416, e.message)
                 
+                
+    '''
+    '''
+    def getLastUpdateDate(self):
+        if self.cursor is None or self.database is None:
+            return
+        try:
+            check = "SELECT time FROM updates WHERE 1 ORDER BY id_update DESC LIMIT 1"
+            self.cursor.execute(check)
+            res = self.cursor.fetchone()[0]
+            if res in (-1, 0):
+                return None
+            return str(res)
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33424, e.message)   
+    
+    
+    '''
+    '''
+    def setUpdateDate(self):
+        if self.cursor is None or self.database is None:
+            return
+        try:
+            dt = datetime.datetime.now().strftime('%Y%m%d%H%M%S')            
+            date_insert = "INSERT INTO updates (time) VALUES ('%s')" % dt
+            self.cursor.execute(date_insert)
+            self.database.commit()
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33425, e.message)   
+                
     
     '''
     Global truncate

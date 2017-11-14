@@ -227,6 +227,7 @@ if __name__ == '__main__':
             epg_xml.setCursorObj(cursor)
             epg_xml.getXMLTV()
             epg_db.setFirstTimeRuning(0)
+            epg_db.setUpdateDate()
             # Super favourites folder init.
             
             # All is done, restart required
