@@ -151,6 +151,11 @@ class ThreadedUpdater(Thread):
             self.epg_xml.setCursorObj(self.cursor)
             self.epg_xml.getXMLTV()
             self.epg_db.setUpdateDate()
-    
+            
+            self.epg_xml.close()
+            del self.epg_xml
+            
+        self.epg_db.close()
+        del self.epg_db
        
     

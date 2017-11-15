@@ -227,11 +227,9 @@ if __name__ == '__main__':
             epg_xml.setDatabaseObj(database)
             epg_xml.setCursorObj(cursor)
             epg_xml.getXMLTV()
+            
             epg_db.setFirstTimeRuning(0)
             epg_db.setUpdateDate()
-            
-            del epg_db
-            del epg_xml
             
             # Super favourites folder init.
             sf_folder = superfavourites.SuperFavouritesIptvFolder(addon)
@@ -239,6 +237,15 @@ if __name__ == '__main__':
             
             # All is done, restart required
             xbmcgui.Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33421))
+            
+            xbmc.sleep(1000)
+            sf_folder.close()
+            epg_db.close()
+            epg_xml.close()
+            del epg_db
+            del epg_xml
+            
+            
         # Else, update epg in a thread
         else:
             # Updater object

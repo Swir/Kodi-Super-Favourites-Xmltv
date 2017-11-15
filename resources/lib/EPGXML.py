@@ -5,7 +5,7 @@ import datetime
 import sqlite3
 import urllib2
 import zipfile, tarfile
-import xbmcgui, xbmc
+import xbmcgui
 
 from xml.dom import minidom
 from resources.lib import utils
@@ -47,7 +47,8 @@ class EpgXml(object):
         else:
             self.xmltv_progress_bar = xbmcgui.DialogProgressBG()        
             
-            
+    
+           
      
     '''
     Set the database object ( multi threading purpose )
@@ -324,12 +325,22 @@ class EpgXml(object):
             else:
                 desc = self.addon.getLocalizedString(33702)
             
-            self.epg_db.addProgram(id_channel, ptitle, start_date, end_date, desc)
+            #self.epg_db.addProgram(id_channel, ptitle, start_date, end_date, desc)
             i += 1
         
         self.xmltv_progress_bar.close()
+        
             
-
+    '''
+    Cose the database oject
+    '''
+    def close(self):
+        try:
+            self.database.close()
+            del self.cursor
+            del self.database
+        except:
+            pass
 
 
 
@@ -755,5 +766,17 @@ class EpgDb(object):
                 utils.notify(self.addon, 33414, err.message)
             return False
         return True
+    
+    
+        '''
+    Cose the database oject
+    '''
+    def close(self):
+        try:
+            self.database.close()
+            del self.cursor
+            del self.database
+        except:
+            pass
         
         
