@@ -214,7 +214,8 @@ if __name__ == '__main__':
         addon.openSettings()
     
     else:      
-        epg_db = EPGXML.EpgDb(addon, True)
+        debug = True if addon.getSetting('debug.mode') == 'true' else False
+        epg_db = EPGXML.EpgDb(addon, debug)
         database, cursor = utils.connectEpgDB(epg_db, addon)   
         epg_db.setDatabaseObj(database)
         epg_db.setCursorObj(cursor)
@@ -222,7 +223,7 @@ if __name__ == '__main__':
         # Populate and create tables in case of first start
         if epg_db.firstTimeRuning():
             xbmcgui.Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33422))
-            epg_xml = EPGXML.EpgXml(addon, True, progress_bar=True)
+            epg_xml = EPGXML.EpgXml(addon, debug, progress_bar=True)
             epg_xml.setDatabaseObj(database)
             epg_xml.setCursorObj(cursor)
             epg_xml.getXMLTV()

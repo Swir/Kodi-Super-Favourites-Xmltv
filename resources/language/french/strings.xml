@@ -4,6 +4,8 @@
     <string id="32101">Style</string>
     <string id="32102">XMLTV</string>
     <string id="32103">Super Favourites</string>
+    <string id="32104">Boîte à outils</string>
+    
     
     <string id="32010">Mettre à jour l'EPG au démarrage de Kodi</string>
     <string id="32011">Image d'arrière plan</string>
@@ -57,6 +59,11 @@
     <!--  Settings separators lsep -->
     <string id="32225">Ou se trouve le fichier xmltv</string>
     <string id="32226">Ou créer les sous dossiers qui contiendront les chaines IPTV? (ex:TV) </string>
+    
+    <!-- Toolbox -->
+    <string id="33901">Hard reset de Super Favourites XMLTV ( supprime la db et le xmltv )</string>
+    <string id="33902">Supprimer les dossiers Super Favourites XMLTV, supprimera aussi tous vos liens IPTV</string>
+    <string id="33903">Activer le mode debug</string>
     
     <!-- Addon code localized strings -->
     <string id="33301">XMLTV addon n'est pas configuré correctement</string>

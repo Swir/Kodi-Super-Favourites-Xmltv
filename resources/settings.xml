@@ -21,13 +21,19 @@
         <setting id="xmltv.local.value" type="file" label="32222"  visible="eq(-1,1)" value="path_to_files"/>
         <setting id="xmltv.url.value"   type="text" label="32223"  visible="eq(-2,0)" />
         <setting id="xmltv.compressed"  type="bool" label="32227"  default="false"/>
-    
     </category>  
     
     <category label="32103">  
         <!-- Super favourites folder -->
         <setting label="32226" type="lsep"/>
         <setting id="super.favourites.folder" type="folder" source="auto" default="special://home" option="writeable" label="32224"/>      
+    </category>
+    
+    <category label="32104">
+        <!-- Maintenance and other SFX related -->
+        <setting id="reset.xml.db" type="action" label="33901" action="RunScript($CWD/resources/lib/maintenance.py, 0, $CWD)"/> 
+        <setting id="reset.sf"     type="action" label="33902" action="RunScript($CWD/resources/lib/maintenance.py, 1, $CWD)"/> 
+        <setting id="debug.mode"   type="bool" label="33903"  default="false"/> 
     </category>
             
 </settings>
