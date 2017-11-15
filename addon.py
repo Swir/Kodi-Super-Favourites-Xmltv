@@ -3,7 +3,7 @@ import time
 import datetime as dt
 import xbmc, xbmcaddon, xbmcgui  
 
-from resources.lib import EPGXML, utils
+from resources.lib import EPGXML, utils, superfavourites
 
 
 '''
@@ -229,7 +229,13 @@ if __name__ == '__main__':
             epg_xml.getXMLTV()
             epg_db.setFirstTimeRuning(0)
             epg_db.setUpdateDate()
+            
+            del epg_db
+            del epg_xml
+            
             # Super favourites folder init.
+            sf_folder = superfavourites.SuperFavouritesIptvFolder(addon)
+            sf_folder.createSubFolders()
             
             # All is done, restart required
             xbmcgui.Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33421))

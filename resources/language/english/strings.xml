@@ -55,6 +55,9 @@
     
     <!--  id="super.favourites.folder" -->
     <string id="32224">Super Favourites IPTV base Folder</string>
+    <string id="322241">Sub folders pattern</string>
+    <string id="322242">XMLTV channel ID</string>
+    <string id="322243">Channel display name</string>
     
     <!--  Settings separators lsep -->
     <string id="32225">Where is XMLTV located ?</string>

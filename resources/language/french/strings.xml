@@ -55,6 +55,10 @@
     
     <!--  id="super.favourites.folder" -->
     <string id="32224">Dossier Super Favourites de base</string>
+    <string id="322241">Pattern pour les sous dossiers</string>
+    <string id="322242">Id XMLTV de la chaine</string>
+    <string id="322243">Nom de la chaîne</string>
+    
     
     <!--  Settings separators lsep -->
     <string id="32225">Ou se trouve le fichier xmltv</string>
