@@ -44,7 +44,6 @@ try:
             sfpath = join(super_favourites_folder, sfpath)
             
             if isdir(sfpath):
-                xbmc.log("[SFX] " + sfpath, xbmc.LOGERROR)
                 rmtree(sfpath, ignore_errors=True)
             else:
                 remove(sfpath)
