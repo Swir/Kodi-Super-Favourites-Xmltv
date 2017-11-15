@@ -118,6 +118,9 @@ class ThreadedUpdater(Thread):
         self.epg_db.setCursorObj(self.cursor)
         
         # Clean old entries ( see configuration )
+        if self.epg_db.firstTimeRuning():
+            return
+        
         self.epg_db.getCleanOld()
         
         

@@ -64,6 +64,10 @@
     <string id="33901">Hard reset de Super Favourites XMLTV ( supprime la db et le xmltv )</string>
     <string id="33902">Supprimer les dossiers Super Favourites XMLTV, supprimera aussi tous vos liens IPTV</string>
     <string id="33903">Activer le mode debug</string>
+    <string id="33904">Hard reset terminé avec succès !</string>
+    <string id="33905">Une erreur est survenue lors du hard reset</string>
+    <string id="33906">Les sous répertoires de Super Favorites ont été supprimés !</string>
+    
     
     <!-- Addon code localized strings -->
     <string id="33301">XMLTV addon n'est pas configuré correctement</string>
@@ -123,6 +127,5 @@
     <string id="33423">Cette opération peut durer longtemps, soyez patient</string>
     <string id="33424">Impossible de trouver la date de dernière mise à jour</string>
     <string id="33425">Impossible d'enregistrer la date de mise à jour</string>
-    
-    
+        
 </strings>

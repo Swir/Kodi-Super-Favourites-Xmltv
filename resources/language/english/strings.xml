@@ -64,6 +64,10 @@
     <string id="33901">Hard reset Super Favourites XMLTV ( removes db and xmltv )</string>
     <string id="33902">Delete Super Favourites XMLTV folders, will also delete your iptv links</string>
     <string id="33903">Activate debug mode</string>
+    <string id="33904">Hard reset successfully terminated!</string>
+    <string id="33905">Hard reset error, please, try again later !</string>
+    <string id="33906">Super Favorites sub folders were deleted !</string>
+    
     
     <!-- Addon code localized strings -->
     <string id="33301">XMLTV addon not configured properly</string>
