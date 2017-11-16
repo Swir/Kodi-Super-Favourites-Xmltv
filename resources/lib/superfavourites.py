@@ -51,7 +51,7 @@ class SuperFavouritesIptvFolder(object):
         progress = DialogProgress()
         try:
             progress.create(self.addon.getLocalizedString(322245), self.addon.getLocalizedString(322246))
-            row = "id" if self.pattern == SuperFavouritesIptvFolder.SF_XMLTV_ID_PATTERN else 'display_name' 
+            row = "id_channel" if self.pattern == SuperFavouritesIptvFolder.SF_XMLTV_ID_PATTERN else 'display_name' 
             request = "SELECT %s FROM channels" % row
             
             if self.database is None or self.cursor is None:

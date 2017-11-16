@@ -48,7 +48,7 @@ def connectEpgDB(epg_db_obj, addon):
         if database is None:
             return None, None
         
-        channels_str = "CREATE TABLE channels (id TEXT, display_name TEXT, logo TEXT, source TEXT, visible BOOLEAN, PRIMARY KEY (id))"
+        channels_str = "CREATE TABLE channels (id INTEGER PRIMARY KEY AUTOINCREMENT, id_channel TEXT, display_name TEXT, logo TEXT, source TEXT, visible BOOLEAN)"
         programs_str = "CREATE TABLE programs (id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TEXT, end_date TEXT, description TEXT)"
         updates      = "CREATE TABLE updates (id_update INTEGER PRIMARY KEY AUTOINCREMENT, time TIMESTAMP)"        
         
@@ -113,6 +113,7 @@ class ThreadedUpdater(Thread):
     '''
     def run(self):
         try:
+            xbmc.sleep(10000)
             # Removes old entries into the database.
             self.database, self.cursor = connectEpgDB(self.epg_db, self.addon)   
             self.epg_db.setDatabaseObj(self.database)

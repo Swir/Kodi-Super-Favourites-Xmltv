@@ -403,7 +403,7 @@ class EpgDb(object):
                 visible = '1'
             else:
                 visible = '0'
-            channel = "INSERT INTO channels (id, display_name, logo, source, visible) "
+            channel = "INSERT INTO channels (id_channel, display_name, logo, source, visible) "
             values  = 'VALUES ("%s","%s","%s","%s",%s)' % (cid,display_name,logo,source,visible)
         
             self.cursor.execute(channel + values)
@@ -426,9 +426,9 @@ class EpgDb(object):
             update = "UPDATE channels set "
             
             if not cid_channel is None:
-                update += 'id="%s",' % (cid_channel, )
+                update += 'id_channel="%s",' % (cid_channel, )
                 # Updating programs
-                programs = 'UPDATE programs SET channel="%s" WHERE id="%s"' % (cid_channel, id_channel)
+                programs = 'UPDATE programs SET channel="%s" WHERE id_channel="%s"' % (cid_channel, id_channel)
                 self.cursor.execute(programs)
                 self.database.commit()
             
@@ -444,7 +444,7 @@ class EpgDb(object):
             if not visible is None:
                 update += 'visible=%i' % (1 if visible else 0, )
             
-            update += ' WHERE id="%s"' % (id_channel,)
+            update += ' WHERE id_channel="%s"' % (id_channel,)
             if visible is None:
                 update = ''.join(update.rsplit(",", 1))
 
@@ -465,7 +465,7 @@ class EpgDb(object):
     def removeChannel(self, id_channel):
         try:
             # Channel
-            delete = 'DELETE FROM channels WHERE id="%s"' % (id_channel, )
+            delete = 'DELETE FROM channels WHERE id_channel="%s"' % (id_channel, )
             # Programs
             programs = 'DELETE FROM programs WHERE channel="%s"' % (id_channel, )
             self.cursor.execute(delete)
@@ -484,7 +484,7 @@ class EpgDb(object):
     '''
     def getChannel(self, id_channel):
         try:
-            get = 'SELECT * FROM channels WHERE id="%s"' % id_channel
+            get = 'SELECT * FROM channels WHERE id_channel="%s"' % id_channel
             self.cursor.execute(get)
             return self.cursor.fetchone()
         except sqlite3.Error as e:
@@ -500,7 +500,7 @@ class EpgDb(object):
     '''
     def channelExists(self, id_channel):
         try:
-            check = 'SELECT count(*) as count FROM channels WHERE id="%s"' % id_channel
+            check = 'SELECT count(*) as count FROM channels WHERE id_channel="%s"' % id_channel
             self.cursor.execute(check)
             return self.cursor.fetchone()[0] == 1
         except sqlite3.Error as e:
@@ -589,22 +589,6 @@ class EpgDb(object):
             return False
         
         return False
-    
-    
-    '''
-    Return all available channels
-    '''
-    def getAllChannels(self):
-        try:
-            get = 'SELECT * FROM channels WHERE 1'
-            self.cursor.execute(get)
-            return self.cursor.fetchall()
-        except sqlite3.Error as e:
-            if self.DEBUG:
-                utils.notify(self.addon, 33412, e.message)
-            return False
-        
-        return False
        
     
     '''
@@ -623,11 +607,30 @@ class EpgDb(object):
         return False
     
     
+    
+    '''
+    Return all available channels
+    '''
+    def getAllChannels(self, channels_limit=9):
+        try:
+            get = 'SELECT * FROM channels WHERE 1 ORDER BY id ASC LIMIT %i' % channels_limit
+            self.cursor.execute(get)
+            return self.cursor.fetchall()
+        except sqlite3.Error as e:
+            if self.DEBUG:
+                utils.notify(self.addon, 33412, e.message)
+            return False
+        
+        return False
+    
+    
+    
     '''
     Return the complete EPG grid.
     '''
-    def getEpgGrid(self, time_reference):
-        channels = self.getAllChannels()
+    def getEpgGrid(self, time_reference, limit=9):
+        
+        channels = self.getAllChannels(channels_limit=limit)
         
         grid = dict()
         dt = datetime.datetime.now()
@@ -653,7 +656,7 @@ class EpgDb(object):
         date_next     = "%i%i%i%s%s%s" % (dt_next.year, dt_next.month, dt_next.day, hours, mins, "00")
         
         for channel in channels:
-            programs = self.getChannelPrograms(channel[0])
+            programs = self.getChannelPrograms(channel[1])
             
             programs_list = []
             for program in programs:
@@ -669,7 +672,7 @@ class EpgDb(object):
                                 
                 
                 
-            grid[channel[0]] = {"display_name" : channel[1], "programs": programs_list}
+            grid[channel[0]] = {"": channel[1], "display_name" : channel[2], "programs": programs_list}
         
         return grid
     
