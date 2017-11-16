@@ -16,6 +16,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     cursor = None
     epg_db = None
     epg_xml = None
+    epg_grid = None
     
     # XML gui structure.
     BACKGROUND_IMAGE = 4600
@@ -105,7 +106,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epg_xml.setDatabaseObj(self.database)
         self.epg_xml.setCursorObj(self.cursor)
         
-        self.setChannels()
+        self.epg_grid = self.epg_db.getEpgGrid(labelTime1.getLabel(), limit=9)
+        self.setChannels(0)
     
     
     '''
@@ -160,14 +162,38 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     Sets first channels lines.
     '''
-    def setChannels(self):
-        label = self.getControl(XMLWindowEPG.CHANNEL_LABEL_1)
-        label.setLabel("test label")
+    def setChannels(self, start):
         
-        channels = self.epg_db.getAllChannels()
-        for channel in channels:
-            xbmc.log(channel, xbmc.LOGERROR)
-           
+        channels = self.epg_grid.keys()
+        
+        label1 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_1)
+        label1.setLabel(self.epg_grid.get(channels[start])["display_name"])
+        
+        label2 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_2)
+        label2.setLabel(self.epg_grid.get(channels[start + 1])["display_name"])
+        
+        label3 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_3)
+        label3.setLabel(self.epg_grid.get(channels[start + 2])["display_name"])
+        
+        label4 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_4)
+        label4.setLabel(self.epg_grid.get(channels[start + 3])["display_name"])
+        
+        label5 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_5)
+        label5.setLabel(self.epg_grid.get(channels[start + 4])["display_name"])
+        
+        label6 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_6)
+        label6.setLabel(self.epg_grid.get(channels[start + 5])["display_name"])
+        
+        label7 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_7)
+        label7.setLabel(self.epg_grid.get(channels[start + 6])["display_name"])
+        
+        label8 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_8)
+        label8.setLabel(self.epg_grid.get(channels[start + 7])["display_name"])
+        
+        label9 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_9)
+        label9.setLabel(self.epg_grid.get(channels[start + 8])["display_name"])
+        
+                   
         
     
     '''
@@ -279,10 +305,6 @@ if __name__ == '__main__':
             
         # Else, update epg in a thread
         else:
-            # Updater object
-            epg_updater = utils.ThreadedUpdater(addon)
-            epg_updater.start()
-            
             # Starting GUI
             EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
             EPGgui.doModal() 
