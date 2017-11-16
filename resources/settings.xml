@@ -4,7 +4,10 @@
         <!-- EPG update settings. -->
         <setting id="startup.update"    type="bool" label="32010"  default="false" />
         <setting id="update.frequency"  type="enum" label="32012"  lvalues="32211|32212|32213|32214|32215|32216|32217" />
+        <setting type="sep"/>
         <setting id="cleanup.treshold"  type="enum" label="32014"  lvalues="33501|33502|33503|33504|33505|33506|33507" />
+        <setting id="previously.aired"  type="enum" label="32016"  lvalues="33501|33502|33503" />
+        <setting id="next.aired"        type="enum" label="32015"  lvalues="33501|33502|33503" />
     </category>
     
     <category label="32101">    
@@ -34,6 +37,7 @@
         <!-- Maintenance and other SFX related -->
         <setting id="reset.xml.db" type="action" label="33901" action="RunScript($CWD/resources/lib/maintenance.py, 0, $CWD)"/> 
         <setting id="reset.sf"     type="action" label="33902" action="RunScript($CWD/resources/lib/maintenance.py, 1, $CWD)"/> 
+        <setting type="sep"/>
         <setting id="debug.mode"   type="bool" label="33903"  default="false"/> 
     </category>
             

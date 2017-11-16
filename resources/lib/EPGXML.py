@@ -5,7 +5,7 @@ import datetime
 import sqlite3
 import urllib2
 import zipfile, tarfile
-import xbmcgui
+import xbmcgui, xbmc
 
 from xml.dom import minidom
 from resources.lib import utils
@@ -612,7 +612,7 @@ class EpgDb(object):
     ''' 
     def getChannelPrograms(self, id_channel):
         try:
-            get = 'SELECT * FROM programs WHERE channel="%s"' % id_channel
+            get = 'SELECT * FROM programs WHERE channel="%s" ORDER BY start_date ASC' % id_channel
             self.cursor.execute(get)
             return self.cursor.fetchall()
         except sqlite3.Error as e:
@@ -621,6 +621,57 @@ class EpgDb(object):
             return False
         
         return False
+    
+    
+    '''
+    Return the complete EPG grid.
+    '''
+    def getEpgGrid(self, time_reference):
+        channels = self.getAllChannels()
+        
+        grid = dict()
+        dt = datetime.datetime.now()
+        
+        try:
+            previous_range = int(self.addon.getSetting('previously.aired')) + 1
+        except ValueError:
+            previous_range = 1
+        
+        dt_previous = dt - datetime.timedelta(days=previous_range)
+        
+        try:   
+            next_range = int(self.addon.getSetting('next.aired')) + 1
+        except ValueError:
+            next_range = 1
+            
+        dt_next = dt + datetime.timedelta(days=next_range)
+        
+        hours = time_reference[0:time_reference.find(':')]
+        mins  =  time_reference[time_reference.find(':') + 1 :]   
+        
+        date_previous = "%i%i%i%s%s%s" % (dt_previous.year, dt_previous.month, dt_previous.day, hours, mins, "00")
+        date_next     = "%i%i%i%s%s%s" % (dt_next.year, dt_next.month, dt_next.day, hours, mins, "00")
+        
+        for channel in channels:
+            programs = self.getChannelPrograms(channel[0])
+            
+            programs_list = []
+            for program in programs:
+                #filtering by end date
+                end_date = program[4]
+            
+                display = False if int(end_date) - int(date_previous) <= 0 else (False if int(end_date) - int(date_next) > 0 else True)
+                
+                if display:
+                    # Storing program
+                    plist = {"title": program[2], "desc": program[5], "start": program[3], "end": end_date}
+                    programs_list.append(plist)    
+                                
+                
+                
+            grid[channel[0]] = {"display_name" : channel[1], "programs": programs_list}
+        
+        return grid
     
     
     '''

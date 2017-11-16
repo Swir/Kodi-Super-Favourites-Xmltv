@@ -11,7 +11,9 @@
     <string id="32011">Background image</string>
     <string id="32012">Update Frequency</string>
     <string id="32013">Where do I get the XMLTV file ?</string>
-    <string id="32013">Cleanup programs older than </string>
+    <string id="32014">Cleanup programs older than </string>
+    <string id="32015">Display previously aired </string>
+    <string id="32016">Display next aired </string>
     
     <!-- id="image.background" -->
     <string id="32200">No background</string>
@@ -62,6 +64,7 @@
     <string id="322245">SFX - Sub folders</string> 
     <string id="322246">Creating Super Favourites sub folders were you could put all your iptv links...</string> 
     <string id="322247">Folder</string> 
+    
     
     <!--  Settings separators lsep -->
     <string id="32225">Where is XMLTV located ?</string>

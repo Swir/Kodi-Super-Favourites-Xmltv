@@ -12,6 +12,8 @@
     <string id="32012">Fréquence de mise à jour</string>
     <string id="32013">Ou dois-je prendre le fichier XMLTV ?</string>
     <string id="32014">Nettoyer les programmes vieux de plus de </string>
+    <string id="32015">Affichage des programmes précédents sur </string>
+    <string id="32016">Affichage des programmes suivants sur </string>
     
     <!-- id="image.background" -->
     <string id="32200">Pas d'image de fond</string>
