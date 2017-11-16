@@ -285,6 +285,8 @@ if __name__ == '__main__':
             epg_xml.setCursorObj(cursor)
             epg_xml.getXMLTV()
             
+            epg_db.getCleanOld()
+            xbmc.sleep(1500)
             epg_db.setFirstTimeRuning(0)
             epg_db.setUpdateDate()
             
