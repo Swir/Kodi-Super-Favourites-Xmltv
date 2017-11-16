@@ -122,9 +122,7 @@ class ThreadedUpdater(Thread):
             if self.epg_db.firstTimeRuning():
                 return
             
-            self.epg_db.getCleanOld()
-            
-            
+            self.epg_db.getCleanOld()    
             
             # Getting EPG xmltv file
             update = False

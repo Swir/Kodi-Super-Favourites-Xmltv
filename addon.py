@@ -4,6 +4,7 @@ import datetime as dt
 import xbmc, xbmcaddon, xbmcgui  
 
 from resources.lib import EPGXML, utils, superfavourites
+from os.path import join
 
 
 '''
@@ -11,6 +12,10 @@ Global class handling EPG Gui.
 '''
 class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     DEBUG = True
+    database = None
+    cursor = None
+    epg_db = None
+    epg_xml = None
     
     # XML gui structure.
     BACKGROUND_IMAGE = 4600
@@ -49,7 +54,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     
     start_time = 0
     addon_id = 'plugin.program.super.favourites.xmltv'
-    addon_settings = None
+    addon = None
     addon_path = None
     addon_bg_base = None
         
@@ -57,9 +62,9 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Class init.
     '''    
     def __init__(self, strXMLname, strFallbackPath):
-        self.addon_settings = xbmcaddon.Addon(self.addon_id)
+        self.addon = xbmcaddon.Addon(self.addon_id)
         self.addon_path = addon.getAddonInfo('path')
-        self.addon_bg_base = self.addon_path + '/resources/skins/Default/media/backgrounds/bg'
+        self.addon_bg_base = join(self.addon_path,'resources', 'skins', 'Default', 'media', 'backgrounds', 'bg')
         
         xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
         self.start_time = dt.datetime.today()
@@ -88,6 +93,19 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         labelTime2.setLabel(self.setTimesLabels(labelTime1.getLabel()))
         labelTime3.setLabel(self.setTimesLabels(labelTime2.getLabel()))
         labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
+        
+        # DB object
+        self.epg_db = EPGXML.EpgDb(addon, self.DEBUG)
+        self.database, self.cursor = utils.connectEpgDB(self.epg_db, self.addon)   
+        self.epg_db.setDatabaseObj(self.database)
+        self.epg_db.setCursorObj(self.cursor)
+        
+        # XMLTV object
+        self.epg_xml = EPGXML.EpgXml(self.addon, self.DEBUG, progress_bar=False)
+        self.epg_xml.setDatabaseObj(self.database)
+        self.epg_xml.setCursorObj(self.cursor)
+        
+        self.setChannels()
     
     
     '''
@@ -96,11 +114,11 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     def setEPGBackground(self):
         
         bg = self.getControl(XMLWindowEPG.BACKGROUND_IMAGE)
-        background_type = self.addon_settings.getSetting('type.background')
+        background_type = self.addon.getSetting('type.background')
         
         if str(background_type) == XMLWindowEPG.BACKGROUND_BUILTIN:
 
-            background = self.addon_settings.getSetting('image.background')
+            background = self.addon.getSetting('image.background')
         
             if background == '' or background == None: 
                 bg.setImage(self.addon_bg_base + '1.jpg', useCache=False)
@@ -109,7 +127,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
             else:
                 bg.setImage(self.addon_bg_base + background + '.jpg', useCache=False)
         else:
-            bg_image = self.addon_settings.getSetting('custom.background')   
+            bg_image = self.addon.getSetting('custom.background')   
             bg.setImage(bg_image, useCache=False)  
             
     
@@ -136,6 +154,19 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
             later = current
         
         return str(("%02d:%02d") % (later.hour, later.minute))
+    
+    
+    
+    '''
+    Sets first channels lines.
+    '''
+    def setChannels(self):
+        label = self.getControl(XMLWindowEPG.CHANNEL_LABEL_1)
+        label.setLabel("test label")
+        
+        channels = self.epg_db.getAllChannels()
+        for channel in channels:
+            xbmc.log(channel, xbmc.LOGERROR)
            
         
     
