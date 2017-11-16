@@ -277,6 +277,8 @@ class EpgXml(object):
             
             id_channel   = channel.getAttribute('id').encode('utf-8', 'ignore') 
             display_name = channel.getElementsByTagName('display-name')[0].firstChild.data.encode('utf-8', 'ignore')
+            display_name = display_name.replace(r'/', '-')
+            display_name = display_name.replace("\\", "-")
             
             if not self.epg_db.channelExists(id_channel):
                 self.epg_db.addChannel(id_channel, display_name, notify_errors=False)
@@ -325,7 +327,7 @@ class EpgXml(object):
             else:
                 desc = self.addon.getLocalizedString(33702)
             
-            #self.epg_db.addProgram(id_channel, ptitle, start_date, end_date, desc)
+            self.epg_db.addProgram(id_channel, ptitle, start_date, end_date, desc)
             i += 1
         
         self.xmltv_progress_bar.close()

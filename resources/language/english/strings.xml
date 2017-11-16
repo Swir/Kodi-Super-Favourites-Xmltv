@@ -58,6 +58,10 @@
     <string id="322241">Sub folders pattern</string>
     <string id="322242">XMLTV channel ID</string>
     <string id="322243">Channel display name</string>
+    <string id="322244">Unable to fetch channels data</string>
+    <string id="322245">SFX - Sub folders</string> 
+    <string id="322246">Creating Super Favourites sub folders were you could put all your iptv links...</string> 
+    <string id="322247">Folder</string> 
     
     <!--  Settings separators lsep -->
     <string id="32225">Where is XMLTV located ?</string>

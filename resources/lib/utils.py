@@ -112,50 +112,53 @@ class ThreadedUpdater(Thread):
     Thread run
     '''
     def run(self):
-        # Removes old entries into the database.
-        self.database, self.cursor = connectEpgDB(self.epg_db, self.addon)   
-        self.epg_db.setDatabaseObj(self.database)
-        self.epg_db.setCursorObj(self.cursor)
-        
-        # Clean old entries ( see configuration )
-        if self.epg_db.firstTimeRuning():
-            return
-        
-        self.epg_db.getCleanOld()
-        
-        
-        
-        # Getting EPG xmltv file
-        update = False
-        treshold = self.addon.getSetting('update.frequency')
-        update_date = self.epg_db.getLastUpdateDate()
-        
-        if not update_date is None:
-            if treshold is None or treshold == '':
-                treshold = '1'
-                    
-            current_time = datetime.datetime.fromtimestamp(time.time())
-            try:
-                update_time = datetime.datetime.strptime(update_date, "%Y%m%d%H%M%S")
-            except TypeError:
-                update_time = datetime.datetime(*(time.strptime(update_date, "%Y%m%d%H%M%S")[0:6]))
-            delta = current_time - update_time
-                    
-            if delta.days >= int(treshold) + 1 :        
-                update = True
-        
-        
-        if update or update_date is None:
-            self.epg_xml = EPGXML.EpgXml(self.addon, True, progress_bar=False)
-            self.epg_xml.setDatabaseObj(self.database)
-            self.epg_xml.setCursorObj(self.cursor)
-            self.epg_xml.getXMLTV()
-            self.epg_db.setUpdateDate()
+        try:
+            # Removes old entries into the database.
+            self.database, self.cursor = connectEpgDB(self.epg_db, self.addon)   
+            self.epg_db.setDatabaseObj(self.database)
+            self.epg_db.setCursorObj(self.cursor)
             
-            self.epg_xml.close()
-            del self.epg_xml
+            # Clean old entries ( see configuration )
+            if self.epg_db.firstTimeRuning():
+                return
             
-        self.epg_db.close()
-        del self.epg_db
+            self.epg_db.getCleanOld()
+            
+            
+            
+            # Getting EPG xmltv file
+            update = False
+            treshold = self.addon.getSetting('update.frequency')
+            update_date = self.epg_db.getLastUpdateDate()
+            
+            if not update_date is None:
+                if treshold is None or treshold == '':
+                    treshold = '1'
+                        
+                current_time = datetime.datetime.fromtimestamp(time.time())
+                try:
+                    update_time = datetime.datetime.strptime(update_date, "%Y%m%d%H%M%S")
+                except TypeError:
+                    update_time = datetime.datetime(*(time.strptime(update_date, "%Y%m%d%H%M%S")[0:6]))
+                delta = current_time - update_time
+                        
+                if delta.days >= int(treshold) + 1 :        
+                    update = True
+            
+            
+            if update or update_date is None:
+                self.epg_xml = EPGXML.EpgXml(self.addon, True, progress_bar=False)
+                self.epg_xml.setDatabaseObj(self.database)
+                self.epg_xml.setCursorObj(self.cursor)
+                self.epg_xml.getXMLTV()
+                self.epg_db.setUpdateDate()
+                
+                self.epg_xml.close()
+                del self.epg_xml
+                
+            self.epg_db.close()
+            del self.epg_db
+        except:
+            xbmc.log("Update exception : Update delay", xbmc.LOGERROR)
        
     

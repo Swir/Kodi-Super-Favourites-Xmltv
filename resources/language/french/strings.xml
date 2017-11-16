@@ -58,7 +58,11 @@
     <string id="322241">Pattern pour les sous dossiers</string>
     <string id="322242">Id XMLTV de la chaine</string>
     <string id="322243">Nom de la chaîne</string>
-    
+    <string id="322244">Impossible de récupérer les informations des chaines</string>
+    <string id="322245">SFX - Sous répertoires</string> 
+    <string id="322246">Création des sous répertoires Super Favourites ou vous pourrez déposer tous les liens vers vos chaines iptv</string> 
+    <string id="322247">Répertoire</string> 
+
     
     <!--  Settings separators lsep -->
     <string id="32225">Ou se trouve le fichier xmltv</string>
