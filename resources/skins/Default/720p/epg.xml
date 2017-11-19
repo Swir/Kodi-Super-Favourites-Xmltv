@@ -39,15 +39,6 @@
             <height>720</height>
             <visible>true</visible>
 
-            <control type="button" id="5001">
-                <description>marker for EPG data view - should be hidden!</description>
-                <posx>180</posx>
-                <posy>60</posy>
-                <width>1080</width>
-                <height>450</height>
-                <visible>false</visible>
-            </control>
-
             <!-- Date and time row -->
             <control type="group">
                 <posx>0</posx>

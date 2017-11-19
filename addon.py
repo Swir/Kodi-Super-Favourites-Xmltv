@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import time
+import time, datetime
 import datetime as dt
 import xbmc, xbmcaddon, xbmcgui  
 
+from threading import Timer
 from resources.lib import EPGXML, utils, superfavourites
 from os.path import join
 
@@ -18,15 +19,25 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     epg_xml = None
     epg_grid = None
     
-    # XML gui structure.
+    # Customizable controls.
     BACKGROUND_IMAGE = 4600
+    CURRENT_TIME_MARKER = 4100
+    
+    '''
+     For futures versions skinings.
+    '''
+    #Set the maximum time of the timeline..
+    MAXIMUM_TIME_PROGRAMS_DISPLAY = 120
+    #Add this specifix X value to the time marker in order to align with skin font.
+    TIME_MARKER_X_ADD = 22
     
     # Date and time xml controls.
-    DATE_TIME_TODAY_LABEL    = 4000
+    DATE_TIME_TODAY_LABEL   = 4000
     DATE_TIME_FIRST_COLUMN  = 4001
     DATE_TIME_SECOND_COLUMN = 4002
     DATE_TIME_THIRD_COLUMN  = 4003
     DATE_TIME_FOURTH_COLUMN = 4004
+    
     
     # Channels labels ( not content )
     CHANNEL_LABEL_1 = 4010
@@ -54,10 +65,14 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     BACKGROUND_BUILTIN = 'true'
     
     start_time = 0
+    # Time marker for grid view.
+    start_time_view = None
+    
     addon_id = 'plugin.program.super.favourites.xmltv'
     addon = None
     addon_path = None
     addon_bg_base = None
+    is_closing = False
         
     '''
     Class init.
@@ -94,6 +109,10 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         labelTime2.setLabel(self.setTimesLabels(labelTime1.getLabel()))
         labelTime3.setLabel(self.setTimesLabels(labelTime2.getLabel()))
         labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
+        
+        # Current time marker.
+        self.start_time_view = labelTime1.getLabel()
+        self.setTimeMarker(timer=True)
         
         # DB object
         self.epg_db = EPGXML.EpgDb(addon, self.DEBUG)
@@ -133,6 +152,41 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
             bg.setImage(bg_image, useCache=False)  
             
     
+    
+    '''
+    Set the time marker position
+    '''
+    def setTimeMarker(self, timer=False):
+        
+        tm = self.getControl(XMLWindowEPG.CURRENT_TIME_MARKER)
+        x_margin = self.getControl(XMLWindowEPG.DATE_TIME_FIRST_COLUMN).getX()
+        
+        hour_value = self.getControl(XMLWindowEPG.DATE_TIME_THIRD_COLUMN).getX()
+        hour_value -= x_margin
+        
+        dt = datetime.datetime.now()
+        hours = self.start_time_view[0:self.start_time_view.find(':')]
+        mins  =  self.start_time_view[self.start_time_view.find(':') + 1 :]
+
+        start = "%i%02i%02i%s%s" % (dt.year, dt.month, dt.day, hours, mins)
+        now_cmp = datetime.datetime.now().strftime("%Y%m%d%H%M")
+        
+        elapsed_mins = int(now_cmp) - int(start)
+        
+        tm.setVisible(True)
+        # < 120 => maximum of 2 hours displayed converted in minutes.
+        if elapsed_mins >= 1 and elapsed_mins <= XMLWindowEPG.MAXIMUM_TIME_PROGRAMS_DISPLAY :
+            x = int( ( float(hour_value) / 60 ) * elapsed_mins ) + x_margin + XMLWindowEPG.TIME_MARKER_X_ADD
+            tm.setPosition(x, tm.getY())
+        elif elapsed_mins == 0:
+            x = int( ( float(hour_value) / 60 )) + x_margin + XMLWindowEPG.TIME_MARKER_X_ADD
+            tm.setPosition(x, tm.getY())            
+        else:
+            tm.setVisible(False)   
+        
+        if timer and not xbmc.abortRequested and not self.is_closing:
+            Timer(2, self.setTimeMarker, {timer: True}).start()   
+        
     
     '''
     Return the time turned into EPG style
@@ -192,8 +246,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         
         label9 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_9)
         label9.setLabel(self.epg_grid.get(channels[start + 8])["display_name"])
-        
-                   
+            
         
     
     '''
@@ -204,6 +257,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         
         # Same as normal python Windows.
         if action == xbmcgui.ACTION_PREVIOUS_MENU:
+            self.is_closing = True
             xbmc.sleep(500)
             self.close()
         
