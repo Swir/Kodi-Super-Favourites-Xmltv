@@ -6,7 +6,6 @@
         <setting id="update.frequency"  type="enum" label="32012"  lvalues="32211|32212|32213|32214|32215|32216|32217" />
         <setting type="sep"/>
         <setting id="cleanup.treshold"  type="enum" label="32014"  lvalues="33501|33502|33503|33504|33505|33506|33507" />
-        <setting id="previously.aired"  type="enum" label="32016"  lvalues="33501|33502|33503" />
         <setting id="next.aired"        type="enum" label="32015"  lvalues="33501|33502|33503" />
     </category>
     
