@@ -465,9 +465,9 @@ class EpgDb(object):
     def removeChannel(self, id_channel):
         try:
             # Channel
-            delete = 'DELETE FROM channels WHERE id_channel="%s"' % (id_channel, )
+            delete = 'DELETE FROM channels WHERE id_channel="%s"' % id_channel
             # Programs
-            programs = 'DELETE FROM programs WHERE channel="%s"' % (id_channel, )
+            programs = 'DELETE FROM programs WHERE channel="%s"' % id_channel
             self.cursor.execute(delete)
             self.cursor.execute(programs)
             self.database.commit()
@@ -594,9 +594,12 @@ class EpgDb(object):
     '''
     Return all programs for a given channel
     ''' 
-    def getChannelPrograms(self, id_channel):
-        try:
-            get = 'SELECT * FROM programs WHERE channel="%s" ORDER BY start_date ASC' % id_channel
+    def getChannelPrograms(self, id_channel, start_time, end_time):
+        try:            
+            between_v1 = start_time.strftime("%Y%m%d%H%M%S")
+            between_v2 = end_time.strftime("%Y%m%d%H%M%S")
+            get = 'SELECT * FROM programs WHERE channel="%s" AND CAST(end_date AS INTEGER) BETWEEN %i AND %i ORDER BY start_date ASC' % (id_channel, int(between_v1), int(between_v2))
+            
             self.cursor.execute(get)
             return self.cursor.fetchall()
         except sqlite3.Error as e:
@@ -628,51 +631,22 @@ class EpgDb(object):
     '''
     Return the complete EPG grid.
     '''
-    def getEpgGrid(self, time_reference, limit=9):
+    def getEpgGrid(self, start_dt, end_dt, limit=9):
         
         channels = self.getAllChannels(channels_limit=limit)
         
         grid = dict()
-        dt = datetime.datetime.now()
-        
-        try:
-            previous_range = int(self.addon.getSetting('previously.aired')) + 1
-        except ValueError:
-            previous_range = 1
-        
-        dt_previous = dt - datetime.timedelta(days=previous_range)
-        
-        try:   
-            next_range = int(self.addon.getSetting('next.aired')) + 1
-        except ValueError:
-            next_range = 1
-            
-        dt_next = dt + datetime.timedelta(days=next_range)
-        
-        hours = time_reference[0:time_reference.find(':')]
-        mins  =  time_reference[time_reference.find(':') + 1 :]   
-        
-        date_previous = "%i%i%i%s%s%s" % (dt_previous.year, dt_previous.month, dt_previous.day, hours, mins, "00")
-        date_next     = "%i%i%i%s%s%s" % (dt_next.year, dt_next.month, dt_next.day, hours, mins, "00")
-        
+                             
         for channel in channels:
-            programs = self.getChannelPrograms(channel[1])
+            programs = self.getChannelPrograms(channel[1], start_dt, end_dt)
             
             programs_list = []
             for program in programs:
-                #filtering by end date
-                end_date = program[4]
-            
-                display = False if int(end_date) - int(date_previous) <= 0 else (False if int(end_date) - int(date_next) > 0 else True)
-                
-                if display:
-                    # Storing program
-                    plist = {"title": program[2], "desc": program[5], "start": program[3], "end": end_date}
-                    programs_list.append(plist)    
+                # Storing program
+                plist = {"title": program[2], "desc": program[5], "start": program[3], "end": program[4]}
+                programs_list.append(plist)    
                                 
-                
-                
-            grid[channel[0]] = {"": channel[1], "display_name" : channel[2], "programs": programs_list}
+            grid[channel[0]] = {"id_channel": channel[1], "display_name" : channel[2], "programs": programs_list}
         
         return grid
     
