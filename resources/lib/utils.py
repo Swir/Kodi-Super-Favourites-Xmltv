@@ -153,12 +153,12 @@ class ThreadedUpdater(Thread):
                     self.epg_xml.getXMLTV()
                     self.epg_db.setUpdateDate()
                 
-            self.epg_xml.close()
-            del self.epg_xml
+                    self.epg_xml.close()
+                    del self.epg_xml
                 
             self.epg_db.close()
             del self.epg_db
-        except:
-            xbmc.log("Update exception : Update delay", xbmc.LOGERROR)
+        except Exception as e:
+            xbmc.log("Update exception : Update delay %s"%e.message, xbmc.LOGERROR)
        
     
