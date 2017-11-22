@@ -621,7 +621,7 @@ class EpgDb(object):
         try:            
             between_v1 = start_time.strftime("%Y%m%d%H%M%S")
             between_v2 = end_time.strftime("%Y%m%d%H%M%S")
-            get = 'SELECT * FROM programs WHERE channel="%s" AND CAST(end_date AS INTEGER) BETWEEN %i AND %i ORDER BY start_date ASC' % (id_channel, int(between_v1), int(between_v2))
+            get = 'SELECT * FROM programs WHERE channel="%s" AND ((CAST(end_date AS INTEGER) BETWEEN %i AND %i) OR (CAST(start_date AS INTEGER) BETWEEN %i AND %i)) ORDER BY start_date ASC' % (id_channel, int(between_v1), int(between_v2), int(between_v1), int(between_v2))
             xbmc.log(get, xbmc.LOGERROR)
             self.cursor.execute(get)
             return self.cursor.fetchall()
@@ -639,7 +639,7 @@ class EpgDb(object):
     '''
     def getAllChannels(self, channels_limit=9):
         try:
-            get = 'SELECT * FROM channels WHERE 1 ORDER BY id ASC LIMIT %i' % channels_limit
+            get = 'SELECT * FROM channels WHERE visible="1" ORDER BY id ASC LIMIT %i' % channels_limit
             self.cursor.execute(get)
             return self.cursor.fetchall()
         except sqlite3.Error as e:
