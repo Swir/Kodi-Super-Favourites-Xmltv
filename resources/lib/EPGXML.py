@@ -9,6 +9,7 @@ import xbmcgui, xbmc
 
 from xml.dom import minidom
 from resources.lib import utils
+from datetime import timedelta
 
 '''
 Handle XMLTV itself.
@@ -267,6 +268,8 @@ class EpgXml(object):
         xmltv = minidom.parse(xmltv)
         channels = xmltv.getElementsByTagName('channel')
         programs = xmltv.getElementsByTagName('programme')
+        plist = []
+        clist = []
 
         i = 1
         for channel in channels:
@@ -281,8 +284,10 @@ class EpgXml(object):
             display_name = display_name.replace("\\", "-")
             
             if not self.epg_db.channelExists(id_channel):
-                self.epg_db.addChannel(id_channel, display_name, notify_errors=False)
+                clist.append([id_channel, display_name, '', '', '1'])
             i += 1
+        
+        self.epg_db.addChannels(clist)
            
         
         self.epg_db.truncatePrograms()
@@ -295,18 +300,33 @@ class EpgXml(object):
             
             id_channel = program.getAttribute('channel') .encode('utf-8', 'ignore')           
             
-            
+            start_time_zone = None
             start_date = program.getAttribute('start')
-            if start_date.find(' +'):
-                start_date = start_date[:start_date.find(" +")]
             start_date = start_date.encode('utf-8', 'ignore')
             
+            if start_date.find(' +'):
+                start_time_zone = start_date[start_date.find(" +") + 2:]
+                start_date = start_date[:start_date.find(" +")]             
             
-            end_date = program.getAttribute('start')
-            if end_date.find(' +'):
-                end_date = end_date[:end_date.find(" +")]
+            end_time_zone = None   
+            end_date = program.getAttribute('stop')
             end_date = end_date.encode('utf-8', 'ignore')
+            if end_date.find(' +'):
+                end_time_zone = end_date[end_date.find(" +") + 2:]
+                end_date = end_date[:end_date.find(" +")] 
             
+            try:
+                program_start = datetime.datetime.strptime(start_date, "%Y%m%d%H%M%S")
+                program_end = datetime.datetime.strptime(end_date, "%Y%m%d%H%M%S")
+            except TypeError:
+                program_start = datetime.datetime(*(time.strptime(start_date, "%Y%m%d%H%M%S")[0:6]))
+                program_end = datetime.datetime(*(time.strptime(end_date, "%Y%m%d%H%M%S")[0:6]))
+            
+            if not start_time_zone is None:
+                program_start += timedelta(hours=int(start_time_zone[:2]), minutes=int(start_time_zone[3:]))
+            
+            if not end_time_zone is None:
+                program_end += timedelta(hours=int(end_time_zone[:2]), minutes=int(end_time_zone[3:]))
             
             if program.getElementsByTagName('title').length > 0:
                 try:
@@ -327,11 +347,15 @@ class EpgXml(object):
             else:
                 desc = self.addon.getLocalizedString(33702)
             
-            self.epg_db.addProgram(id_channel, ptitle, start_date, end_date, desc)
+            if program_end > datetime.datetime.now():
+                plist.append([id_channel, ptitle, program_start.strftime("%Y%m%d%H%M%S"), program_end.strftime("%Y%m%d%H%M%S"), desc])
+            
             i += 1
+            
+        self.epg_db.addPrograms(plist)
         
         self.xmltv_progress_bar.close()
-        
+
             
     '''
     Cose the database oject
@@ -397,20 +421,16 @@ class EpgDb(object):
     '''
     Add a channel definition into the database.
     '''
-    def addChannel(self, cid, display_name, logo='', source='', visible=True, notify_errors=True):
+    def addChannels(self, clist):
         try:
-            if visible:
-                visible = '1'
-            else:
-                visible = '0'
-            channel = "INSERT INTO channels (id_channel, display_name, logo, source, visible) "
-            values  = 'VALUES ("%s","%s","%s","%s",%s)' % (cid,display_name,logo,source,visible)
-        
-            self.cursor.execute(channel + values)
+            for channel in clist:
+                chann = "INSERT INTO channels (id_channel, display_name, logo, source, visible) VALUES (?,?,?,?,?)"
+                self.cursor.execute(chann, (channel[0],channel[1],channel[2],channel[3],channel[4]))
+                
             self.database.commit()
         
         except sqlite3.Error as e:
-            if self.DEBUG and notify_errors:
+            if self.DEBUG:
                 utils.notify(self.addon, 33403, e.message)
             return False
         
@@ -510,12 +530,15 @@ class EpgDb(object):
     '''
     Add a program into the program table.
     '''
-    def addProgram(self, channel, title, dtd_start_date, dtd_end_date, description):
+    def addPrograms(self, program_list):
         
         try:
-            program = 'INSERT INTO programs (channel, title, start_date, end_date, description) VALUES (?,?,?,?,?)'            
-            self.cursor.execute(program, (channel, title, dtd_start_date, dtd_end_date, description))
+            for program in program_list:
+                program_req = 'INSERT INTO programs (channel, title, start_date, end_date, description) VALUES (?,?,?,?,?)'            
+                self.cursor.execute(program_req, (program[0], program[1], program[2], program[3], program[4]))
+            
             self.database.commit()
+            
         except sqlite3.Error as e:
             if self.DEBUG:
                 utils.notify(self.addon, 33407, e.message)
@@ -599,7 +622,7 @@ class EpgDb(object):
             between_v1 = start_time.strftime("%Y%m%d%H%M%S")
             between_v2 = end_time.strftime("%Y%m%d%H%M%S")
             get = 'SELECT * FROM programs WHERE channel="%s" AND CAST(end_date AS INTEGER) BETWEEN %i AND %i ORDER BY start_date ASC' % (id_channel, int(between_v1), int(between_v2))
-            
+            xbmc.log(get, xbmc.LOGERROR)
             self.cursor.execute(get)
             return self.cursor.fetchall()
         except sqlite3.Error as e:
