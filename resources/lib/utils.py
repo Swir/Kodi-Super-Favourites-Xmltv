@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import xbmc
-import EPGXML
 import sqlite3
-import time, datetime
 from os.path import isfile
 
 '''
 Display a basic notification
-    '''    
-from threading import Thread
-
+'''    
 
 def notify(addon, message, plus=None):
     
@@ -83,82 +79,3 @@ def copyfile(source, dest, buffer_size=1024*1024):
         if not copy_buffer:
             break
         destin.write(copy_buffer)
-        
-
-
-'''
-Handle threaded updates
-''' 
-class ThreadedUpdater(Thread):
-    
-    epg_db = None
-    epg_xml = None
-    addon = None
-    
-    database = None
-    cursor = None
-    
-    
-    '''
-    Thread init
-    '''
-    def __init__(self, addon):
-        Thread.__init__(self)
-        self.addon = addon
-        self.epg_db = EPGXML.EpgDb(addon, True)
-    
-    
-    '''
-    Thread run
-    '''
-    def run(self):
-        try:
-            xbmc.sleep(10000)
-            # Removes old entries into the database.
-            self.database, self.cursor = connectEpgDB(self.epg_db, self.addon)   
-            self.epg_db.setDatabaseObj(self.database)
-            self.epg_db.setCursorObj(self.cursor)
-            
-            # Clean old entries ( see configuration )
-            if self.epg_db.firstTimeRuning():
-                return
-            
-            self.epg_db.getCleanOld()    
-            
-            if self.addon.getSetting('startup.update') == 'true':
-                # Getting EPG xmltv file
-                update = False
-                treshold = self.addon.getSetting('update.frequency')
-                update_date = self.epg_db.getLastUpdateDate()
-            
-                if not update_date is None:
-                    if treshold is None or treshold == '':
-                        treshold = '1'
-                        
-                    current_time = datetime.datetime.fromtimestamp(time.time())
-                    try:
-                        update_time = datetime.datetime.strptime(update_date, "%Y%m%d%H%M%S")
-                    except TypeError:
-                        update_time = datetime.datetime(*(time.strptime(update_date, "%Y%m%d%H%M%S")[0:6]))
-                    delta = current_time - update_time
-                        
-                    if delta.days >= int(treshold) + 1 :        
-                        update = True
-            
-            
-                if update or update_date is None:
-                    self.epg_xml = EPGXML.EpgXml(self.addon, True, progress_bar=False)
-                    self.epg_xml.setDatabaseObj(self.database)
-                    self.epg_xml.setCursorObj(self.cursor)
-                    self.epg_xml.getXMLTV()
-                    self.epg_db.setUpdateDate()
-                
-                    self.epg_xml.close()
-                    del self.epg_xml
-                
-            self.epg_db.close()
-            del self.epg_db
-        except Exception as e:
-            xbmc.log("Update exception : Update delay %s"%e.message, xbmc.LOGERROR)
-       
-    
