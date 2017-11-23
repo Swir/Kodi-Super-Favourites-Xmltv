@@ -4,8 +4,11 @@ import datetime as dt
 import xbmc, xbmcaddon, xbmcgui  
 
 from threading import Timer
-from resources.lib import EPGXML, utils, superfavourites
 from os.path import join
+
+from resources.lib import EPGXML, superfavourites, utils
+from resources.lib.EPGCtl import EPGControl, EPGGridView
+
 
 
 '''
@@ -13,65 +16,37 @@ Global class handling EPG Gui.
 '''
 class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     DEBUG = True
+    
+    epg_view = None
     database = None
     cursor = None
+    
     epg_db = None
     epg_xml = None
     epg_grid = None
     
-    # Customizable controls.
-    BACKGROUND_IMAGE = 4600
-    CURRENT_TIME_MARKER = 4100
+    # Customizable controls
+    CHANNELS_ON_PAGE = 9
     
     '''
      For futures versions skinings.
     '''
     #Set the maximum time of the timeline..
     MAXIMUM_TIME_PROGRAMS_DISPLAY = 120
-    #Add this specifix X value to the time marker in order to align with skin font.
-    TIME_MARKER_X_ADD = 22
-    
-    # Date and time xml controls.
-    DATE_TIME_TODAY_LABEL   = 4000
-    DATE_TIME_FIRST_COLUMN  = 4001
-    DATE_TIME_SECOND_COLUMN = 4002
-    DATE_TIME_THIRD_COLUMN  = 4003
-    DATE_TIME_FOURTH_COLUMN = 4004
-    
     
     # Channels labels ( not content )
-    CHANNEL_LABEL_1 = 4010
-    CHANNEL_LABEL_2 = 4011
-    CHANNEL_LABEL_3 = 4012
-    CHANNEL_LABEL_4 = 4013
-    CHANNEL_LABEL_5 = 4014
-    CHANNEL_LABEL_6 = 4015
-    CHANNEL_LABEL_7 = 4016
-    CHANNEL_LABEL_8 = 4017
-    CHANNEL_LABEL_9 = 4018
-    
-    # Channels logos
-    CHANNEL_LOGO_1 = 4110
-    CHANNEL_LOGO_2 = 4111
-    CHANNEL_LOGO_3 = 4112
-    CHANNEL_LOGO_4 = 4113
-    CHANNEL_LOGO_5 = 4114
-    CHANNEL_LOGO_6 = 4115
-    CHANNEL_LOGO_7 = 4116
-    CHANNEL_LOGO_8 = 4117
-    CHANNEL_LOGO_9 = 4118
+    CHANNEL_LABEL_START = 4010
+    CHANNEL_LOGO_START   = 4110
+    PROGRAM_TITLE = 4020
     
     # Predefined const.
     BACKGROUND_BUILTIN = 'true'
-    
-    start_time = 0
-    # Time marker for grid view.
-    start_time_view = None
     
     addon_id = 'plugin.program.super.favourites.xmltv'
     addon = None
     addon_path = None
     addon_bg_base = None
+    addon_images = None
     is_closing = False
         
     '''
@@ -79,11 +54,12 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''    
     def __init__(self, strXMLname, strFallbackPath):
         self.addon = xbmcaddon.Addon(self.addon_id)
+        
         self.addon_path = addon.getAddonInfo('path')
-        self.addon_bg_base = join(self.addon_path,'resources', 'skins', 'Default', 'media', 'backgrounds', 'bg')
+        self.addon_images = join(self.addon_path,'resources', 'skins', 'Default', 'media')
+        self.addon_bg_base = join(self.addon_images, 'backgrounds', 'bg')
         
         xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
-        self.start_time = dt.datetime.today()
         
     
     '''
@@ -92,27 +68,38 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     def onInit(self):
         
-        # Defining background
-        self.setEPGBackground()
-                        
-        # Setting current day date.
-        labelCurrentDate = self.getControl(XMLWindowEPG.DATE_TIME_TODAY_LABEL)
-        labelCurrentDate.setLabel(time.strftime("%d/%m/%Y"))
-
-        #Setting date and time controls.
-        labelTime1 = self.getControl(XMLWindowEPG.DATE_TIME_FIRST_COLUMN)
-        labelTime2 = self.getControl(XMLWindowEPG.DATE_TIME_SECOND_COLUMN)
-        labelTime3 = self.getControl(XMLWindowEPG.DATE_TIME_THIRD_COLUMN)
-        labelTime4 = self.getControl(XMLWindowEPG.DATE_TIME_FOURTH_COLUMN)
+        # Init EPG Grid global View
+        globalControl = self.getControl(EPGControl.GLOBAL_CONTROL)
         
-        labelTime1.setLabel(self.setTimesLabels(str(self.start_time.hour) + ":" + str(self.start_time.minute), halfInc=False))
+        self.epg_view = EPGGridView()
+        self.epg_view.left, self.epg_view.top = globalControl.getPosition()
+        self.epg_view.right = self.epg_view.left + globalControl.getWidth()
+        self.epg_view.bottom = self.epg_view.top + globalControl.getHeight()
+        self.epg_view.width = globalControl.getWidth()
+        self.epg_view.cellHeight = globalControl.getHeight() / XMLWindowEPG.CHANNELS_ON_PAGE
+        
+        start_time = datetime.datetime.now()
+        start_time_view = self.setTimesLabels(str(start_time.hour) + ":" + str(start_time.minute), halfInc=False)
+        self.epg_view.start_time = start_time.replace(hour=int(start_time_view[:2]), minute=int(start_time_view[3:]))
+        
+        
+        self.setEPGBackgrounds() 
+        self.setTimeMarker(timer=True)
+        
+        # Setting current day date.
+        labelCurrentDate = self.getControl(EPGControl.label.DATE_TIME_TODAY)
+        labelCurrentDate.setLabel(time.strftime("%d/%m/%Y"))
+        
+        #Setting date and time controls.
+        labelTime1 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_ONE)
+        labelTime2 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_TWO)
+        labelTime3 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_THREE)
+        labelTime4 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_FOUR)
+        
+        labelTime1.setLabel(start_time_view)
         labelTime2.setLabel(self.setTimesLabels(labelTime1.getLabel()))
         labelTime3.setLabel(self.setTimesLabels(labelTime2.getLabel()))
         labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
-        
-        # Current time marker.
-        self.start_time_view = labelTime1.getLabel()
-        self.setTimeMarker(timer=True)
         
         # DB object
         self.epg_db = EPGXML.EpgDb(addon, self.DEBUG)
@@ -125,16 +112,16 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epg_xml.setDatabaseObj(self.database)
         self.epg_xml.setCursorObj(self.cursor)
         
-        self.epg_grid = self.epg_db.getEpgGrid(labelTime1.getLabel(), limit=9)
         self.setChannels(0)
     
     
     '''
     Set the EPG background with customer settings.
     '''
-    def setEPGBackground(self):
+    def setEPGBackgrounds(self):
         
-        bg = self.getControl(XMLWindowEPG.BACKGROUND_IMAGE)
+        bg = self.getControl(EPGControl.image.BACKGROUND)
+        
         background_type = self.addon.getSetting('type.background')
         
         if str(background_type) == XMLWindowEPG.BACKGROUND_BUILTIN:
@@ -158,35 +145,19 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     def setTimeMarker(self, timer=False):
         
-        tm = self.getControl(XMLWindowEPG.CURRENT_TIME_MARKER)
-        x_margin = self.getControl(XMLWindowEPG.DATE_TIME_FIRST_COLUMN).getX()
+        tm = self.getControl(EPGControl.image.TIME_MARKER)
+        dt_now = datetime.datetime.now()
+        delta = dt_now - self.epg_view.start_time
+        tm.setVisible(False) 
         
-        hour_value = self.getControl(XMLWindowEPG.DATE_TIME_THIRD_COLUMN).getX()
-        hour_value -= x_margin
-        
-        dt = datetime.datetime.now()
-        hours = self.start_time_view[0:self.start_time_view.find(':')]
-        mins  =  self.start_time_view[self.start_time_view.find(':') + 1 :]
-
-        start = "%i%02i%02i%s%s" % (dt.year, dt.month, dt.day, hours, mins)
-        now_cmp = datetime.datetime.now().strftime("%Y%m%d%H%M")
-        
-        elapsed_mins = int(now_cmp) - int(start)
-        
-        tm.setVisible(True)
-        # < 120 => maximum of 2 hours displayed converted in minutes.
-        if elapsed_mins >= 1 and elapsed_mins <= XMLWindowEPG.MAXIMUM_TIME_PROGRAMS_DISPLAY :
-            x = int( ( float(hour_value) / 60 ) * elapsed_mins ) + x_margin + XMLWindowEPG.TIME_MARKER_X_ADD
-            tm.setPosition(x, tm.getY())
-        elif elapsed_mins == 0:
-            x = int( ( float(hour_value) / 60 )) + x_margin + XMLWindowEPG.TIME_MARKER_X_ADD
-            tm.setPosition(x, tm.getY())            
-        else:
-            tm.setVisible(False)   
-        
+        if delta.seconds >=  0 and delta.seconds <= XMLWindowEPG.MAXIMUM_TIME_PROGRAMS_DISPLAY * 60:
+            x = self.epg_view.secondsToX(delta.seconds)
+            tm.setPosition(int(x), tm.getY())
+            tm.setVisible(True)
+                 
         if timer and not xbmc.abortRequested and not self.is_closing:
-            Timer(2, self.setTimeMarker, {timer: True}).start()   
-        
+            Timer(1, self.setTimeMarker, {timer: True}).start()   
+    
     
     '''
     Return the time turned into EPG style
@@ -218,34 +189,64 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     def setChannels(self, start):
         
-        channels = self.epg_grid.keys()
+        dt_stop = self.epg_view.start_time + datetime.timedelta(minutes=self.MAXIMUM_TIME_PROGRAMS_DISPLAY - 2)
         
-        label1 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_1)
-        label1.setLabel(self.epg_grid.get(channels[start])["display_name"])
+        EPG = self.epg_db.getEpgGrid(self.epg_view.start_time, dt_stop)
         
-        label2 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_2)
-        label2.setLabel(self.epg_grid.get(channels[start + 1])["display_name"])
+        noFocusTexture = join(self.addon_images, 'buttons', 'tvguide-program-grey.png')
+        focusTexture = join(self.addon_images, 'buttons', 'tvguide-program-grey-focus.png')
         
-        label3 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_3)
-        label3.setLabel(self.epg_grid.get(channels[start + 2])["display_name"])
+        idx = 0
+        for channel in EPG.values():
+            self.getControl(XMLWindowEPG.CHANNEL_LABEL_START + idx).setLabel(channel["display_name"])    
+            # Program details.
+            programs = channel["programs"]
+            
+            if len(programs) == 0:
+                nothing = "No data available"
+                pbutton = xbmcgui.ControlButton(
+                    self.epg_view.left, 
+                    self.epg_view.top + self.epg_view.cellHeight * idx, 
+                    self.epg_view.right - self.epg_view.left - 2, 
+                    self.epg_view.cellHeight - 2, 
+                    nothing, focusTexture, noFocusTexture)
+                self.addControl(pbutton)
+                  
+            for program in programs:                 
+                try:
+                    program_start = datetime.datetime.strptime(program["start"], "%Y%m%d%H%M%S")
+                    program_end = datetime.datetime.strptime(program["end"], "%Y%m%d%H%M%S")
+                except TypeError:
+                    program_start = datetime.datetime(*(time.strptime(program["start"], "%Y%m%d%H%M%S")[0:6]))
+                    program_end = datetime.datetime(*(time.strptime(program["end"], "%Y%m%d%H%M%S")[0:6]))
+                
+                deltaStart = program_start - self.epg_view.start_time
+                deltaStop  = program_end - self.epg_view.start_time
+                
+                y = self.epg_view.top + self.epg_view.cellHeight * idx
+                x = self.epg_view.secondsToX(deltaStart.seconds)
+                
+                if deltaStart.days < 0:
+                    x = self.epg_view.left
+                
+                width = self.epg_view.secondsToX(deltaStop.seconds) - x
+                
+                if x + width > self.epg_view.right:
+                    width = self.epg_view.right - x
+                width -= 2
+                
+                pbutton = xbmcgui.ControlButton(
+                    x,y,
+                    width,
+                    self.epg_view.cellHeight - 2,
+                    program["title"],
+                    noFocusTexture=noFocusTexture,
+                    focusTexture=focusTexture
+                )
+                                
+                self.addControl(pbutton)                        
+            idx += 1
         
-        label4 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_4)
-        label4.setLabel(self.epg_grid.get(channels[start + 3])["display_name"])
-        
-        label5 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_5)
-        label5.setLabel(self.epg_grid.get(channels[start + 4])["display_name"])
-        
-        label6 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_6)
-        label6.setLabel(self.epg_grid.get(channels[start + 5])["display_name"])
-        
-        label7 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_7)
-        label7.setLabel(self.epg_grid.get(channels[start + 6])["display_name"])
-        
-        label8 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_8)
-        label8.setLabel(self.epg_grid.get(channels[start + 7])["display_name"])
-        
-        label9 = self.getControl(XMLWindowEPG.CHANNEL_LABEL_9)
-        label9.setLabel(self.epg_grid.get(channels[start + 8])["display_name"])
             
         
     
@@ -279,7 +280,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Handle focusses changes between controls
     '''
     def onFocus(self, controlID):
-        pass
+        pass    
+        
             
 
 ''''''''''''''''''''''''''''''
@@ -339,10 +341,10 @@ if __name__ == '__main__':
             epg_xml.setCursorObj(cursor)
             epg_xml.getXMLTV()
             
-            epg_db.getCleanOld()
             xbmc.sleep(1500)
             epg_db.setFirstTimeRuning(0)
             epg_db.setUpdateDate()
+            epg_db.getCleanOld()
             
             # Super favourites folder init.
             sf_folder = superfavourites.SuperFavouritesIptvFolder(addon)
