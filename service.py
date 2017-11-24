@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import xbmc, xbmcaddon
+import xbmc
 from resources.lib.update import ThreadedUpdater
-
+from resources.lib import strings
 
 try:
-    addon = xbmcaddon.Addon(id = 'plugin.program.super.favourites.xmltv')
     # Updater object
-    epg_updater = ThreadedUpdater(addon)
+    epg_updater = ThreadedUpdater()
     epg_updater.start()
 except Exception, ex:
-    xbmc.log('[SF XMLTV] Unhandled exception in service.py: %s' % str(ex) , xbmc.LOGDEBUG)
+    xbmc.log('%s %s: %s' % (strings.DEBUG_HEADER, strings.UNEXPECTED_EXCEPTION , str(ex)) , xbmc.LOGDEBUG)

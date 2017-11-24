@@ -3,7 +3,7 @@
 import time, datetime
 import xbmc
 import utils
-from resources.lib import EPGXML
+from resources.lib import EPGXML, settings, strings
 from threading import Thread
 
 
@@ -14,7 +14,6 @@ class ThreadedUpdater(Thread):
     
     epg_db = None
     epg_xml = None
-    addon = None
     
     database = None
     cursor = None
@@ -23,10 +22,9 @@ class ThreadedUpdater(Thread):
     '''
     Thread init
     '''
-    def __init__(self, addon):
+    def __init__(self):
         Thread.__init__(self)
-        self.addon = addon
-        self.epg_db = EPGXML.EpgDb(addon, True)
+        self.epg_db = EPGXML.EpgDb(settings.addon, True)
     
     
     '''
@@ -36,7 +34,7 @@ class ThreadedUpdater(Thread):
         try:
             xbmc.sleep(10000)
             # Removes old entries into the database.
-            self.database, self.cursor = utils.connectEpgDB(self.epg_db, self.addon)   
+            self.database, self.cursor = utils.connectEpgDB()   
             self.epg_db.setDatabaseObj(self.database)
             self.epg_db.setCursorObj(self.cursor)
             
@@ -46,10 +44,10 @@ class ThreadedUpdater(Thread):
             
             self.epg_db.getCleanOld()    
             
-            if self.addon.getSetting('startup.update') == 'true':
+            if settings.addon.getSetting('startup.update') == 'true':
                 # Getting EPG xmltv file
                 update = False
-                treshold = self.addon.getSetting('update.frequency')
+                treshold = settings.addon.getSetting('update.frequency')
                 update_date = self.epg_db.getLastUpdateDate()
             
                 if not update_date is None:
@@ -68,7 +66,7 @@ class ThreadedUpdater(Thread):
             
             
                 if update or update_date is None:
-                    self.epg_xml = EPGXML.EpgXml(self.addon, True, progress_bar=False)
+                    self.epg_xml = EPGXML.EpgXml(settings.addon, True, progress_bar=False)
                     self.epg_xml.setDatabaseObj(self.database)
                     self.epg_xml.setCursorObj(self.cursor)
                     self.epg_xml.getXMLTV()
@@ -80,4 +78,5 @@ class ThreadedUpdater(Thread):
             self.epg_db.close()
             del self.epg_db
         except Exception as e:
-            xbmc.log("Update exception : Update delay %s"%e.message, xbmc.LOGERROR)
+            xbmc.log("%s %s" % ( strings.DEBUG_HEADER, e.message, xbmc.LOGERROR))
+            

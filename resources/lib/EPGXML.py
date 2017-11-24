@@ -5,11 +5,11 @@ import datetime
 import sqlite3
 import urllib2
 import zipfile, tarfile
-import xbmcgui, xbmc
+import xbmcgui
 
 from xml.dom import minidom
-from resources.lib import utils
-from datetime import timedelta
+from resources.lib.utils import notify, copyfile
+from resources.lib import strings
 
 '''
 Handle XMLTV itself.
@@ -89,7 +89,7 @@ class EpgXml(object):
             self.xmltv_file = self.__getUrlXmltv(self.addon.getSetting('xmltv.url.value'))
         
         else:
-            utils.notify(self.addon, 33417, "Bad configuration.")
+            notify(strings.XMLTV_LOAD_ERROR)
         
         
         
@@ -106,15 +106,15 @@ class EpgXml(object):
         compressed = True if self.addon.getSetting('xmltv.compressed') == 'true' else False 
         
         if not os.path.isfile(local_file):
-            utils.notify(self.addon, 33419)
+            notify(strings.XMLTV_FILE_NOT_FOUND)
         else:
             if not compressed and not local_file.endswith(".xml"):
-                utils.notify(self.addon, 33418)
+                notify(strings.BAD_XMLTV_FILE_TYPE)
                 return None
             elif not compressed:
                 # Moving to userdata
                 if not self.xmltv_source == EpgXml.XMLTV_SOURCE_URL:
-                    utils.copyfile(local_file, os.path.join(self.xmltv_global_path, "epg.xml"))
+                    copyfile(local_file, os.path.join(self.xmltv_global_path, "epg.xml"))
                 
                 local_file = os.path.join(self.xmltv_global_path, "epg.xml")
                 return local_file
@@ -136,46 +136,35 @@ class EpgXml(object):
         dest_file = os.path.join(self.xmltv_global_path, "epg.xml")        
         
         try:
-            self.xmltv_progress_bar.create(self.addon.getLocalizedString(33801), self.addon.getLocalizedString(33804))
+            self.xmltv_progress_bar.create(strings.SFX_EPG_UPDATE_HEADER, strings.SFX_DOWNLOADING_MSG)
             download = urllib2.urlopen(url_file_source, timeout=30)
             
             # Most of tried servers are data chunked ( no content length header ) so faking progress
             self.xmltv_progress_bar.update(25)
                         
         except urllib2.HTTPError as e:
-            # Server send 'no file changes'
             if e.code == 304:
-                utils.notify(self.addon, 33601, e.reason)
-            # Moved permanently   
+                notify(strings.HTTP_UNCHANGED_REMOTE_FILE, e.reason)  
             elif e.code == 301:    
-                utils.notify(self.addon, 33602, e.reason)
-            # Bad request
+                notify(strings.HTTP_MOVED_PERMANENTLY, e.reason)
             elif e.code == 400:
-                utils.notify(self.addon, 33603, e.reason)
-            # Unauthorized
+                notify(strings.HTTP_BAD_REQUEST, e.reason)
             elif e.code == 401:
-                utils.notify(self.addon, 33604, e.reason)
-            # Forbidden    
+                notify(strings.HTTP_UNAUTHORIZED, e.reason)   
             elif e.code == 403:
-                utils.notify(self.addon, 33604, e.reason)
-            # Not found    
+                notify(strings.HTTP_UNAUTHORIZED, e.reason)    
             elif e.code == 404:
-                utils.notify(self.addon, 33605, e.reason)
-            # Internal server error.
+                notify(strings.HTTP_NOT_FOUND, e.reason)
             elif e.code == 500:
-                utils.notify(self.addon, 33606, e.reason)
-            # Bad gateway
+                notify(strings.HTTP_INTERNAL_SERVER_ERROR, e.reason)
             elif e.code == 502:
-                utils.notify(self.addon, 33607, e.reason)
-            # Server high load.
+                notify(strings.HTTP_BAD_GATEWAY, e.reason)
             elif e.code == 503:
-                utils.notify(self.addon, 33608, e.reason)
-            # Gateway timeout
+                notify(strings.HTTP_SERVER_OVERLOADED, e.reason)
             elif e.code == 504:
-                utils.notify(self.addon, 33609, e.reason)
-            # Unhandled error.    
+                notify(strings.HTTP_REQUEST_TIMEOUT, e.reason)
             else:
-                utils.notify(self.addon, 33610, e.reason)
+                notify(strings.HTTP_UNHANDLED_ERROR, e.reason)
             
             self.xmltv_progress_bar.close()
                
@@ -215,7 +204,7 @@ class EpgXml(object):
             except zipfile.BadZipfile, zipfile.LargeZipFile:
                 if os.path.isdir(dest):
                     shutil.rmtree(dest)
-                utils.notify(self.addon, 33612)
+                notify(strings.ARCHIVE_ZIP_UNCOMPRESS_ERROR)
                 return None
             
         elif tarfile.is_tarfile(zfile):
@@ -227,16 +216,16 @@ class EpgXml(object):
                 except tarfile.ReadError:
                     if os.path.isdir(dest):
                         shutil.rmtree(dest)
-                    utils.notify(self.addon, 33613)
+                    notify(strings.ARCHIVE_TAR_UNCOMPRESS_ERROR)
                     return None
         else:
-            utils.notify(self.addon, 33611)
+            notify(strings.ARCHIVE_UNSUPPORTED_FORMAT)
             return None
         
         if os.path.isdir(dest):
             paths = glob.glob(os.path.join(dest, "*.xml"))
             if len(paths) <= 0:
-                utils.notify(self.addon, 33614)
+                notify(strings.ARCHIVE_NO_XMLTV_FOUND)
                 shutil.rmtree(dest)
                 return None
             else:
@@ -253,7 +242,7 @@ class EpgXml(object):
                         zfile = os.path.join(self.xmltv_global_path, "epg.xml")
                         break
         else:
-            utils.notify(self.addon, 33611)
+            notify(strings.ARCHIVE_UNSUPPORTED_FORMAT)
             return None
         
         return zfile
@@ -264,7 +253,7 @@ class EpgXml(object):
     Parse the xmltv file and return the result.
     '''
     def __parseXMLTV(self, xmltv):
-        self.xmltv_progress_bar.create(self.addon.getLocalizedString(33801), self.addon.getLocalizedString(33423))
+        self.xmltv_progress_bar.create(strings.DIALOG_TITLE, strings.SFX_LONG_TIME_MSG)
         xmltv = minidom.parse(xmltv)
         channels = xmltv.getElementsByTagName('channel')
         programs = xmltv.getElementsByTagName('programme')
@@ -275,7 +264,7 @@ class EpgXml(object):
         for channel in channels:
             
             percent = int( ( i / float(channels.length) ) * 100)
-            message = self.addon.getLocalizedString(33802) + ' %i/%i' % (i, channels.length)
+            message = strings.SFX_CHANNEL + ' %i/%i' % (i, channels.length)
             self.xmltv_progress_bar.update(percent, "", message)
             
             id_channel   = channel.getAttribute('id').encode('utf-8', 'ignore') 
@@ -295,24 +284,20 @@ class EpgXml(object):
         for program in programs:
             
             percent = int( ( i / float(programs.length) ) * 100)
-            message = self.addon.getLocalizedString(33803) + ' %i/%i' % (i, programs.length)
+            message = strings.SFX_PROGRAM + ' %i/%i' % (i, programs.length)
             self.xmltv_progress_bar.update(percent, "", message)
             
             id_channel = program.getAttribute('channel') .encode('utf-8', 'ignore')           
             
-            start_time_zone = None
             start_date = program.getAttribute('start')
             start_date = start_date.encode('utf-8', 'ignore')
             
             if start_date.find(' +'):
-                start_time_zone = start_date[start_date.find(" +") + 2:]
                 start_date = start_date[:start_date.find(" +")]             
-            
-            end_time_zone = None   
+              
             end_date = program.getAttribute('stop')
             end_date = end_date.encode('utf-8', 'ignore')
             if end_date.find(' +'):
-                end_time_zone = end_date[end_date.find(" +") + 2:]
                 end_date = end_date[:end_date.find(" +")] 
             
             try:
@@ -322,30 +307,21 @@ class EpgXml(object):
                 program_start = datetime.datetime(*(time.strptime(start_date, "%Y%m%d%H%M%S")[0:6]))
                 program_end = datetime.datetime(*(time.strptime(end_date, "%Y%m%d%H%M%S")[0:6]))
             
-            if not start_time_zone is None:
-                program_start += timedelta(hours=int(start_time_zone[:2]), minutes=int(start_time_zone[3:]))
-            
-            if not end_time_zone is None:
-                program_end += timedelta(hours=int(end_time_zone[:2]), minutes=int(end_time_zone[3:]))
-            
+            ptitle = ""
             if program.getElementsByTagName('title').length > 0:
                 try:
                     ptitle = program.getElementsByTagName('title')[0].firstChild.data
                     ptitle = ptitle.encode('utf-8', 'ignore')
                 except AttributeError:
-                    ptitle = self.addon.getLocalizedString(33701)
-            else:
-                ptitle = self.addon.getLocalizedString(33701)
+                    ptitle = ""
             
-            
+            desc = ""
             if program.getElementsByTagName('desc').length > 0:
                 try:
                     desc = program.getElementsByTagName('desc')[0].firstChild.data
                     desc = desc.encode('utf-8', 'ignore')
                 except AttributeError:
-                    desc = self.addon.getLocalizedString(33702)
-            else:
-                desc = self.addon.getLocalizedString(33702)
+                    desc = ""
             
             if program_end > datetime.datetime.now():
                 plist.append([id_channel, ptitle, program_start.strftime("%Y%m%d%H%M%S"), program_end.strftime("%Y%m%d%H%M%S"), desc])
@@ -431,7 +407,7 @@ class EpgDb(object):
         
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33403, e.message)
+                notify(strings.ADDING_CHANNEL_ERROR, e.message)
             return False
         
         return True
@@ -473,7 +449,7 @@ class EpgDb(object):
             
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33404, e.message)
+                notify(strings.UPDATE_CHANNEL_ERROR, e.message)
             return False
         
         return True
@@ -493,7 +469,7 @@ class EpgDb(object):
             self.database.commit()
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33405, e.message)
+                notify(strings.REMOVE_CHANNEL_ERROR, e.message)
             return False
         
         return True
@@ -509,7 +485,7 @@ class EpgDb(object):
             return self.cursor.fetchone()
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33406, e.message)
+                notify(strings.GET_CHANNEL_ERROR, e.message)
             return False
         
         return False
@@ -525,7 +501,7 @@ class EpgDb(object):
             return self.cursor.fetchone()[0] == 1
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33406, e.message)
+                notify(strings.GET_CHANNEL_ERROR, e.message)
     
     '''
     Add a program into the program table.
@@ -541,7 +517,7 @@ class EpgDb(object):
             
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33407, e.message)
+                notify(strings.ADDING_PROGRAM_ERROR, e.message)
             return False
         return True
     
@@ -576,7 +552,7 @@ class EpgDb(object):
             
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33410, e.message)
+                notify(strings.UPDATE_PROGRAM_ERROR, e.message)
             return False
         
         return True
@@ -592,7 +568,7 @@ class EpgDb(object):
             self.database.commit()
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33408, e.message)
+                notify(strings.REMOVE_PROGRAM_ERROR, e.message)
             return False
         
         return True
@@ -608,7 +584,7 @@ class EpgDb(object):
             return self.cursor.fetchone()
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33409, e.message)
+                notify(strings.GET_PROGRAM_ERROR, e.message)
             return False
         
         return False
@@ -626,7 +602,7 @@ class EpgDb(object):
             return self.cursor.fetchall()
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33413, e.message)
+                notify(strings.GET_CHANNEL_PROGRAMS_ERROR, e.message)
             return False
         
         return False
@@ -643,7 +619,7 @@ class EpgDb(object):
             return self.cursor.fetchall()
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33412, e.message)
+                notify(strings.GET_CHANNELS_ERROR, e.message)
             return False
         
         return False
@@ -684,14 +660,14 @@ class EpgDb(object):
     Truncate the programs table
     '''
     def truncatePrograms(self):
-        return self.__truncate('programs', 33414)
+        return self.__truncate('programs', strings.DB_PROGRAMS_TRUNCATE_ERROR)
     
     
     '''
     Truncate the channels table
     '''
     def truncateChannels(self):
-        return self.__truncate('channels', 33415)
+        return self.__truncate('channels', strings.DB_CHANNELS_TRUNCATE_ERROR)
     
     
     '''
@@ -715,7 +691,7 @@ class EpgDb(object):
             return int(self.cursor.fetchone()[0]) == 1 
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33420, e.message)
+                notify(strings.DB_STATE_ERROR, e.message)
             return False
     
     
@@ -731,7 +707,7 @@ class EpgDb(object):
             self.database.commit()
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33420, e.message)    
+                notify(strings.DB_STATE_ERROR, e.message)    
     
     '''
     Delete all passed programs
@@ -743,34 +719,32 @@ class EpgDb(object):
                 return
             
             self.cursor.execute(programs)
-            pcheck = self.cursor.fetchall()
             
-            if len(pcheck) > 0:
-                for program in pcheck:
+            for program in self.cursor.fetchall():
                     
-                    program_end_date = program[1]
+                program_end_date = program[1]
                     
-                    treshold = self.addon.getSetting('cleanup.treshold')
-                    if treshold is None or treshold == '':
-                        treshold = '1'
+                treshold = self.addon.getSetting('cleanup.treshold')
+                if treshold is None or treshold == '':
+                    treshold = '1'
                     
-                    current_time = datetime.datetime.fromtimestamp(time.time())
-                    try:
-                        program_time = datetime.datetime.strptime(program_end_date, "%Y%m%d%H%M%S")
-                    except TypeError:
-                        program_time = datetime.datetime(*(time.strptime(program_end_date, "%Y%m%d%H%M%S")[0:6]))
+                current_time = datetime.datetime.fromtimestamp(time.time())
+                try:
+                    program_time = datetime.datetime.strptime(program_end_date, "%Y%m%d%H%M%S")
+                except TypeError:
+                    program_time = datetime.datetime(*(time.strptime(program_end_date, "%Y%m%d%H%M%S")[0:6]))
                     
-                    delta = current_time - program_time
+                delta = current_time - program_time
                     
-                    if delta.days >= int(treshold) + 1 :
-                        # Then delete old ones.
-                        request = "DELETE FROM programs WHERE id_program=%i" % program[0]
-                        self.cursor.execute(request)
-                        self.database.commit()
+                if delta.days >= int(treshold) + 1 :
+                    # Then delete old ones.
+                    request = "DELETE FROM programs WHERE id_program=%i" % program[0]
+                    self.cursor.execute(request)
+                    self.database.commit()
                 
         except sqlite3.Error as e:
             if self.DEBUG :
-                utils.notify(self.addon, 33416, e.message)
+                notify(strings.CLEANUP_PROGRAMS_ERROR, e.message)
                 
                 
     '''
@@ -787,7 +761,7 @@ class EpgDb(object):
             return str(res)
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33424, e.message)   
+                notify(strings.LAST_UPDATE_NOT_FOUND, e.message)   
     
     
     '''
@@ -802,7 +776,7 @@ class EpgDb(object):
             self.database.commit()
         except sqlite3.Error as e:
             if self.DEBUG:
-                utils.notify(self.addon, 33425, e.message)   
+                notify(strings.REGISTER_UPDATE_ERROR, e.message)   
                 
     
     '''
@@ -815,12 +789,12 @@ class EpgDb(object):
             self.database.commit()
         except sqlite3.Error as err:
             if self.DEBUG and not error is None:
-                utils.notify(self.addon, 33414, err.message)
+                notify(error, err.message)
             return False
         return True
     
     
-        '''
+    '''
     Cose the database oject
     '''
     def close(self):

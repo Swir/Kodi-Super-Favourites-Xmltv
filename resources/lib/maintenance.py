@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import xbmc
 from xbmcgui import Dialog
-from xbmcaddon import Addon
 from os.path import join, isfile, isdir
 from os import remove, listdir
 from sys import argv
 from shutil import rmtree
+
+import settings, strings
 
 
 ACTION_HARD_RESET  = 0
@@ -13,15 +13,12 @@ ACTION_SF_FOLDERS = 1
 
 try:
     action = int(argv[1])
-    cwd = argv[2]
-    path = cwd.replace('addons', join('userdata', 'addon_data'), 1)
-    addon = Addon('plugin.program.super.favourites.xmltv')
     
     if action == ACTION_HARD_RESET:
         
-        db = join(path, "epg.db") 
+        db = settings.getEpgDbFilePath() 
         db_journal = db + "-journal"
-        xmltv = join(path, "epg.xml") 
+        xmltv = settings.getEpgXmlFilePath() 
         
         if isfile(db):
             remove(db) 
@@ -32,13 +29,12 @@ try:
             remove(xmltv)
         
         if not isfile(db) and not isfile(xmltv):
-            Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33904))
+            Dialog().ok(strings.DIALOG_TITLE, strings.HARD_RESET_OK)
         else:
-            Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33905))
+            Dialog().ok(strings.DIALOG_TITLE, strings.HARD_RESET_NOK)
     
     elif action == ACTION_SF_FOLDERS:
-        super_favourites_folder = addon.getSetting("super.favourites.folder")
-        super_favourites_folder = xbmc.translatePath(super_favourites_folder)
+        super_favourites_folder = settings.getSuperFavouritesFolder(True)
         
         for sfpath in listdir(super_favourites_folder):
             sfpath = join(super_favourites_folder, sfpath)
@@ -48,7 +44,7 @@ try:
             else:
                 remove(sfpath)
                 
-        Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33906))
+        Dialog().ok(strings.DIALOG_TITLE, strings.HARD_RESET_FOLDERS_OK)
             
-except Exception as e:
-    xbmc.log("[SFX] Error: " + e.message, xbmc.LOGERROR)
+except Exception:
+    pass

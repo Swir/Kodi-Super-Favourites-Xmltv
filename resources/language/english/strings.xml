@@ -1,143 +1,165 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <strings>
-    <string id="32100">General</string>
-    <string id="32101">Style</string>
-    <string id="32102">XMLTV</string>
-    <string id="32103">Super Favourites</string>
-    <string id="32104">Toolbox</string>
-    
-    
-    <string id="32010">Update EPG on Kodi startup</string>
-    <string id="32011">Background image</string>
-    <string id="32012">Update Frequency</string>
-    <string id="32013">Where do I get the XMLTV file ?</string>
-    <string id="32014">Cleanup programs older than </string>
-    <string id="32016">Display next aired </string>
-    
-    <!-- id="image.background" -->
-    <string id="32200">No background</string>
-    <string id="32201">Grey and black</string>
-    <string id="32202">Light and dark blue</string>
-    <string id="32203">The horror castle</string>
-    <string id="32204">Dark blue and black</string>
-    <string id="32205">Red line</string>
-    <string id="32206">Sky is the limit</string>
-    <string id="32207">The milky way</string>
-    <string id="32208">Android buddies</string>
-    <string id="32209">Simply blue</string>
-    <string id="32210">Greeny</string>
-    <string id="32220">Use built in background ( disable this to use a custom one )</string>
-    <string id="32221">Choose your background image</string>
 
-    <!-- id="update.frequency" -->
-    <string id="32211">Every day</string>
-    <string id="32212">Every two days</string>
-    <string id="32213">Every three days</string>
-    <string id="32214">Every four days</string>
-    <string id="32215">Every five days</string>
-    <string id="32216">Every six days</string>
-    <string id="32217">Every seven days</string>
+    <!-- --------------------------------------------- -->
+    <!-- ------------ Source code strings  ----------- -->
+    <!-- --------------------------------------------- -->
     
-    <!-- id="cleanup.treshold" -->
-    <string id="33501">1 day</string>
-    <string id="33502">2 days</string>
-    <string id="33503">3 days</string>
-    <string id="33504">4 days</string>
-    <string id="33505">5 days</string>
-    <string id="33506">6 days</string>
-    <string id="33507">7 days</string>
+    <string id="31001">Super Favourites XMLTV</string>
+    <string id="31002">Unexpected error occured</string>
+    <string id="31003">[SF XMLTV]</string>
+    
+    <!-- Database messages -->
+    <string id="300001">EPG database connection error</string>
+    <string id="300002">Error creating EPG tables</string>
+    <string id="300003">Error getting db state</string>  
+    <string id="300004">Error with channels truncate</string>  
+    <string id="300005">Error with programs truncate</string>  
+    
+    <!-- Settings => Toolbox actions -->
+    <string id="300011">Hard reset successfully terminated!</string>
+    <string id="300012">Hard reset error, please, try again later !</string>
+    <string id="300013">Super Favorites sub folders were deleted !</string>
+    
+    <!-- Progress bars strings -->
+    <string id="300021">SFX - Sub folders</string> 
+    <string id="300022">Creating Super Favourites sub folders were you could put all your iptv links...</string> 
+    <string id="300023">Unable to fetch channels data</string>
+    <string id="300024">Folder</string> 
+    <string id="300025">SFX - EPG update</string>
+    <string id="300026">Downloading</string>
+    <string id="300027">This operation can take a long time, so, be patient</string>
+    <string id="300028">Channel</string>
+    <string id="300029">Program</string>
+    
+    <!-- HTTP Errors -->
+    <string id="300031">URL xmltv file did not changed</string>
+    <string id="300032">XMLTV URL has moved</string>
+    <string id="300033">XMLTV URL bad request</string>
+    <string id="300034">XMLTV URL not authorized</string>
+    <string id="300035">XMLTV not found</string>
+    <string id="300036">XMLTV internal server error</string>
+    <string id="300037">XMLTV server bad gateway</string>
+    <string id="300038">XMLTV server high load</string>
+    <string id="300039">XMLTV server timeout</string>
+    <string id="3000310">XMLTV unreachable</string> 
+    
+    <!-- Zip / Tar archives --> 
+    <string id="300041">XMLTV unsupported compression format</string>  
+    <string id="300042">Error while uncompressing zip archive</string>  
+    <string id="300043">Error while uncompressing tar archive</string>  
+    <string id="300044">Error no xmltv file found inside archive</string>
+    
+    <!-- Settup and updates -->
+    <string id="300051">Unable to register this update time</string>    
+    <string id="300052">Unable to get the last update date</string> 
+    <string id="300053">Error cleaning up programs</string>  
+    <string id="300054">Bad XMLTV file type</string>
+    <string id="300055">XMLTV file not found</string> 
+    <string id="300056">Unable to load XMLTV file</string>
+    <string id="300057">You choose URL setting for XMLTV but did not provided any URL</string> 
+    <string id="300058">You choose file setting for XMLTV but did not specified any file location</string> 
+    <string id="300059">Please, enter a Super Favourites folder path</string>   
+    <string id="3000510">XMLTV addon not configured properly</string>
+    <string id="3000511">Please, take time for configuration</string>
+    <string id="3000512">Super Favourites XMLTV first time launching detected, the addon will automatically get the channels and xmltv file, so be patient</string>
+    <string id="3000513">Initialization ok, you can now restart Super Favourites XMLTV</string>
+    
+    <!-- EPG data -->
+    <string id="300061">Error getting channels</string>
+    <string id="300062">Error getting channel programs</string>
+    <string id="300063">Error getting a program</string>
+    <string id="300064">Error removing a program</string>
+    <string id="300065">Error updating a program</string>
+    <string id="300066">Error adding a program</string>
+    <string id="300067">Error getting a channel</string>
+    <string id="300068">Error deleting a channel</string>
+    <string id="300069">Error updating a channel</string>
+    <string id="3000610">Error adding a channel</string>
+    
+    
+    <!-- --------------------------------------------- -->
+    <!-- -------- Settings interface strings  -------- -->
+    <!-- --------------------------------------------- -->
+    
+    <!-- Categories -->
+    <string id="200001">General</string>
+    <string id="200002">Style</string>
+    <string id="200003">XMLTV</string>
+    <string id="200004">Super Favourites</string>
+    <string id="200005">Toolbox</string>
+    
+    <!-- Settings => General -->
+    <string id="200011">Update EPG on Kodi startup</string>
+    <string id="200012">Update Frequency</string>
+    <string id="200013">Cleanup programs older than </string>
+    <string id="200014">Display next aired </string>
+    
+    <!-- Settings => Style -->
+    <string id="200021">Use built in background ( disable this to use a custom one )</string>
+    <string id="200022">Background image</string>
+    <string id="200023">Choose your background image</string>
+    
+    <!--  Settings => XMLTV -->
+    <string id="200031">Where is XMLTV located ?</string>
+    <string id="200032">Where do I get the XMLTV file ?</string>
+    <string id="200033">Enter path to the xmltv</string>
+    <string id="200034">Enter xmltv URL</string>
+    <string id="200035">Is XMLTV file compressed ? ( Zip, Tar, Gzip or Bz2 )</string>
+    
+    <!-- Settings => Super Favourites -->
+    <string id="200041">Where should I create sub folders that will contains IPTV channels</string>
+    <string id="200042">Super Favourites IPTV base Folder</string>
+    <string id="200043">Sub folders pattern</string>
+    
+    <!-- Settings => Toolbox -->
+    <string id="200051">Hard reset Super Favourites XMLTV ( removes db and xmltv )</string>
+    <string id="200052">Delete Super Favourites XMLTV folders, will also delete your iptv links</string>
+    <string id="200053">Activate debug mode</string>
+    
+    <!-- Settings => General => Update frequency (200012) => values -->
+    <string id="200121">Every day</string>
+    <string id="200122">Every two days</string>
+    <string id="200123">Every three days</string>
+    <string id="200124">Every four days</string>
+    <string id="200125">Every five days</string>
+    <string id="200126">Every six days</string>
+    <string id="200127">Every seven days</string>
+    
+    <!-- Settings => General => Cleanup threshold (200013) => values -->
+    <string id="200131">1 day</string>
+    <string id="200132">2 days</string>
+    <string id="200133">3 days</string>
+    <string id="200134">4 days</string>
+    <string id="200135">5 days</string>
+    <string id="200136">6 days</string>
+    <string id="200137">7 days</string>
 
-    <!-- id="xmltv.source.type" -->
-    <string id="32227">Is XMLTV file compressed ? ( Zip, Tar, Gzip or Bz2 )</string>
-    <string id="32218">URL</string>
-    <string id="32219">File system</string>
-    <string id="32222">Enter path to the xmltv</string>
-    <string id="32223">Enter xmltv URL</string>
+    <!-- Settings => General => Next aired (200014) => values -->
+    <string id="200141">1 day</string>
+    <string id="200142">2 days</string>
+    <string id="200143">3 days</string>
     
-    <!--  id="super.favourites.folder" -->
-    <string id="32224">Super Favourites IPTV base Folder</string>
-    <string id="322241">Sub folders pattern</string>
-    <string id="322242">XMLTV channel ID</string>
-    <string id="322243">Channel display name</string>
-    <string id="322244">Unable to fetch channels data</string>
-    <string id="322245">SFX - Sub folders</string> 
-    <string id="322246">Creating Super Favourites sub folders were you could put all your iptv links...</string> 
-    <string id="322247">Folder</string> 
+    <!-- Settings => Style => Background image (200022) => values -->
+    <string id="200221">No background</string>
+    <string id="200222">Grey and black</string>
+    <string id="200223">Light and dark blue</string>
+    <string id="200224">The horror castle</string>
+    <string id="200225">Dark blue and black</string>
+    <string id="200226">Red line</string>
+    <string id="200227">Sky is the limit</string>
+    <string id="200228">The milky way</string>
+    <string id="200229">Android buddies</string>
+    <string id="2002210">Simply blue</string>
+    <string id="2002211">Greeny</string>
     
+    <!-- Settings => XMLTV => Source type (200032) => values -->
+    <string id="200321">URL</string>
+    <string id="200322">File system</string>
     
-    <!--  Settings separators lsep -->
-    <string id="32225">Where is XMLTV located ?</string>
-    <string id="32226">Where should I create sub folders that will contains IPTV channels</string>
-     
-    <!-- Toolbox -->
-    <string id="33901">Hard reset Super Favourites XMLTV ( removes db and xmltv )</string>
-    <string id="33902">Delete Super Favourites XMLTV folders, will also delete your iptv links</string>
-    <string id="33903">Activate debug mode</string>
-    <string id="33904">Hard reset successfully terminated!</string>
-    <string id="33905">Hard reset error, please, try again later !</string>
-    <string id="33906">Super Favorites sub folders were deleted !</string>
-    
-    
-    <!-- Addon code localized strings -->
-    <string id="33301">XMLTV addon not configured properly</string>
-    <string id="33302">You choose URL setting for XMLTV but did not provided any URL</string>
-    <string id="33303">Please, take time for configuration</string>
-    <string id="33304">You choose file setting for XMLTV but did not specified any file location</string>
-    <string id="33305">Please, enter a Super Favourites folder path</string>
-    
-    <!-- Inside notifications -->
-    <string id="33401">EPG database connection error</string>
-    <string id="33402">Error creating channels table</string>
-    <string id="33403">Error adding a channel</string>
-    <string id="33404">Error updating a channel</string>
-    <string id="33405">Error deleting a channel</string>
-    <string id="33406">Error getting a channel</string>
-    <string id="33407">Error adding a program</string>
-    <string id="33408">Error removing a program</string>
-    <string id="33409">Error getting a program</string>
-    <string id="33410">Error updating a program</string>
-    <string id="33411">Global start error</string>
-    <string id="33412">Error getting channels</string>
-    <string id="33413">Error getting channel programs</string>
-    <string id="33414">Error with programs truncate</string>
-    <string id="33415">Error with channels truncate</string>    
-    <string id="33416">Error cleaning up programs</string>    
-    <string id="33417">Unable to load XMLTV file</string>    
-    <string id="33418">Bad XMLTV file type</string>
-    <string id="33419">XMLTV file not found</string>
-    
-    
-    <!-- HTTP errors responses -->
-    <string id="33601">URL xmltv file did not changed</string>
-    <string id="33602">XMLTV URL has moved</string>
-    <string id="33603">XMLTV URL bad request</string>
-    <string id="33604">XMLTV URL not authorized</string>
-    <string id="33605">XMLTV not found</string>
-    <string id="33606">XMLTV internal server error</string>
-    <string id="33607">XMLTV server bad gateway</string>
-    <string id="33607">XMLTV server bad gateway</string>
-    <string id="33608">XMLTV server high load</string>
-    <string id="33609">XMLTV server timeout</string>
-    <string id="33610">XMLTV unreachable</string>  
-    <string id="33611">XMLTV unsupported compression format</string>  
-    <string id="33612">Error while uncompressing zip archive</string>  
-    <string id="33613">Error while uncompressing tar archive</string>  
-    <string id="33614">Error no xmltv file found inside archive</string>  
-    
-    <string id="33701">No title available</string>
-    <string id="33702">No descrption available</string>
-    
-    <!-- Progress bars -->
-    <string id="33801">SFX - EPG update</string>
-    <string id="33802">Channel</string>
-    <string id="33803">Program</string>
-    <string id="33804">Downloading</string>
-    <string id="33420">Error getting db state</string>
-    <string id="33421">Initialization ok, you can now restart Super Favourites XMLTV</string>
-    <string id="33422">Super Favourites XMLTV first time launching detected, the addon will automatically get the channels and xmltv file, so be patient</string>
-    <string id="33423">This operation can take a long time, so, be patient</string>
-    <string id="33424">Unable to get the last update date</string> 
-    <string id="33425">Unable to register this update time</string>    
+    <!-- Settings => Super Favourites => Sub folders pattern (200043) => values -->
+    <string id="200431">XMLTV channel ID</string>
+    <string id="200432">Channel display name</string>
        
 </strings>
 

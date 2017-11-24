@@ -6,8 +6,10 @@ import xbmc, xbmcaddon, xbmcgui
 from threading import Timer
 from os.path import join
 
-from resources.lib import EPGXML, superfavourites, utils
+from resources.lib import EPGXML, superfavourites
 from resources.lib.EPGCtl import EPGControl, EPGGridView
+from resources.lib import settings, strings
+from resources.lib.utils import connectEpgDB
 
 
 
@@ -17,48 +19,26 @@ Global class handling EPG Gui.
 class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     DEBUG = True
     
-    epg_view = None
     database = None
     cursor = None
     
-    epg_db = None
-    epg_xml = None
-    epg_grid = None
+    epgDb = None
+    epgXml = None
+    epgView = None
     
     # Customizable controls
     CHANNELS_ON_PAGE = 9
-    
-    '''
-     For futures versions skinings.
-    '''
-    #Set the maximum time of the timeline..
     MAXIMUM_TIME_PROGRAMS_DISPLAY = 120
-    
-    # Channels labels ( not content )
-    CHANNEL_LABEL_START = 4010
-    CHANNEL_LOGO_START   = 4110
-    PROGRAM_TITLE = 4020
     
     # Predefined const.
     BACKGROUND_BUILTIN = 'true'
     
-    addon_id = 'plugin.program.super.favourites.xmltv'
-    addon = None
-    addon_path = None
-    addon_bg_base = None
-    addon_images = None
     is_closing = False
         
     '''
     Class init.
     '''    
     def __init__(self, strXMLname, strFallbackPath):
-        self.addon = xbmcaddon.Addon(self.addon_id)
-        
-        self.addon_path = addon.getAddonInfo('path')
-        self.addon_images = join(self.addon_path,'resources', 'skins', 'Default', 'media')
-        self.addon_bg_base = join(self.addon_images, 'backgrounds', 'bg')
-        
         xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
         
     
@@ -71,17 +51,16 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         # Init EPG Grid global View
         globalControl = self.getControl(EPGControl.GLOBAL_CONTROL)
         
-        self.epg_view = EPGGridView()
-        self.epg_view.left, self.epg_view.top = globalControl.getPosition()
-        self.epg_view.right = self.epg_view.left + globalControl.getWidth()
-        self.epg_view.bottom = self.epg_view.top + globalControl.getHeight()
-        self.epg_view.width = globalControl.getWidth()
-        self.epg_view.cellHeight = globalControl.getHeight() / XMLWindowEPG.CHANNELS_ON_PAGE
+        self.epgView = EPGGridView()
+        self.epgView.left, self.epgView.top = globalControl.getPosition()
+        self.epgView.right = self.epgView.left + globalControl.getWidth()
+        self.epgView.bottom = self.epgView.top + globalControl.getHeight()
+        self.epgView.width = globalControl.getWidth()
+        self.epgView.cellHeight = globalControl.getHeight() / XMLWindowEPG.CHANNELS_ON_PAGE
         
         start_time = datetime.datetime.now()
         start_time_view = self.setTimesLabels(str(start_time.hour) + ":" + str(start_time.minute), halfInc=False)
-        self.epg_view.start_time = start_time.replace(hour=int(start_time_view[:2]), minute=int(start_time_view[3:]))
-        
+        self.epgView.start_time = start_time.replace(hour=int(start_time_view[:2]), minute=int(start_time_view[3:]))
         
         self.setEPGBackgrounds() 
         self.setTimeMarker(timer=True)
@@ -102,17 +81,18 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
         
         # DB object
-        self.epg_db = EPGXML.EpgDb(addon, self.DEBUG)
-        self.database, self.cursor = utils.connectEpgDB(self.epg_db, self.addon)   
-        self.epg_db.setDatabaseObj(self.database)
-        self.epg_db.setCursorObj(self.cursor)
+        self.epgDb = EPGXML.EpgDb(addon, self.DEBUG)
+        self.database, self.cursor = connectEpgDB()   
+        self.epgDb.setDatabaseObj(self.database)
+        self.epgDb.setCursorObj(self.cursor)
         
         # XMLTV object
-        self.epg_xml = EPGXML.EpgXml(self.addon, self.DEBUG, progress_bar=False)
-        self.epg_xml.setDatabaseObj(self.database)
-        self.epg_xml.setCursorObj(self.cursor)
+        self.epgXml = EPGXML.EpgXml(settings.addon, self.DEBUG, progress_bar=False)
+        self.epgXml.setDatabaseObj(self.database)
+        self.epgXml.setCursorObj(self.cursor)
         
-        self.setChannels(0)
+        dt_stop = self.epgView.start_time + datetime.timedelta(minutes=self.MAXIMUM_TIME_PROGRAMS_DISPLAY - 2)
+        self.setChannels(self.epgView.start_time, dt_stop)
     
     
     '''
@@ -122,20 +102,20 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         
         bg = self.getControl(EPGControl.image.BACKGROUND)
         
-        background_type = self.addon.getSetting('type.background')
+        background_type = settings.addon.getSetting('type.background')
         
         if str(background_type) == XMLWindowEPG.BACKGROUND_BUILTIN:
 
-            background = self.addon.getSetting('image.background')
+            background = settings.addon.getSetting('image.background')
         
             if background == '' or background == None: 
-                bg.setImage(self.addon_bg_base + '1.jpg', useCache=False)
+                bg.setImage(settings.getAddonBackgroundsPath() + '1.jpg', useCache=False)
             elif int(background) == 0:
-                bg.setImage(self.addon_bg_base + '-transparent.png', useCache=False)
+                bg.setImage(settings.getAddonBackgroundsPath() + '-transparent.png', useCache=False)
             else:
-                bg.setImage(self.addon_bg_base + background + '.jpg', useCache=False)
+                bg.setImage(settings.getAddonBackgroundsPath() + background + '.jpg', useCache=False)
         else:
-            bg_image = self.addon.getSetting('custom.background')   
+            bg_image = settings.addon.getSetting('custom.background')   
             bg.setImage(bg_image, useCache=False)  
             
     
@@ -147,11 +127,11 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         
         tm = self.getControl(EPGControl.image.TIME_MARKER)
         dt_now = datetime.datetime.now()
-        delta = dt_now - self.epg_view.start_time
+        delta = dt_now - self.epgView.start_time
         tm.setVisible(False) 
         
         if delta.seconds >=  0 and delta.seconds <= XMLWindowEPG.MAXIMUM_TIME_PROGRAMS_DISPLAY * 60:
-            x = self.epg_view.secondsToX(delta.seconds)
+            x = self.epgView.secondsToX(delta.seconds)
             tm.setPosition(int(x), tm.getY())
             tm.setVisible(True)
                  
@@ -164,15 +144,9 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     def setTimesLabels(self, currentDT, halfInc=True):
         # Defining time for program guide and time labels zone.
-        index = currentDT.find(':')
-        
-        hours = currentDT[0:index]
-        mins  =  currentDT[index + 1 :]
-        
-        if int(mins) <= 29:
-            mins = '00'
-        else:
-            mins = '30'
+        hours = currentDT[0:currentDT.find(':')]
+        mins  =  currentDT[currentDT.find(':') + 1 :]
+        mins = '00' if int(mins) <= 29 else '30'
         
         current = dt.time(int(hours), int(mins))
         if halfInc:
@@ -187,28 +161,26 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     Sets first channels lines.
     '''
-    def setChannels(self, start):
+    def setChannels(self, dt_start, dt_stop):
         
-        dt_stop = self.epg_view.start_time + datetime.timedelta(minutes=self.MAXIMUM_TIME_PROGRAMS_DISPLAY - 2)
+        EPG = self.epgDb.getEpgGrid(dt_start, dt_stop)
         
-        EPG = self.epg_db.getEpgGrid(self.epg_view.start_time, dt_stop)
-        
-        noFocusTexture = join(self.addon_images, 'buttons', 'tvguide-program-grey.png')
-        focusTexture = join(self.addon_images, 'buttons', 'tvguide-program-grey-focus.png')
+        noFocusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey.png')
+        focusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey-focus.png')
         
         idx = 0
         for channel in EPG.values():
-            self.getControl(XMLWindowEPG.CHANNEL_LABEL_START + idx).setLabel(channel["display_name"])    
+            self.getControl(EPGControl.label.CHANNEL_LABEL_START + idx).setLabel(channel["display_name"])    
             # Program details.
             programs = channel["programs"]
             
             if len(programs) == 0:
                 nothing = "No data available"
                 pbutton = xbmcgui.ControlButton(
-                    self.epg_view.left, 
-                    self.epg_view.top + self.epg_view.cellHeight * idx, 
-                    self.epg_view.right - self.epg_view.left - 2, 
-                    self.epg_view.cellHeight - 2, 
+                    self.epgView.left, 
+                    self.epgView.top + self.epgView.cellHeight * idx, 
+                    self.epgView.right - self.epgView.left - 2, 
+                    self.epgView.cellHeight - 2, 
                     nothing, focusTexture, noFocusTexture)
                 self.addControl(pbutton)
                   
@@ -220,25 +192,25 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                     program_start = datetime.datetime(*(time.strptime(program["start"], "%Y%m%d%H%M%S")[0:6]))
                     program_end = datetime.datetime(*(time.strptime(program["end"], "%Y%m%d%H%M%S")[0:6]))
                 
-                deltaStart = program_start - self.epg_view.start_time
-                deltaStop  = program_end - self.epg_view.start_time
+                deltaStart = program_start - self.epgView.start_time
+                deltaStop  = program_end - self.epgView.start_time
                 
-                y = self.epg_view.top + self.epg_view.cellHeight * idx
-                x = self.epg_view.secondsToX(deltaStart.seconds)
+                y = self.epgView.top + self.epgView.cellHeight * idx
+                x = self.epgView.secondsToX(deltaStart.seconds)
                 
                 if deltaStart.days < 0:
-                    x = self.epg_view.left
+                    x = self.epgView.left
                 
-                width = self.epg_view.secondsToX(deltaStop.seconds) - x
+                width = self.epgView.secondsToX(deltaStop.seconds) - x
                 
-                if x + width > self.epg_view.right:
-                    width = self.epg_view.right - x
+                if x + width > self.epgView.right:
+                    width = self.epgView.right - x
                 width -= 2
                 
                 pbutton = xbmcgui.ControlButton(
                     x,y,
                     width,
-                    self.epg_view.cellHeight - 2,
+                    self.epgView.cellHeight - 2,
                     program["title"],
                     noFocusTexture=noFocusTexture,
                     focusTexture=focusTexture
@@ -295,18 +267,18 @@ def checkSettings(addon): # TODO  ----------------------------------------------
     if int(addon.getSetting('xmltv.source.type')) == 0:
         if not addon.getSetting('xmltv.url.value'):
             settings_ok = False
-            error_msg = addon.getLocalizedString(33302)
+            error_msg = strings.XMLTV_NO_URL_PROVIDED
             
     elif int(addon.getSetting('xmltv.source.type')) == 1:
         if not addon.getSetting('xmltv.local.value') :
             settings_ok = False
-            error_msg = addon.getLocalizedString(33304)
+            error_msg = strings.XMLTV_NO_FILE_PROVIDED
       
     # Checking Super Favourites settings    
     sp_folder = addon.getSetting('super.favourites.folder')   
     if sp_folder == 'special://home':
         settings_ok = False
-        error_msg = addon.getLocalizedString(33305)
+        error_msg = strings.NO_SUPER_FAVOURITES_FOLDER
     
     return settings_ok, error_msg
     
@@ -321,44 +293,44 @@ if __name__ == '__main__':
     
     # Checking if some settings were completed.
     if not ok:
-        title      = addon.getLocalizedString(33301)
-        conclusion = addon.getLocalizedString(33303)
-        xbmcgui.Dialog().ok(addon.getAddonInfo('name'), title, error_msg, conclusion)
+        title      = strings.BAD_ADDON_CONFIGURATION
+        conclusion = strings.CONFIGURATION_TAKE_TIME_MSG
+        xbmcgui.Dialog().ok(strings.DIALOG_TITLE, title, error_msg, conclusion)
         addon.openSettings()
     
     else:      
         debug = True if addon.getSetting('debug.mode') == 'true' else False
-        epg_db = EPGXML.EpgDb(addon, debug)
-        database, cursor = utils.connectEpgDB(epg_db, addon)   
-        epg_db.setDatabaseObj(database)
-        epg_db.setCursorObj(cursor)
+        epgDb = EPGXML.EpgDb(addon, debug)
+        database, cursor = connectEpgDB()   
+        epgDb.setDatabaseObj(database)
+        epgDb.setCursorObj(cursor)
         
         # Populate and create tables in case of first start
-        if epg_db.firstTimeRuning():
-            xbmcgui.Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33422))
-            epg_xml = EPGXML.EpgXml(addon, debug, progress_bar=True)
-            epg_xml.setDatabaseObj(database)
-            epg_xml.setCursorObj(cursor)
-            epg_xml.getXMLTV()
+        if epgDb.firstTimeRuning():
+            xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_FIRST_START_DETECTED)
+            epgXml = EPGXML.EpgXml(addon, debug, progress_bar=True)
+            epgXml.setDatabaseObj(database)
+            epgXml.setCursorObj(cursor)
+            epgXml.getXMLTV()
             
             xbmc.sleep(1500)
-            epg_db.setFirstTimeRuning(0)
-            epg_db.setUpdateDate()
-            epg_db.getCleanOld()
+            epgDb.setFirstTimeRuning(0)
+            epgDb.setUpdateDate()
+            epgDb.getCleanOld()
             
             # Super favourites folder init.
-            sf_folder = superfavourites.SuperFavouritesIptvFolder(addon)
+            sf_folder = superfavourites.SuperFavouritesIptvFolder()
             sf_folder.createSubFolders()
             
             # All is done, restart required
-            xbmcgui.Dialog().ok("Super Favourites XMLTV", addon.getLocalizedString(33421))
+            xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_INIT_OK)
             
             xbmc.sleep(1000)
             sf_folder.close()
-            epg_db.close()
-            epg_xml.close()
-            del epg_db
-            del epg_xml
+            epgDb.close()
+            epgXml.close()
+            del epgDb
+            del epgXml
             
             
         # Else, update epg in a thread

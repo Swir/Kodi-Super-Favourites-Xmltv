@@ -3,52 +3,46 @@
 import xbmc
 import sqlite3
 from os.path import isfile
+from resources.lib import settings, strings
 
 '''
 Display a basic notification
 '''    
 
-def notify(addon, message, plus=None):
-    
-    n_time  = '10000'
-    n_title = 'Super Favourites XMLTV'
-    n_logo  = addon.getAddonInfo('icon')
-    message = addon.getLocalizedString(message).encode("utf-8")
+def notify(message, plus=None):
     
     xbmc.log(message, xbmc.LOGERROR)
     if not plus is None:
         xbmc.log(plus, xbmc.LOGERROR)
         
-    xbmc.executebuiltin('Notification(%s,%s,%s,%s)'%(n_title, message, n_time, n_logo))
+    xbmc.executebuiltin('Notification(%s,%s,%s,%s)'%(strings.DIALOG_TITLE, message, 6000, settings.getAddonIcon()))
     
     
 '''
 Database connection.
     '''
-def connectEpgDB(epg_db_obj, addon):
+def connectEpgDB():
     
-    def connect(epg_db_obj, addon):
+    def connect():
         try:
-            database = sqlite3.connect(epg_db_obj.db_path)
+            database = sqlite3.connect(settings.getEpgDbFilePath())
             database.text_factory = str
             cursor = database.cursor()
         except sqlite3.Error as e:
-            notify(addon, 33401, e.message)
+            notify(strings.DB_CONNECTION_ERROR, e.message)
             return None
         
         return database, cursor
     
     
-    if not isfile(epg_db_obj.db_path):
-        database, cursor = connect(epg_db_obj, addon)
+    if not isfile(settings.getEpgDbFilePath()):
+        database, cursor = connect()
         if database is None:
             return None, None
         
-        channels_str = "CREATE TABLE channels (id INTEGER PRIMARY KEY AUTOINCREMENT, id_channel TEXT, display_name TEXT, logo TEXT, source TEXT, visible BOOLEAN)"
-        programs_str = "CREATE TABLE programs (id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TEXT, end_date TEXT, description TEXT)"
-        updates      = "CREATE TABLE updates (id_update INTEGER PRIMARY KEY AUTOINCREMENT, time TIMESTAMP)"        
-        
+        channels_str, programs_str, updates = settings.getTablesStructure()      
         update_flag  = "INSERT INTO updates (time) VALUES ('-1')"
+        
         try:
             cursor.execute(channels_str)
             cursor.execute(programs_str)
@@ -57,12 +51,12 @@ def connectEpgDB(epg_db_obj, addon):
             database.commit()
             
         except sqlite3.Error as e:
-            notify(addon, 33402, e.message)
+            notify(strings.DB_CREATE_TABLES_ERROR, e.message)
             return None, None
         return database, cursor
 
     else:
-        return connect(epg_db_obj, addon)
+        return connect()
     
     
 
