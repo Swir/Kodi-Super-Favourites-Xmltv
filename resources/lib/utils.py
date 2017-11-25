@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import xbmc
-import sqlite3
 from os.path import isfile
-from resources.lib import settings, strings
+from resources.lib.settings import getTablesStructure, getAddonIcon, getEpgDbFilePath
+from xbmc import executebuiltin, log, LOGERROR
+from sqlite3 import connect as SqliteConnect, Error as SqliteError
+from resources.lib.strings import DIALOG_TITLE, DB_CONNECTION_ERROR, DB_CREATE_TABLES_ERROR
 
 '''
 Display a basic notification
@@ -11,11 +12,11 @@ Display a basic notification
 
 def notify(message, plus=None):
     
-    xbmc.log(message, xbmc.LOGERROR)
+    log(message, LOGERROR)
     if not plus is None:
-        xbmc.log(plus, xbmc.LOGERROR)
+        log(plus, LOGERROR)
         
-    xbmc.executebuiltin('Notification(%s,%s,%s,%s)'%(strings.DIALOG_TITLE, message, 6000, settings.getAddonIcon()))
+    executebuiltin('Notification(%s,%s,%s,%s)'%(DIALOG_TITLE, message, 6000, getAddonIcon()))
     
     
 '''
@@ -25,22 +26,22 @@ def connectEpgDB():
     
     def connect():
         try:
-            database = sqlite3.connect(settings.getEpgDbFilePath())
+            database = SqliteConnect(getEpgDbFilePath())
             database.text_factory = str
             cursor = database.cursor()
-        except sqlite3.Error as e:
-            notify(strings.DB_CONNECTION_ERROR, e.message)
+        except SqliteError as e:
+            notify(DB_CONNECTION_ERROR, e.message)
             return None
         
         return database, cursor
     
     
-    if not isfile(settings.getEpgDbFilePath()):
+    if not isfile(getEpgDbFilePath()):
         database, cursor = connect()
         if database is None:
             return None, None
         
-        channels_str, programs_str, updates = settings.getTablesStructure()      
+        channels_str, programs_str, updates = getTablesStructure()      
         update_flag  = "INSERT INTO updates (time) VALUES ('-1')"
         
         try:
@@ -50,8 +51,8 @@ def connectEpgDB():
             cursor.execute(update_flag)
             database.commit()
             
-        except sqlite3.Error as e:
-            notify(strings.DB_CREATE_TABLES_ERROR, e.message)
+        except SqliteError as e:
+            notify(DB_CREATE_TABLES_ERROR, e.message)
             return None, None
         return database, cursor
 
