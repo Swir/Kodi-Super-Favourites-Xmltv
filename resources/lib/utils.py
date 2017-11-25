@@ -5,6 +5,8 @@ from resources.lib.settings import getTablesStructure, getAddonIcon, getEpgDbFil
 from xbmc import executebuiltin, log, LOGERROR
 from sqlite3 import connect as SqliteConnect, Error as SqliteError
 from resources.lib.strings import DIALOG_TITLE, DB_CONNECTION_ERROR, DB_CREATE_TABLES_ERROR
+from datetime import datetime as dt
+from time import strptime as time_strptime
 
 '''
 Display a basic notification
@@ -17,6 +19,18 @@ def notify(message, plus=None):
         log(plus, LOGERROR)
         
     executebuiltin('Notification(%s,%s,%s,%s)'%(DIALOG_TITLE, message, 6000, getAddonIcon()))
+    
+    
+    
+'''
+Return a datetim from string as %Y%m%d%H%M%S
+'''
+def strToDatetime(datestr):
+    try:
+        return dt.strptime(datestr, "%Y%m%d%H%M%S")
+    except TypeError:
+        return dt.datetime(*(time_strptime(datestr, "%Y%m%d%H%M%S")[0:6]))
+    
     
     
 '''

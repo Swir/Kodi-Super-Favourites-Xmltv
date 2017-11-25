@@ -28,11 +28,11 @@ class SuperFavouritesIptvFolder(object):
     '''
     Init
     '''
-    def __init__(self, debug=False):
-        self.DEBUG = debug
+    def __init__(self):
+        self.DEBUG = False
         
         self.iptv_path = settings.getSuperFavouritesFolder()
-        self.epg_db = EPGXML.EpgDb(settings.addon, True)
+        self.epg_db = EPGXML.EpgDb()
         self.database, self.cursor = connectEpgDB()
         self.epg_db.setDatabaseObj(self.database)
         self.epg_db.setCursorObj(self.cursor)

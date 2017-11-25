@@ -72,6 +72,7 @@ def getTablesStructure():
     return channels, programs, updates
 
 
+
 ''' ============================== '''
 '''   Settings from settings.xml   '''
 ''' ============================== '''
@@ -84,3 +85,17 @@ def getSuperFavouritesFolder(translated=False):
         return addon.getSetting("super.favourites.folder")
     return translatePath(addon.getSetting("super.favourites.folder"))
 
+
+'''
+Return true for startup updates.
+'''
+def doStartupUpdate():
+    return True if addon.getSetting('startup.update') == 'true' else False
+
+
+'''
+Return the update frequency
+'''
+def getUpdateFrequency():
+    frequency = addon.getSetting('update.frequency')
+    return int(frequency) + 1 if not frequency is None else 1

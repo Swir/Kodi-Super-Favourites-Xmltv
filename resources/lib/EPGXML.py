@@ -9,7 +9,7 @@ import xbmcgui
 
 from xml.dom import minidom
 from resources.lib.utils import notify, copyfile
-from resources.lib import strings
+from resources.lib import strings, settings
 
 '''
 Handle XMLTV itself.
@@ -32,11 +32,11 @@ class EpgXml(object):
     xmltv_progress_bar = None
     
         
-    def __init__(self, addon_obj, debug = False, progress_bar=True):
-        self.DEBUG = debug
-        self.addon = addon_obj
+    def __init__(self, progress_bar=True):
+        self.DEBUG = False
+        self.addon = settings.addon
         
-        self.epg_db = EpgDb(self.addon, debug)
+        self.epg_db = EpgDb()
         
         self.xmltv_source = int(self.addon.getSetting("xmltv.source.type"))
         
@@ -362,9 +362,9 @@ class EpgDb(object):
     '''
     EPG DB init.
     '''
-    def __init__(self, addon_obj, debug=False):
-        self.addon = addon_obj
-        self.DEBUG = debug
+    def __init__(self):
+        self.addon = settings.addon
+        self.DEBUG = False
         #base = os.path.dirname(os.path.realpath(__file__))
         
         base = self.addon.getAddonInfo('path')

@@ -1,30 +1,24 @@
 # -*- coding: utf-8 -*-
-
-import time, datetime
-import xbmc
-import utils
-from resources.lib import EPGXML, settings, strings
 from threading import Thread
+from datetime import datetime as dt
+from time import time
+from xbmc import sleep as kodisleep, log, LOGERROR
 
+from resources.lib.EPGXML import EpgDb, EpgXml
+from resources.lib.strings import DEBUG_HEADER 
+from resources.lib.utils import connectEpgDB, strToDatetime
+from resources.lib.settings import doStartupUpdate, getUpdateFrequency
 
 '''
 Handle threaded updates
 ''' 
 class ThreadedUpdater(Thread):
     
-    epg_db = None
-    epg_xml = None
-    
-    database = None
-    cursor = None
-    
-    
     '''
     Thread init
     '''
     def __init__(self):
         Thread.__init__(self)
-        self.epg_db = EPGXML.EpgDb(settings.addon, True)
     
     
     '''
@@ -32,51 +26,37 @@ class ThreadedUpdater(Thread):
     '''
     def run(self):
         try:
-            xbmc.sleep(10000)
-            # Removes old entries into the database.
-            self.database, self.cursor = utils.connectEpgDB()   
-            self.epg_db.setDatabaseObj(self.database)
-            self.epg_db.setCursorObj(self.cursor)
+            epg_db = EpgDb()
+            kodisleep(40000)
             
-            # Clean old entries ( see configuration )
-            if self.epg_db.firstTimeRuning():
+            database, cursor = connectEpgDB()   
+            epg_db.setDatabaseObj(database)
+            epg_db.setCursorObj(cursor)
+            # Getting last update date.
+            update_date = epg_db.getLastUpdateDate()
+            
+            if not doStartupUpdate() or epg_db.firstTimeRuning():
+                return   
+                                    
+            current_time = dt.fromtimestamp(time())
+            update_time = strToDatetime(update_date)
+                    
+            delta = current_time - update_time
+                        
+            if delta.days < getUpdateFrequency() :        
                 return
             
-            self.epg_db.getCleanOld()    
-            
-            if settings.addon.getSetting('startup.update') == 'true':
-                # Getting EPG xmltv file
-                update = False
-                treshold = settings.addon.getSetting('update.frequency')
-                update_date = self.epg_db.getLastUpdateDate()
-            
-                if not update_date is None:
-                    if treshold is None or treshold == '':
-                        treshold = '1'
-                        
-                    current_time = datetime.datetime.fromtimestamp(time.time())
-                    try:
-                        update_time = datetime.datetime.strptime(update_date, "%Y%m%d%H%M%S")
-                    except TypeError:
-                        update_time = datetime.datetime(*(time.strptime(update_date, "%Y%m%d%H%M%S")[0:6]))
-                    delta = current_time - update_time
-                        
-                    if delta.days >= int(treshold) + 1 :        
-                        update = True
-            
-            
-                if update or update_date is None:
-                    self.epg_xml = EPGXML.EpgXml(settings.addon, True, progress_bar=False)
-                    self.epg_xml.setDatabaseObj(self.database)
-                    self.epg_xml.setCursorObj(self.cursor)
-                    self.epg_xml.getXMLTV()
-                    self.epg_db.setUpdateDate()
+            epg_xml = EpgXml(progress_bar=False)
+            epg_xml.setDatabaseObj(database)
+            epg_xml.setCursorObj(cursor)
+            epg_xml.getXMLTV()
+            epg_db.setUpdateDate()
                 
-                    self.epg_xml.close()
-                    del self.epg_xml
-                
-            self.epg_db.close()
-            del self.epg_db
+            epg_xml.close() 
+            epg_db.close()
+            del epg_xml
+            del epg_db
+            
         except Exception as e:
-            xbmc.log("%s %s" % ( strings.DEBUG_HEADER, e.message, xbmc.LOGERROR))
+            log("%s %s" % ( DEBUG_HEADER, e.message), LOGERROR)
             

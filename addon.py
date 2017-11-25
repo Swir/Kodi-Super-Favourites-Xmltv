@@ -81,13 +81,13 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
         
         # DB object
-        self.epgDb = EPGXML.EpgDb(addon, self.DEBUG)
+        self.epgDb = EPGXML.EpgDb()
         self.database, self.cursor = connectEpgDB()   
         self.epgDb.setDatabaseObj(self.database)
         self.epgDb.setCursorObj(self.cursor)
         
         # XMLTV object
-        self.epgXml = EPGXML.EpgXml(settings.addon, self.DEBUG, progress_bar=False)
+        self.epgXml = EPGXML.EpgXml(progress_bar=False)
         self.epgXml.setDatabaseObj(self.database)
         self.epgXml.setCursorObj(self.cursor)
         
@@ -299,8 +299,7 @@ if __name__ == '__main__':
         addon.openSettings()
     
     else:      
-        debug = True if addon.getSetting('debug.mode') == 'true' else False
-        epgDb = EPGXML.EpgDb(addon, debug)
+        epgDb = EPGXML.EpgDb()
         database, cursor = connectEpgDB()   
         epgDb.setDatabaseObj(database)
         epgDb.setCursorObj(cursor)
@@ -308,7 +307,7 @@ if __name__ == '__main__':
         # Populate and create tables in case of first start
         if epgDb.firstTimeRuning():
             xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_FIRST_START_DETECTED)
-            epgXml = EPGXML.EpgXml(addon, debug, progress_bar=True)
+            epgXml = EPGXML.EpgXml(progress_bar=True)
             epgXml.setDatabaseObj(database)
             epgXml.setCursorObj(cursor)
             epgXml.getXMLTV()
