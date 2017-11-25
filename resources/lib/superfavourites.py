@@ -1,46 +1,31 @@
 # -*- coding: utf-8 -*-
-import os
-import xbmc
-import sqlite3
-from resources.lib import EPGXML, settings, strings
-from resources.lib.utils import notify, connectEpgDB
+from os import mkdir
+from os.path import isfile, join
 from xbmcgui import DialogProgress
+from sqlite3 import Error as SqliteError
 
+from resources.lib.strings import SF_DIR_STRING, SF_CHANNELS_INFOS_ERROR
+from resources.lib.strings import SF_SUBFOLDERS_PROGRESS_HEADER, SF_SUBFOLDERS_PROGRESS_MSG
+from resources.lib.utils import notify, connectEpgDB
+from resources.lib.EPGXML import EpgDb
+from resources.lib.settings import DEBUG, getSFFolder, getSFFoldersPattern, AddonConst
 
 '''
 Handle Super favourites iptv subfolders.
 '''
 class SuperFavouritesIptvFolder(object):
-    
-    DEBUG = False
-    
-    iptv_path = None
-    pattern   = None
-    
-    epg_db   = None 
-    database = None
-    cursor   = None
-    
-    SF_XMLTV_ID_PATTERN    = 0
-    SF_DISPLAY_NAME_PATERN = 1
-    
+            
+    epg_db = database = cursor = None 
     
     '''
     Init
     '''
     def __init__(self):
-        self.DEBUG = False
         
-        self.iptv_path = settings.getSuperFavouritesFolder()
-        self.epg_db = EPGXML.EpgDb()
+        self.epg_db = EpgDb()
         self.database, self.cursor = connectEpgDB()
         self.epg_db.setDatabaseObj(self.database)
         self.epg_db.setCursorObj(self.cursor)
-        
-        try:
-            self.pattern = int(settings.addon.getSetting('super.favourites.subfolders.pattern'))
-        except ValueError:
-            self.pattern = SuperFavouritesIptvFolder.SF_XMLTV_ID_PATTERN
     
     
     '''
@@ -49,12 +34,12 @@ class SuperFavouritesIptvFolder(object):
     def createSubFolders(self):
         progress = DialogProgress()
         try:
-            progress.create(strings.SF_SUBFOLDERS_PROGRESS_HEADER, strings.SF_SUBFOLDERS_PROGRESS_MSG)
-            row = "id_channel" if self.pattern == SuperFavouritesIptvFolder.SF_XMLTV_ID_PATTERN else 'display_name' 
+            progress.create(SF_SUBFOLDERS_PROGRESS_HEADER, SF_SUBFOLDERS_PROGRESS_MSG)
+            row = "id_channel" if getSFFoldersPattern() == AddonConst.SF_XMLTV_ID_PATTERN else 'display_name' 
             request = "SELECT %s FROM channels" % row
             
             if self.database is None or self.cursor is None:
-                notify(strings.SF_CHANNELS_INFOS_ERROR)
+                notify(SF_CHANNELS_INFOS_ERROR)
                 progress.close()
                 return
             
@@ -63,22 +48,21 @@ class SuperFavouritesIptvFolder(object):
             
             i = 1
             for channel in channels:
-                percent = int( ( i / float(len(channels)) ) * 100)
                 
-                if not os.path.isfile(xbmc.translatePath(os.path.join(self.iptv_path, channel[0]))):
+                if not isfile(join(getSFFolder(translate=True), channel[0])):
                     try:
-                        os.mkdir(os.path.join(xbmc.translatePath(self.iptv_path), channel[0]))
+                        mkdir(join(getSFFolder(translate=True), channel[0]))
                     except OSError:
                         pass
-                
-                message = strings.SF_DIR_STRING + ' %i/%i' % (i, len(channels))
-                progress.update(percent, "", message)
+                    
+                progress.update(int( ( i / float(len(channels)) ) * 100), "", 
+                                SF_DIR_STRING + ' %i/%i' % (i, len(channels)))
                 i += 1
                 
-        except sqlite3.Error:
+        except SqliteError:
             progress.close()
-            if self.DEBUG:
-                notify(strings.SF_CHANNELS_INFOS_ERROR)
+            if DEBUG:
+                notify(SF_CHANNELS_INFOS_ERROR)
         progress.close()   
         
         

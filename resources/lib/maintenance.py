@@ -34,7 +34,7 @@ try:
             Dialog().ok(strings.DIALOG_TITLE, strings.HARD_RESET_NOK)
     
     elif action == ACTION_SF_FOLDERS:
-        super_favourites_folder = settings.getSuperFavouritesFolder(True)
+        super_favourites_folder = settings.getSFFolder(True)
         
         for sfpath in listdir(super_favourites_folder):
             sfpath = join(super_favourites_folder, sfpath)

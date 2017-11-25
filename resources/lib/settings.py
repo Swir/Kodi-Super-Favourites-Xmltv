@@ -5,6 +5,8 @@ from os.path import join
 
 
 addon = Addon('plugin.program.super.favourites.xmltv')
+DEBUG = True if addon.getSetting('debug.mode') == 'tru' else False
+
 
 ''' ============================== '''
 '''       Global addon infos       '''
@@ -80,10 +82,20 @@ def getTablesStructure():
 '''
 Return Super Favourites iptv folder from settings.
 '''
-def getSuperFavouritesFolder(translated=False):
-    if not translated:
+def getSFFolder(translate=False):
+    if not translate:
         return addon.getSetting("super.favourites.folder")
     return translatePath(addon.getSetting("super.favourites.folder"))
+
+
+'''
+Return the sub folders pattern to use for IPTV.
+'''
+def getSFFoldersPattern():
+    try:
+        return int(addon.getSetting('super.favourites.subfolders.pattern'))
+    except ValueError:
+        return AddonConst.SF_XMLTV_ID_PATTERN
 
 
 '''
@@ -106,3 +118,16 @@ Return the update frequency
 def getUpdateFrequency():
     frequency = addon.getSetting('update.frequency')
     return int(frequency) + 1 if not frequency is None else 1
+
+
+'''
+Addon consts
+'''
+class AddonConst(object):
+    # SF consts.
+    SF_XMLTV_ID_PATTERN    = 0
+    SF_DISPLAY_NAME_PATERN = 1
+    
+    def __init__(self):
+        pass
+    
