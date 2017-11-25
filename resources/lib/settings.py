@@ -87,6 +87,13 @@ def getSuperFavouritesFolder(translated=False):
 
 
 '''
+Return the sleep value before updating
+'''
+def getTimeSleep():
+    return (1 * 1000)  
+
+
+'''
 Return true for startup updates.
 '''
 def doStartupUpdate():

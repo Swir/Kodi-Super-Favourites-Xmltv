@@ -7,7 +7,7 @@ from xbmc import sleep as kodisleep, log, LOGERROR
 from resources.lib.EPGXML import EpgDb, EpgXml
 from resources.lib.strings import DEBUG_HEADER 
 from resources.lib.utils import connectEpgDB, strToDatetime
-from resources.lib.settings import doStartupUpdate, getUpdateFrequency
+from resources.lib.settings import doStartupUpdate, getUpdateFrequency, getTimeSleep
 
 '''
 Handle threaded updates
@@ -27,7 +27,7 @@ class ThreadedUpdater(Thread):
     def run(self):
         try:
             epg_db = EpgDb()
-            kodisleep(40000)
+            kodisleep(getTimeSleep())
             
             database, cursor = connectEpgDB()   
             epg_db.setDatabaseObj(database)
