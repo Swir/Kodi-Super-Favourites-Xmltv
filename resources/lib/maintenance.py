@@ -5,46 +5,37 @@ from os import remove, listdir
 from sys import argv
 from shutil import rmtree
 
-import settings, strings
-
-
-ACTION_HARD_RESET  = 0
-ACTION_SF_FOLDERS = 1
+from strings import HARD_RESET_OK, HARD_RESET_NOK, DIALOG_TITLE, HARD_RESET_FOLDERS_OK
+from settings import AddonConst
+from settings import getEpgDbFilePath, getEpgXmlFilePath, getSFFolder
 
 try:
-    action = int(argv[1])
-    
-    if action == ACTION_HARD_RESET:
+    if int(argv[1]) == AddonConst.ACTION_HARD_RESET:
         
-        db = settings.getEpgDbFilePath() 
-        db_journal = db + "-journal"
-        xmltv = settings.getEpgXmlFilePath() 
+        if isfile(getEpgDbFilePath()):
+            remove(getEpgDbFilePath()) 
+            if isfile(getEpgDbFilePath() + "-journal"):
+                remove(getEpgDbFilePath() + "-journal")
         
-        if isfile(db):
-            remove(db) 
-            if isfile(db_journal):
-                remove(db_journal)
+        if isfile(getEpgXmlFilePath()):
+            remove(getEpgXmlFilePath())
         
-        if isfile(xmltv):
-            remove(xmltv)
-        
-        if not isfile(db) and not isfile(xmltv):
-            Dialog().ok(strings.DIALOG_TITLE, strings.HARD_RESET_OK)
+        if not isfile(getEpgDbFilePath()) and not isfile(getEpgXmlFilePath()):
+            Dialog().ok(DIALOG_TITLE, HARD_RESET_OK)
         else:
-            Dialog().ok(strings.DIALOG_TITLE, strings.HARD_RESET_NOK)
+            Dialog().ok(DIALOG_TITLE, HARD_RESET_NOK)
     
-    elif action == ACTION_SF_FOLDERS:
-        super_favourites_folder = settings.getSFFolder(True)
+    elif int(argv[1]) == AddonConst.ACTION_SF_FOLDERS:
         
-        for sfpath in listdir(super_favourites_folder):
-            sfpath = join(super_favourites_folder, sfpath)
+        for sfpath in listdir(getSFFolder(True)):
+            sfpath = join(getSFFolder(True), sfpath)
             
             if isdir(sfpath):
                 rmtree(sfpath, ignore_errors=True)
             else:
                 remove(sfpath)
                 
-        Dialog().ok(strings.DIALOG_TITLE, strings.HARD_RESET_FOLDERS_OK)
+        Dialog().ok(DIALOG_TITLE, HARD_RESET_FOLDERS_OK)
             
 except Exception:
     pass

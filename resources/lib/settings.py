@@ -5,7 +5,7 @@ from os.path import join
 
 
 addon = Addon('plugin.program.super.favourites.xmltv')
-DEBUG = True if addon.getSetting('debug.mode') == 'tru' else False
+DEBUG = True if addon.getSetting('debug.mode') == 'true' else False
 
 
 ''' ============================== '''
@@ -127,6 +127,10 @@ class AddonConst(object):
     # SF consts.
     SF_XMLTV_ID_PATTERN    = 0
     SF_DISPLAY_NAME_PATERN = 1
+    
+    # %aintenance consts ( hard reset )
+    ACTION_HARD_RESET = 0
+    ACTION_SF_FOLDERS = 1
     
     def __init__(self):
         pass

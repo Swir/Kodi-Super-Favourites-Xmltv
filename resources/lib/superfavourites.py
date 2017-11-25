@@ -66,8 +66,6 @@ class SuperFavouritesIptvFolder(object):
         progress.close()   
         
         
-    
-    
     '''
     Return the subfolder of given iptv channel.
     '''
