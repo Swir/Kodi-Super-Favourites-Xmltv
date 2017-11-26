@@ -176,6 +176,33 @@ Return True if XMLTV source is compressed.
 def isXMLTVCompressed():
     return True if addon.getSetting('xmltv.compressed') == 'true' else False
 
+
+'''
+Return True if user wants to use its custom background.
+'''
+def useCustomBackground():
+    return not str(addon.getSetting('type.background')) == 'true'
+
+'''
+Return a built in background image based on a provided ID
+'''
+def getImageBackground():
+    background = addon.getSetting('image.background')
+        
+    if background == '' or background == None: 
+        return getAddonBackgroundsPath() + '1.jpg'
+    elif int(background) == 0:
+        return getAddonBackgroundsPath() + '-transparent.png'
+            
+    return getAddonBackgroundsPath() + background + '.jpg' 
+            
+
+'''
+Return the current background custom image path.
+'''
+def getImageBackgroundCustom():
+    return addon.getSetting('custom.background')
+
 '''
 Addon consts
 '''
@@ -191,6 +218,10 @@ class AddonConst(object):
     # XMLTV
     XMLTV_SOURCE_URL   = 0
     XMLTV_SOURCE_LOCAL = 1
+    
+    # Implemented, will be usefull for future versions.
+    CHANNELS_ON_PAGE = 9
+    MAXIMUM_TIME_PROGRAMS_DISPLAY = 120
     
     def __init__(self):
         pass

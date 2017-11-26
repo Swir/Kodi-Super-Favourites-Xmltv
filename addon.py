@@ -10,27 +10,14 @@ from resources.lib import EPGXML, superfavourites
 from resources.lib.EPGCtl import EPGControl, EPGGridView
 from resources.lib import strings, settings
 from resources.lib.utils import connectEpgDB, strToDatetime
+from resources.lib.settings import AddonConst
 
 '''
 Global class handling EPG Gui.
 '''
 class XMLWindowEPG(xbmcgui.WindowXMLDialog):
-    DEBUG = True
     
-    database = None
-    cursor = None
-    
-    epgDb = None
-    epgXml = None
-    epgView = None
-    
-    # Customizable controls
-    CHANNELS_ON_PAGE = 9
-    MAXIMUM_TIME_PROGRAMS_DISPLAY = 120
-    
-    # Predefined const.
-    BACKGROUND_BUILTIN = 'true'
-    
+    epgDb = epgXml = epgView = None
     is_closing = False
         
     '''
@@ -54,7 +41,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epgView.right = self.epgView.left + globalControl.getWidth()
         self.epgView.bottom = self.epgView.top + globalControl.getHeight()
         self.epgView.width = globalControl.getWidth()
-        self.epgView.cellHeight = globalControl.getHeight() / XMLWindowEPG.CHANNELS_ON_PAGE
+        self.epgView.cellHeight = globalControl.getHeight() / AddonConst.CHANNELS_ON_PAGE
         
         start_time = datetime.datetime.now()
         start_time_view = self.setTimesLabels(str(start_time.hour) + ":" + str(start_time.minute), halfInc=False)
@@ -78,11 +65,11 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         labelTime3.setLabel(self.setTimesLabels(labelTime2.getLabel()))
         labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
         
-        self.database, self.cursor = connectEpgDB()
-        self.epgDb  = EPGXML.EpgDb(self.database, self.cursor)
-        self.epgXml = EPGXML.EpgXml(self.database, self.cursor, progress_bar=False)
+        database, cursor = connectEpgDB()
+        self.epgDb  = EPGXML.EpgDb(database, cursor)
+        self.epgXml = EPGXML.EpgXml(database, cursor, progress_bar=False)
         
-        dt_stop = self.epgView.start_time + datetime.timedelta(minutes=self.MAXIMUM_TIME_PROGRAMS_DISPLAY - 2)
+        dt_stop = self.epgView.start_time + datetime.timedelta(minutes=AddonConst.MAXIMUM_TIME_PROGRAMS_DISPLAY - 2)
         self.setChannels(self.epgView.start_time, dt_stop)
     
     
@@ -92,23 +79,9 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     def setEPGBackgrounds(self):
         
         bg = self.getControl(EPGControl.image.BACKGROUND)
-        
-        background_type = settings.addon.getSetting('type.background')
-        
-        if str(background_type) == XMLWindowEPG.BACKGROUND_BUILTIN:
-
-            background = settings.addon.getSetting('image.background')
-        
-            if background == '' or background == None: 
-                bg.setImage(settings.getAddonBackgroundsPath() + '1.jpg', useCache=False)
-            elif int(background) == 0:
-                bg.setImage(settings.getAddonBackgroundsPath() + '-transparent.png', useCache=False)
-            else:
-                bg.setImage(settings.getAddonBackgroundsPath() + background + '.jpg', useCache=False)
-        else:
-            bg_image = settings.addon.getSetting('custom.background')   
-            bg.setImage(bg_image, useCache=False)  
-            
+        custombg = settings.useCustomBackground()
+        bg_img = settings.getImageBackgroundCustom() if custombg else settings.getImageBackground()
+        bg.setImage(bg_img, useCache=False) 
     
     
     '''
@@ -121,7 +94,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         delta = dt_now - self.epgView.start_time
         tm.setVisible(False) 
         
-        if delta.seconds >=  0 and delta.seconds <= XMLWindowEPG.MAXIMUM_TIME_PROGRAMS_DISPLAY * 60:
+        if delta.seconds >=  0 and delta.seconds <= AddonConst.MAXIMUM_TIME_PROGRAMS_DISPLAY * 60:
             x = self.epgView.secondsToX(delta.seconds)
             tm.setPosition(int(x), tm.getY())
             tm.setVisible(True)
@@ -217,7 +190,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
             self.is_closing = True
             self.close()
         
-        # Select an EPG line into the window
         #if action == xbmcgui.ACTION_MOUSE_LEFT_CLICK or action == xbmcgui.ACTION_SELECT_ITEM:
         #    pass
 
@@ -237,7 +209,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     def onFocus(self, controlID):
         pass    
         
-            
 
 ''''''''''''''''''''''''''''''
 '''    Plugin entry point. '''
@@ -274,8 +245,7 @@ if __name__ == '__main__':
             epgXml.close()
             del epgDb
             del epgXml
-            
-            
+                   
         # Else, update epg in a thread
         else:
             # Starting GUI
