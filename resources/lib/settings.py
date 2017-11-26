@@ -2,6 +2,10 @@
 from xbmcaddon import Addon
 from xbmc import translatePath
 from os.path import join
+try:
+    from resources.lib import strings
+except ImportError:
+    import strings
 
 
 addon = Addon('plugin.program.super.favourites.xmltv')
@@ -11,6 +15,23 @@ DEBUG = True if addon.getSetting('debug.mode') == 'true' else False
 ''' ============================== '''
 '''       Global addon infos       '''
 ''' ============================== '''
+
+def checkMandatorySettings():
+    
+    # Checking xmltv type
+    if getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_URL:
+        if not getXMLTVURLRemote():
+            return False, strings.XMLTV_NO_URL_PROVIDED
+            
+    elif getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_LOCAL:
+        if not getXMLTVURLLocal() :
+            return False, strings.XMLTV_NO_FILE_PROVIDED 
+      
+    if getSFFolder() == 'special://home':
+        return False, strings.NO_SUPER_FAVOURITES_FOLDER
+    
+    return True, ""
+
 
 '''
 Return the addon path

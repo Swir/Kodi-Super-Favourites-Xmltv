@@ -331,7 +331,6 @@ class EpgDb(object):
             if DEBUG:
                 notify(strings.UPDATE_CHANNEL_ERROR, e.message)
             return False
-        
         return True
     
     
@@ -349,7 +348,6 @@ class EpgDb(object):
             if DEBUG:
                 notify(strings.REMOVE_CHANNEL_ERROR, e.message)
             return False
-        
         return True
     
     
@@ -364,8 +362,6 @@ class EpgDb(object):
         except SqliteError as e:
             if DEBUG:
                 notify(strings.GET_CHANNEL_ERROR, e.message)
-            return False
-        
         return False
     
     
@@ -380,17 +376,16 @@ class EpgDb(object):
         except SqliteError as e:
             if DEBUG:
                 notify(strings.GET_CHANNEL_ERROR, e.message)
+        return False
     
     '''
     Add a program into the program table.
     '''
-    def addPrograms(self, program_list):
-        
+    def addPrograms(self, program_list):     
         try:
             for program in program_list:
                 program_req = 'INSERT INTO programs (channel, title, start_date, end_date, description) VALUES (?,?,?,?,?)'            
                 self.cursor.execute(program_req, (program[0], program[1], program[2], program[3], program[4]))
-            
             self.database.commit()
             
         except SqliteError as e:
@@ -421,7 +416,6 @@ class EpgDb(object):
             if DEBUG:
                 notify(strings.UPDATE_PROGRAM_ERROR, e.message)
             return False
-        
         return True
     
        
@@ -437,7 +431,6 @@ class EpgDb(object):
             if DEBUG:
                 notify(strings.REMOVE_PROGRAM_ERROR, e.message)
             return False
-        
         return True
     
     
@@ -452,8 +445,6 @@ class EpgDb(object):
         except SqliteError as e:
             if DEBUG:
                 notify(strings.GET_PROGRAM_ERROR, e.message)
-            return False
-        
         return False
        
     
@@ -470,8 +461,6 @@ class EpgDb(object):
         except SqliteError as e:
             if DEBUG:
                 notify(strings.GET_CHANNEL_PROGRAMS_ERROR, e.message)
-            return False
-        
         return False
     
     
@@ -487,8 +476,6 @@ class EpgDb(object):
         except SqliteError as e:
             if DEBUG:
                 notify(strings.GET_CHANNELS_ERROR, e.message)
-            return False
-        
         return False
     
     
@@ -557,7 +544,7 @@ class EpgDb(object):
         except SqliteError as e:
             if DEBUG:
                 notify(strings.DB_STATE_ERROR, e.message)
-            return False
+        return False
     
     
     '''
@@ -604,35 +591,34 @@ class EpgDb(object):
                 
                 
     '''
+    Return last update date
     '''
     def getLastUpdateDate(self):
-        if self.cursor is None or self.database is None:
-            return
-        try:
-            check = "SELECT time FROM updates WHERE 1 ORDER BY id_update DESC LIMIT 1"
-            self.cursor.execute(check)
-            res = self.cursor.fetchone()[0]
-            if res in (-1, 0):
-                return None
-            return str(res)
-        except SqliteError as e:
-            if DEBUG:
-                notify(strings.LAST_UPDATE_NOT_FOUND, e.message)   
+        if self.isDBInitOk():
+            try:
+                check = "SELECT time FROM updates WHERE 1 ORDER BY id_update DESC LIMIT 1"
+                self.cursor.execute(check)
+                res = self.cursor.fetchone()[0]
+                if res in (-1, 0):
+                    return None
+                return str(res)
+            except SqliteError as e:
+                if DEBUG:
+                    notify(strings.LAST_UPDATE_NOT_FOUND, e.message)   
     
     
     '''
     '''
     def setUpdateDate(self):
-        if self.cursor is None or self.database is None:
-            return
-        try:
-            dt = datetime.now().strftime('%Y%m%d%H%M%S')            
-            date_insert = "INSERT INTO updates (time) VALUES ('%s')" % dt
-            self.cursor.execute(date_insert)
-            self.database.commit()
-        except SqliteError as e:
-            if DEBUG:
-                notify(strings.REGISTER_UPDATE_ERROR, e.message)   
+        if self.isDBInitOk():
+            try:
+                dt = datetime.now().strftime('%Y%m%d%H%M%S')            
+                date_insert = "INSERT INTO updates (time) VALUES ('%s')" % dt
+                self.cursor.execute(date_insert)
+                self.database.commit()
+            except SqliteError as e:
+                if DEBUG:
+                    notify(strings.REGISTER_UPDATE_ERROR, e.message)   
                 
     
     '''
@@ -640,8 +626,7 @@ class EpgDb(object):
     '''
     def __truncate(self, table, error=None):
         try:
-            request = "DELETE FROM %s" % table
-            self.cursor.execute(request)
+            self.cursor.execute("DELETE FROM %s" % table)
             self.database.commit()
         except SqliteError as err:
             if DEBUG and not error is None:
@@ -659,6 +644,4 @@ class EpgDb(object):
             del self.cursor
             del self.database
         except:
-            pass
-        
-        
+            pass     

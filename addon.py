@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import time, datetime
 import datetime as dt
-import xbmc, xbmcaddon, xbmcgui  
+import xbmc, xbmcgui  
 
 from threading import Timer
 from os.path import join
 
 from resources.lib import EPGXML, superfavourites
 from resources.lib.EPGCtl import EPGControl, EPGGridView
-from resources.lib import settings, strings
-from resources.lib.utils import connectEpgDB
-
-
+from resources.lib import strings, settings
+from resources.lib.utils import connectEpgDB, strToDatetime
 
 '''
 Global class handling EPG Gui.
@@ -150,7 +148,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         return str(("%02d:%02d") % (later.hour, later.minute))
     
     
-    
     '''
     Sets first channels lines.
     '''
@@ -177,13 +174,10 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                     nothing, focusTexture, noFocusTexture)
                 self.addControl(pbutton)
                   
-            for program in programs:                 
-                try:
-                    program_start = datetime.datetime.strptime(program["start"], "%Y%m%d%H%M%S")
-                    program_end = datetime.datetime.strptime(program["end"], "%Y%m%d%H%M%S")
-                except TypeError:
-                    program_start = datetime.datetime(*(time.strptime(program["start"], "%Y%m%d%H%M%S")[0:6]))
-                    program_end = datetime.datetime(*(time.strptime(program["end"], "%Y%m%d%H%M%S")[0:6]))
+            for program in programs: 
+                
+                program_start = strToDatetime(program["start"])    
+                program_end   = strToDatetime(program["end"])            
                 
                 deltaStart = program_start - self.epgView.start_time
                 deltaStop  = program_end - self.epgView.start_time
@@ -207,12 +201,9 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                     program["title"],
                     noFocusTexture=noFocusTexture,
                     focusTexture=focusTexture
-                )
-                                
+                )            
                 self.addControl(pbutton)                        
             idx += 1
-        
-            
         
     
     '''
@@ -224,7 +215,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         # Same as normal python Windows.
         if action == xbmcgui.ACTION_PREVIOUS_MENU:
             self.is_closing = True
-            xbmc.sleep(500)
             self.close()
         
         # Select an EPG line into the window
@@ -252,49 +242,18 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
 ''''''''''''''''''''''''''''''
 '''    Plugin entry point. '''
 ''''''''''''''''''''''''''''''
-def checkSettings(addon): # TODO  ----------------------------------------------------
-    settings_ok = True
-    error_msg   = ''
-    
-    # Checking xmltv type
-    if int(addon.getSetting('xmltv.source.type')) == 0:
-        if not addon.getSetting('xmltv.url.value'):
-            settings_ok = False
-            error_msg = strings.XMLTV_NO_URL_PROVIDED
-            
-    elif int(addon.getSetting('xmltv.source.type')) == 1:
-        if not addon.getSetting('xmltv.local.value') :
-            settings_ok = False
-            error_msg = strings.XMLTV_NO_FILE_PROVIDED
-      
-    # Checking Super Favourites settings    
-    sp_folder = addon.getSetting('super.favourites.folder')   
-    if sp_folder == 'special://home':
-        settings_ok = False
-        error_msg = strings.NO_SUPER_FAVOURITES_FOLDER
-    
-    return settings_ok, error_msg
-    
 
-
-
-if __name__ == '__main__':
-    addon = xbmcaddon.Addon('plugin.program.super.favourites.xmltv')
-    
+if __name__ == '__main__':    
     # Checking for bad configuration.   
-    ok, error_msg = checkSettings(addon)
-    
-    # Checking if some settings were completed.
+    ok, error_msg = settings.checkMandatorySettings()
     if not ok:
-        title      = strings.BAD_ADDON_CONFIGURATION
-        conclusion = strings.CONFIGURATION_TAKE_TIME_MSG
-        xbmcgui.Dialog().ok(strings.DIALOG_TITLE, title, error_msg, conclusion)
-        addon.openSettings()
+        xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.BAD_ADDON_CONFIGURATION, 
+                            error_msg, strings.CONFIGURATION_TAKE_TIME_MSG)
+        settings.addon.openSettings()
     
     else:      
         database, cursor = connectEpgDB()
-        epgDb = EPGXML.EpgDb(database, cursor)
-        
+        epgDb = EPGXML.EpgDb(database, cursor) 
         # Populate and create tables in case of first start
         if epgDb.firstTimeRuning():
             xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_FIRST_START_DETECTED)
@@ -303,15 +262,12 @@ if __name__ == '__main__':
             if epgXml.getXMLTV():
                 epgDb.setFirstTimeRuning(0)
                 epgDb.setUpdateDate()
-                xbmc.sleep(1500)
-                epgDb.getCleanOld()
+                xbmc.sleep(1000)
                 # Super favourites folder init.
                 sf_folder = superfavourites.SuperFavouritesIptvFolder()
                 sf_folder.createSubFolders()
                 # All is done, restart required
                 xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_INIT_OK)
-            
-                xbmc.sleep(1000)
                 sf_folder.close()
             
             epgDb.close()
@@ -323,7 +279,7 @@ if __name__ == '__main__':
         # Else, update epg in a thread
         else:
             # Starting GUI
-            EPGgui = XMLWindowEPG('epg.xml', addon.getAddonInfo('path'))
+            EPGgui = XMLWindowEPG('epg.xml', settings.getAddonPath())
             EPGgui.doModal() 
             del EPGgui        
         
