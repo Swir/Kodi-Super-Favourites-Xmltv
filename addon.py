@@ -80,16 +80,9 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         labelTime3.setLabel(self.setTimesLabels(labelTime2.getLabel()))
         labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
         
-        # DB object
-        self.epgDb = EPGXML.EpgDb()
-        self.database, self.cursor = connectEpgDB()   
-        self.epgDb.setDatabaseObj(self.database)
-        self.epgDb.setCursorObj(self.cursor)
-        
-        # XMLTV object
-        self.epgXml = EPGXML.EpgXml(progress_bar=False)
-        self.epgXml.setDatabaseObj(self.database)
-        self.epgXml.setCursorObj(self.cursor)
+        self.database, self.cursor = connectEpgDB()
+        self.epgDb  = EPGXML.EpgDb(self.database, self.cursor)
+        self.epgXml = EPGXML.EpgXml(self.database, self.cursor, progress_bar=False)
         
         dt_stop = self.epgView.start_time + datetime.timedelta(minutes=self.MAXIMUM_TIME_PROGRAMS_DISPLAY - 2)
         self.setChannels(self.epgView.start_time, dt_stop)
@@ -299,33 +292,28 @@ if __name__ == '__main__':
         addon.openSettings()
     
     else:      
-        epgDb = EPGXML.EpgDb()
-        database, cursor = connectEpgDB()   
-        epgDb.setDatabaseObj(database)
-        epgDb.setCursorObj(cursor)
+        database, cursor = connectEpgDB()
+        epgDb = EPGXML.EpgDb(database, cursor)
         
         # Populate and create tables in case of first start
         if epgDb.firstTimeRuning():
             xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_FIRST_START_DETECTED)
-            epgXml = EPGXML.EpgXml(progress_bar=True)
-            epgXml.setDatabaseObj(database)
-            epgXml.setCursorObj(cursor)
-            epgXml.getXMLTV()
+            epgXml = EPGXML.EpgXml(database, cursor, progress_bar=True)
             
-            xbmc.sleep(1500)
-            epgDb.setFirstTimeRuning(0)
-            epgDb.setUpdateDate()
-            epgDb.getCleanOld()
+            if epgXml.getXMLTV():
+                epgDb.setFirstTimeRuning(0)
+                epgDb.setUpdateDate()
+                xbmc.sleep(1500)
+                epgDb.getCleanOld()
+                # Super favourites folder init.
+                sf_folder = superfavourites.SuperFavouritesIptvFolder()
+                sf_folder.createSubFolders()
+                # All is done, restart required
+                xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_INIT_OK)
             
-            # Super favourites folder init.
-            sf_folder = superfavourites.SuperFavouritesIptvFolder()
-            sf_folder.createSubFolders()
+                xbmc.sleep(1000)
+                sf_folder.close()
             
-            # All is done, restart required
-            xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_INIT_OK)
-            
-            xbmc.sleep(1000)
-            sf_folder.close()
             epgDb.close()
             epgXml.close()
             del epgDb

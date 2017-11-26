@@ -1,130 +1,77 @@
 # -*- coding: utf-8 -*-
-
-import os, time, glob, shutil
-import datetime
-import sqlite3
-import urllib2
-import zipfile, tarfile
-import xbmcgui
-
+from glob import glob
+from os import rename, remove
+from os.path import isfile, isdir, join
+from shutil  import rmtree
 from xml.dom import minidom
-from resources.lib.utils import notify, copyfile
-from resources.lib import strings, settings
+from urllib2 import HTTPError, urlopen
+from sqlite3 import Error as SqliteError
+from xbmcgui import DialogProgress, DialogProgressBG
+from zipfile import is_zipfile, ZipFile, BadZipfile, LargeZipFile
+from tarfile import is_tarfile, TarFile, ReadError as TarReadError
+from datetime import timedelta, datetime
+
+from resources.lib import strings
+from resources.lib.utils import strToDatetime, notify, copyfile
+from resources.lib.settings import DEBUG, AddonConst, getXMLTVSourceType,\
+     getEpgXmlFilePath, getAddonUserDataPath, getXMLTVURLLocal, getXMLTVURLRemote, \
+     isXMLTVCompressed, getCleanupTreshold
 
 '''
 Handle XMLTV itself.
 '''
 class EpgXml(object):
     
-    DEBUG = False
-    
-    XMLTV_SOURCE_URL   = 0
-    XMLTV_SOURCE_LOCAL = 1
-    
-    addon    = None
-    epg_db   = None
-    database = None
-    cursor   = None
-    
-    xmltv_file   = None
-    xmltv_source = 0
-    xmltv_global_path = None
-    xmltv_progress_bar = None
-    
-        
-    def __init__(self, progress_bar=True):
-        self.DEBUG = False
-        self.addon = settings.addon
-        
-        self.epg_db = EpgDb()
-        
-        self.xmltv_source = int(self.addon.getSetting("xmltv.source.type"))
-        
-        self.xmltv_global_path = self.addon.getAddonInfo('path')
-        self.xmltv_global_path = self.xmltv_global_path.replace('addons', os.path.join('userdata', 'addon_data'), 1)       
-     
-        if progress_bar:
-            self.xmltv_progress_bar = xbmcgui.DialogProgress()
-        else:
-            self.xmltv_progress_bar = xbmcgui.DialogProgressBG()        
+    epg_db = None
+    progress_bar = None
             
-    
-           
-     
-    '''
-    Set the database object ( multi threading purpose )
-    '''
-    def setDatabaseObj(self, db):
-        self.database = db
-        self.init_result = True if not self.database is None else False
-    
-    
-    
-    '''
-    Set the cursor object ( multi threading purpose )
-    '''
-    def setCursorObj(self, cursor):
-        self.cursor = cursor   
-    
-    
+    def __init__(self, database, cursor, progress_bar=True): 
+        self.epg_db = EpgDb(database, cursor)
+        self.progress_bar = DialogProgress() if progress_bar else DialogProgressBG()     
     
     '''
     Global entry point to get / parse and push xmltv data into db.
     '''
     def getXMLTV(self):
         
-        if self.database is None or self.cursor is None:
-            return
-        
-        self.epg_db.setCursorObj(self.cursor)
-        self.epg_db.setDatabaseObj(self.database)
+        if self.epg_db.isDBInitOk():
             
-        if os.path.isfile(os.path.join(self.xmltv_global_path, "epg.xml")):
-            os.remove(os.path.join(self.xmltv_global_path, "epg.xml")) 
+            if isfile(getEpgXmlFilePath()):
+                remove(getEpgXmlFilePath()) 
                 
-        if  self.xmltv_source == EpgXml.XMLTV_SOURCE_LOCAL:
-            self.xmltv_file = self.__getLocalXmltv(self.addon.getSetting('xmltv.local.value'))
+            if  getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_LOCAL:
+                self.__getLocalXmltv(getXMLTVURLLocal())
         
-        elif self.xmltv_source == EpgXml.XMLTV_SOURCE_URL:
-            self.xmltv_file = self.__getUrlXmltv(self.addon.getSetting('xmltv.url.value'))
+            elif getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_URL:
+                self.__getUrlXmltv(getXMLTVURLRemote())
         
-        else:
-            notify(strings.XMLTV_LOAD_ERROR)
+            else:
+                notify(strings.XMLTV_LOAD_ERROR)
+                return
         
-        
-        
-        if not self.xmltv_file is None:
-            # parsing xmltv file
-            self.__parseXMLTV(self.xmltv_file)
+            return self.__parseXMLTV()
             
     
     '''
     Basic xml file checks
     '''
     def __getLocalXmltv(self, local_file):
-                
-        compressed = True if self.addon.getSetting('xmltv.compressed') == 'true' else False 
-        
-        if not os.path.isfile(local_file):
+                        
+        if not isfile(local_file):
             notify(strings.XMLTV_FILE_NOT_FOUND)
         else:
-            if not compressed and not local_file.endswith(".xml"):
+            if not isXMLTVCompressed() and not local_file.endswith(".xml"):
                 notify(strings.BAD_XMLTV_FILE_TYPE)
-                return None
-            elif not compressed:
-                # Moving to userdata
-                if not self.xmltv_source == EpgXml.XMLTV_SOURCE_URL:
-                    copyfile(local_file, os.path.join(self.xmltv_global_path, "epg.xml"))
                 
-                local_file = os.path.join(self.xmltv_global_path, "epg.xml")
-                return local_file
+            elif not isXMLTVCompressed():
+                # Moving to userdata
+                if not getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_URL:
+                    copyfile(local_file, getEpgXmlFilePath())
             else:
                 # Uncompress and moving to userdata
-                return self.__uncompressAndMove(local_file)
+                self.__uncompressAndMove(local_file)
         
         
-    
-    
     '''
     Retrive an xmltv file from a given url.
     '''
@@ -133,26 +80,32 @@ class EpgXml(object):
         import ssl
         ssl._create_default_https_context = ssl._create_unverified_context
         
-        dest_file = os.path.join(self.xmltv_global_path, "epg.xml")        
+        dest_file = getEpgXmlFilePath()        
         
         try:
-            self.xmltv_progress_bar.create(strings.SFX_EPG_UPDATE_HEADER, strings.SFX_DOWNLOADING_MSG)
-            download = urllib2.urlopen(url_file_source, timeout=30)
+            self.progress_bar.create(strings.SFX_EPG_UPDATE_HEADER, strings.SFX_DOWNLOADING_MSG)
+            download = urlopen(url_file_source, timeout=30)
             
-            # Most of tried servers are data chunked ( no content length header ) so faking progress
-            self.xmltv_progress_bar.update(25)
+            if isfile(dest_file):
+                remove(dest_file)
+        
+            tsf = open(dest_file, "w")
+            tsf.write(download.read())
+            tsf.close()
+            del tsf
+        
+            self.progress_bar.close()
+            self.__getLocalXmltv(dest_file)
                         
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             if e.code == 304:
                 notify(strings.HTTP_UNCHANGED_REMOTE_FILE, e.reason)  
             elif e.code == 301:    
                 notify(strings.HTTP_MOVED_PERMANENTLY, e.reason)
             elif e.code == 400:
                 notify(strings.HTTP_BAD_REQUEST, e.reason)
-            elif e.code == 401:
-                notify(strings.HTTP_UNAUTHORIZED, e.reason)   
-            elif e.code == 403:
-                notify(strings.HTTP_UNAUTHORIZED, e.reason)    
+            elif e.code in [401,403]:
+                notify(strings.HTTP_UNAUTHORIZED, e.reason)     
             elif e.code == 404:
                 notify(strings.HTTP_NOT_FOUND, e.reason)
             elif e.code == 500:
@@ -166,68 +119,50 @@ class EpgXml(object):
             else:
                 notify(strings.HTTP_UNHANDLED_ERROR, e.reason)
             
-            self.xmltv_progress_bar.close()
-               
-            return None
-        
-        if os.path.isfile(dest_file):
-            os.remove(dest_file)
-        
-        self.xmltv_progress_bar.update(35)
-        tsf = open(dest_file, "w")
-        self.xmltv_progress_bar.update(60)
-        tsf.write(download.read())
-        self.xmltv_progress_bar.update(8)
-        tsf.close()
-        self.xmltv_progress_bar.update(100)
-
-        del tsf
-        self.xmltv_progress_bar.close()
-        
-        return self.__getLocalXmltv(dest_file)
+            self.progress_bar.close()
+            return
     
-
-
+    
     '''
     Uncompress zip, tar, ... archive and moves it into the right directory.
     '''
     def __uncompressAndMove(self, zfile):
         
-        dest = os.path.join(self.xmltv_global_path, "epg.archive")                
+        dest = join(getAddonUserDataPath(), "epg.archive")                
         
-        if zipfile.is_zipfile(zfile):
+        if is_zipfile(zfile):
             try:
-                with zipfile.ZipFile(zfile, "r") as xmltv_zip:
+                with ZipFile(zfile, "r") as xmltv_zip:
                     xmltv_zip.extractall(dest)
                     xmltv_zip.close()
                     
-            except zipfile.BadZipfile, zipfile.LargeZipFile:
-                if os.path.isdir(dest):
-                    shutil.rmtree(dest)
+            except BadZipfile, LargeZipFile:
+                if isdir(dest):
+                    rmtree(dest)
                 notify(strings.ARCHIVE_ZIP_UNCOMPRESS_ERROR)
-                return None
+                return
             
-        elif tarfile.is_tarfile(zfile):
+        elif is_tarfile(zfile):
                 try:
-                    with tarfile.TarFile(zfile) as xmltv_tar:
+                    with TarFile(zfile) as xmltv_tar:
                         xmltv_tar.extractall(dest)
                         xmltv_tar.close()
                         
-                except tarfile.ReadError:
-                    if os.path.isdir(dest):
-                        shutil.rmtree(dest)
+                except TarReadError:
+                    if isdir(dest):
+                        rmtree(dest)
                     notify(strings.ARCHIVE_TAR_UNCOMPRESS_ERROR)
-                    return None
+                    return
         else:
             notify(strings.ARCHIVE_UNSUPPORTED_FORMAT)
-            return None
+            return
         
-        if os.path.isdir(dest):
-            paths = glob.glob(os.path.join(dest, "*.xml"))
+        if isdir(dest):
+            paths = glob(join(dest, "*.xml"))
             if len(paths) <= 0:
                 notify(strings.ARCHIVE_NO_XMLTV_FOUND)
-                shutil.rmtree(dest)
-                return None
+                rmtree(dest)
+                return
             else:
                 zfile = None
                 for ptest in paths:
@@ -237,24 +172,24 @@ class EpgXml(object):
                     programs = True if xmltest.getElementsByTagName('programme').length > 0 else False
                     
                     if channels and programs:
-                        os.rename(ptest, os.path.join(self.xmltv_global_path, "epg.xml"))
-                        shutil.rmtree(dest)
-                        zfile = os.path.join(self.xmltv_global_path, "epg.xml")
+                        rename(ptest, getEpgXmlFilePath())
+                        rmtree(dest)
                         break
         else:
             notify(strings.ARCHIVE_UNSUPPORTED_FORMAT)
-            return None
-        
-        return zfile
-    
     
     
     '''
     Parse the xmltv file and return the result.
     '''
-    def __parseXMLTV(self, xmltv):
-        self.xmltv_progress_bar.create(strings.DIALOG_TITLE, strings.SFX_LONG_TIME_MSG)
-        xmltv = minidom.parse(xmltv)
+    def __parseXMLTV(self):
+        
+        if not isfile(getEpgXmlFilePath()):
+            return False
+            
+        self.progress_bar.create(strings.DIALOG_TITLE, strings.SFX_LONG_TIME_MSG)
+        xmltv = minidom.parse(getEpgXmlFilePath())
+        
         channels = xmltv.getElementsByTagName('channel')
         programs = xmltv.getElementsByTagName('programme')
         plist = []
@@ -262,10 +197,9 @@ class EpgXml(object):
 
         i = 1
         for channel in channels:
-            
-            percent = int( ( i / float(channels.length) ) * 100)
-            message = strings.SFX_CHANNEL + ' %i/%i' % (i, channels.length)
-            self.xmltv_progress_bar.update(percent, "", message)
+
+            self.progress_bar.update(int( ( i / float(channels.length) ) * 100), "", 
+                                     strings.SFX_CHANNEL + ' %i/%i' % (i, channels.length))
             
             id_channel   = channel.getAttribute('id').encode('utf-8', 'ignore') 
             display_name = channel.getElementsByTagName('display-name')[0].firstChild.data.encode('utf-8', 'ignore')
@@ -283,115 +217,74 @@ class EpgXml(object):
         i = 1
         for program in programs:
             
-            percent = int( ( i / float(programs.length) ) * 100)
-            message = strings.SFX_PROGRAM + ' %i/%i' % (i, programs.length)
-            self.xmltv_progress_bar.update(percent, "", message)
+            self.progress_bar.update(int( ( i / float(programs.length) ) * 100), "", 
+                                     strings.SFX_PROGRAM + ' %i/%i' % (i, programs.length))
             
             id_channel = program.getAttribute('channel') .encode('utf-8', 'ignore')           
             
-            start_date = program.getAttribute('start')
-            start_date = start_date.encode('utf-8', 'ignore')
-            
+            start_date = program.getAttribute('start').encode('utf-8', 'ignore')
             if start_date.find(' +'):
                 start_date = start_date[:start_date.find(" +")]             
               
-            end_date = program.getAttribute('stop')
-            end_date = end_date.encode('utf-8', 'ignore')
+            end_date = program.getAttribute('stop').encode('utf-8', 'ignore')
             if end_date.find(' +'):
                 end_date = end_date[:end_date.find(" +")] 
             
-            try:
-                program_start = datetime.datetime.strptime(start_date, "%Y%m%d%H%M%S")
-                program_end = datetime.datetime.strptime(end_date, "%Y%m%d%H%M%S")
-            except TypeError:
-                program_start = datetime.datetime(*(time.strptime(start_date, "%Y%m%d%H%M%S")[0:6]))
-                program_end = datetime.datetime(*(time.strptime(end_date, "%Y%m%d%H%M%S")[0:6]))
+            program_start = strToDatetime(start_date)
+            program_end   = strToDatetime(end_date) 
             
-            ptitle = ""
+            ptitle = desc = ""
             if program.getElementsByTagName('title').length > 0:
                 try:
                     ptitle = program.getElementsByTagName('title')[0].firstChild.data
                     ptitle = ptitle.encode('utf-8', 'ignore')
                 except AttributeError:
-                    ptitle = ""
+                    pass
             
-            desc = ""
             if program.getElementsByTagName('desc').length > 0:
                 try:
                     desc = program.getElementsByTagName('desc')[0].firstChild.data
                     desc = desc.encode('utf-8', 'ignore')
                 except AttributeError:
-                    desc = ""
+                    pass
             
-            if program_end > datetime.datetime.now():
+            if program_end + timedelta(days=1) > datetime.now():
                 plist.append([id_channel, ptitle, program_start.strftime("%Y%m%d%H%M%S"), program_end.strftime("%Y%m%d%H%M%S"), desc])
             
             i += 1
             
         self.epg_db.addPrograms(plist)
-        
-        self.xmltv_progress_bar.close()
+        self.progress_bar.close()
+        return True
 
             
     '''
-    Cose the database oject
+    Cose the epg_db oject
     '''
     def close(self):
-        try:
-            self.database.close()
-            del self.cursor
-            del self.database
-        except:
-            pass
-
+        self.epg_db.close()
 
 
 '''
 Handle SQL EPG guide
 '''
 class EpgDb(object):
-    
-    DEBUG = False
-    
-    database = None
-    cursor = None
-    addon    = None
-    db_path  = None 
-    init_result = False
+        
+    database = cursor = None
     
     '''
     EPG DB init.
     '''
-    def __init__(self):
-        self.addon = settings.addon
-        self.DEBUG = False
-        #base = os.path.dirname(os.path.realpath(__file__))
-        
-        base = self.addon.getAddonInfo('path')
-        base = base.replace('addons', os.path.join('userdata', 'addon_data'), 1)
-        self.db_path = os.path.join(base, "epg.db")
-            
+    def __init__(self, database, cursor):        
+        self.database = database
+        self.cursor = cursor            
     
-    '''
-    Set the database object ( multi threading purpose )
-    '''
-    def setDatabaseObj(self, db):
-        self.database = db
-        self.init_result = True if not self.database is None else False
-    
-    
-    '''
-    Set the cursor object ( multi threading purpose )
-    '''
-    def setCursorObj(self, cursor):
-        self.cursor = cursor
-                 
     
     '''
     Return the initialization state.
     '''
     def isDBInitOk(self):
-        return self.init_result
+        return True if self.database is not None and self.cursor is not None else False
     
     
     '''
@@ -401,16 +294,12 @@ class EpgDb(object):
         try:
             for channel in clist:
                 chann = "INSERT INTO channels (id_channel, display_name, logo, source, visible) VALUES (?,?,?,?,?)"
-                self.cursor.execute(chann, (channel[0],channel[1],channel[2],channel[3],channel[4]))
-                
+                self.cursor.execute(chann, (channel[0],channel[1],channel[2],channel[3],channel[4]))    
             self.database.commit()
         
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.ADDING_CHANNEL_ERROR, e.message)
-            return False
-        
-        return True
     
     
     '''
@@ -428,27 +317,18 @@ class EpgDb(object):
                 self.cursor.execute(programs)
                 self.database.commit()
             
-            if not display_name is None:
-                update += 'display_name="%s",' % (display_name, )
-            
-            if not logo is None:
-                update += 'logo="%s",' % (logo, )
-             
-            if not source is None:   
-                update += 'source="%s",' % (source, )
-            
-            if not visible is None:
-                update += 'visible=%i' % (1 if visible else 0, )
-            
-            update += ' WHERE id_channel="%s"' % (id_channel,)
-            if visible is None:
-                update = ''.join(update.rsplit(",", 1))
+            update += 'display_name="%s",' % display_name if not display_name is None else ""
+            update += 'logo="%s",' % logo if not logo is None else ""  
+            update += 'source="%s",' % source if not source is None else ""
+            update += 'visible=%i' % 1 if visible else 0 if not visible is None else ""   
+            update += ' WHERE id_channel="%s"' % id_channel
+            update = ''.join(update.rsplit(",", 1)) if visible is None else update
 
             self.cursor.execute(update) 
             self.database.commit()
             
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.UPDATE_CHANNEL_ERROR, e.message)
             return False
         
@@ -460,15 +340,13 @@ class EpgDb(object):
     '''
     def removeChannel(self, id_channel):
         try:
-            # Channel
             delete = 'DELETE FROM channels WHERE id_channel="%s"' % id_channel
-            # Programs
             programs = 'DELETE FROM programs WHERE channel="%s"' % id_channel
             self.cursor.execute(delete)
             self.cursor.execute(programs)
             self.database.commit()
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.REMOVE_CHANNEL_ERROR, e.message)
             return False
         
@@ -483,8 +361,8 @@ class EpgDb(object):
             get = 'SELECT * FROM channels WHERE id_channel="%s"' % id_channel
             self.cursor.execute(get)
             return self.cursor.fetchone()
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.GET_CHANNEL_ERROR, e.message)
             return False
         
@@ -499,8 +377,8 @@ class EpgDb(object):
             check = 'SELECT count(*) as count FROM channels WHERE id_channel="%s"' % id_channel
             self.cursor.execute(check)
             return self.cursor.fetchone()[0] == 1
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.GET_CHANNEL_ERROR, e.message)
     
     '''
@@ -515,8 +393,8 @@ class EpgDb(object):
             
             self.database.commit()
             
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.ADDING_PROGRAM_ERROR, e.message)
             return False
         return True
@@ -528,30 +406,19 @@ class EpgDb(object):
     def updateProgram(self, id_program, channel=None, title=None, start_date=None, end_date=None, description=None):
         try:
             update = "UPDATE programs set "
-            
-            if not channel is None:
-                update += 'channel="%s",' % channel
-            
-            if not title is None:
-                update += 'title="%s",' % title
-             
-            if not start_date is None:   
-                update += 'start_date="%s",' % start_date
-            
-            if not end_date is None:
-                update += 'end_date="%s",' % end_date
-            
-            if not description is None:
-                update += 'description="%s" ,' % description
-            
-            update += ' WHERE id_program=%i' % (id_program,)
+            update += 'channel="%s",' % channel if not channel is None else ""
+            update += 'title="%s",' % title if not title is None else ""
+            update += 'start_date="%s",' % start_date if not start_date is None else ""
+            update += 'end_date="%s",' % end_date if not end_date is None else ""
+            update += 'description="%s" ,' % description if not description is None else ""
+            update += ' WHERE id_program=%i' % id_program
             update = ''.join(update.rsplit(",", 1))
 
             self.cursor.execute(update) 
             self.database.commit()
             
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.UPDATE_PROGRAM_ERROR, e.message)
             return False
         
@@ -566,8 +433,8 @@ class EpgDb(object):
             program = 'DELETE FROM programs WHERE channel="%s" AND id_program=%i' % (id_channel, id_program)
             self.cursor.execute(program)
             self.database.commit()
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.REMOVE_PROGRAM_ERROR, e.message)
             return False
         
@@ -582,8 +449,8 @@ class EpgDb(object):
             get = 'SELECT * FROM programs WHERE channel="%s" AND id_program=%i' % (id_channel, id_program)
             self.cursor.execute(get)
             return self.cursor.fetchone()
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.GET_PROGRAM_ERROR, e.message)
             return False
         
@@ -600,8 +467,8 @@ class EpgDb(object):
             get = 'SELECT * FROM programs WHERE channel="%s" AND ((CAST(end_date AS INTEGER) BETWEEN %i AND %i) OR (CAST(start_date AS INTEGER) BETWEEN %i AND %i)) ORDER BY start_date ASC' % (id_channel, int(between_v1), int(between_v2), int(between_v1), int(between_v2))
             self.cursor.execute(get)
             return self.cursor.fetchall()
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.GET_CHANNEL_PROGRAMS_ERROR, e.message)
             return False
         
@@ -617,8 +484,8 @@ class EpgDb(object):
             get = 'SELECT * FROM channels WHERE visible="1" ORDER BY id ASC LIMIT %i' % channels_limit
             self.cursor.execute(get)
             return self.cursor.fetchall()
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.GET_CHANNELS_ERROR, e.message)
             return False
         
@@ -674,9 +541,7 @@ class EpgDb(object):
     Clean both channels and programs
     '''
     def getCleanAll(self):
-        a = self.truncateChannels()
-        b = self.truncatePrograms()
-        return a and b
+        return self.truncateChannels() and self.truncatePrograms()
     
     
     '''
@@ -689,8 +554,8 @@ class EpgDb(object):
             check = "SELECT COUNT(*) as count FROM updates WHERE time='-1'"
             self.cursor.execute(check)
             return int(self.cursor.fetchone()[0]) == 1 
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.DB_STATE_ERROR, e.message)
             return False
     
@@ -705,8 +570,8 @@ class EpgDb(object):
             check = "UPDATE updates set time ='%s' WHERE id_update=1" % state
             self.cursor.execute(check)
             self.database.commit()
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.DB_STATE_ERROR, e.message)    
     
     '''
@@ -723,27 +588,18 @@ class EpgDb(object):
             for program in self.cursor.fetchall():
                     
                 program_end_date = program[1]
-                    
-                treshold = self.addon.getSetting('cleanup.treshold')
-                if treshold is None or treshold == '':
-                    treshold = '1'
-                    
-                current_time = datetime.datetime.fromtimestamp(time.time())
-                try:
-                    program_time = datetime.datetime.strptime(program_end_date, "%Y%m%d%H%M%S")
-                except TypeError:
-                    program_time = datetime.datetime(*(time.strptime(program_end_date, "%Y%m%d%H%M%S")[0:6]))
-                    
+                current_time = datetime.now()
+                program_time = strToDatetime(program_end_date)
                 delta = current_time - program_time
                     
-                if delta.days >= int(treshold) + 1 :
+                if delta.days >= getCleanupTreshold() :
                     # Then delete old ones.
                     request = "DELETE FROM programs WHERE id_program=%i" % program[0]
                     self.cursor.execute(request)
                     self.database.commit()
                 
-        except sqlite3.Error as e:
-            if self.DEBUG :
+        except SqliteError as e:
+            if DEBUG :
                 notify(strings.CLEANUP_PROGRAMS_ERROR, e.message)
                 
                 
@@ -759,8 +615,8 @@ class EpgDb(object):
             if res in (-1, 0):
                 return None
             return str(res)
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.LAST_UPDATE_NOT_FOUND, e.message)   
     
     
@@ -770,12 +626,12 @@ class EpgDb(object):
         if self.cursor is None or self.database is None:
             return
         try:
-            dt = datetime.datetime.now().strftime('%Y%m%d%H%M%S')            
+            dt = datetime.now().strftime('%Y%m%d%H%M%S')            
             date_insert = "INSERT INTO updates (time) VALUES ('%s')" % dt
             self.cursor.execute(date_insert)
             self.database.commit()
-        except sqlite3.Error as e:
-            if self.DEBUG:
+        except SqliteError as e:
+            if DEBUG:
                 notify(strings.REGISTER_UPDATE_ERROR, e.message)   
                 
     
@@ -787,8 +643,8 @@ class EpgDb(object):
             request = "DELETE FROM %s" % table
             self.cursor.execute(request)
             self.database.commit()
-        except sqlite3.Error as err:
-            if self.DEBUG and not error is None:
+        except SqliteError as err:
+            if DEBUG and not error is None:
                 notify(error, err.message)
             return False
         return True

@@ -21,11 +21,8 @@ class SuperFavouritesIptvFolder(object):
     Init
     '''
     def __init__(self):
-        
-        self.epg_db = EpgDb()
         self.database, self.cursor = connectEpgDB()
-        self.epg_db.setDatabaseObj(self.database)
-        self.epg_db.setCursorObj(self.cursor)
+        self.epg_db = EpgDb(self.database, self.cursor)
     
     
     '''

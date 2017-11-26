@@ -117,8 +117,43 @@ Return the update frequency
 '''
 def getUpdateFrequency():
     frequency = addon.getSetting('update.frequency')
-    return int(frequency) + 1 if not frequency is None else 1
+    return int(frequency) + 1 if not frequency is None or frequency == '' else 1
 
+
+'''
+Return the cleanup treshold in days.
+'''
+def getCleanupTreshold():
+    treshold = addon.getSetting('cleanup.treshold')
+    return int(treshold) + 1 if not treshold is None or treshold == '' else 1
+
+
+'''
+Return XMLTV source type from settings.
+'''
+def getXMLTVSourceType():
+    return int(addon.getSetting("xmltv.source.type"))
+
+
+'''
+Return the local url defined in settings.
+'''
+def getXMLTVURLLocal():
+    return addon.getSetting('xmltv.local.value')
+
+
+'''
+Return the remote url defined in settings.
+'''
+def getXMLTVURLRemote():
+    return addon.getSetting('xmltv.url.value')
+
+
+'''
+Return True if XMLTV source is compressed.
+'''
+def isXMLTVCompressed():
+    return True if addon.getSetting('xmltv.compressed') == 'true' else False
 
 '''
 Addon consts
@@ -131,6 +166,10 @@ class AddonConst(object):
     # %aintenance consts ( hard reset )
     ACTION_HARD_RESET = 0
     ACTION_SF_FOLDERS = 1
+    
+    # XMLTV
+    XMLTV_SOURCE_URL   = 0
+    XMLTV_SOURCE_LOCAL = 1
     
     def __init__(self):
         pass

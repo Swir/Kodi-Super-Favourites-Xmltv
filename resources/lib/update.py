@@ -26,12 +26,10 @@ class ThreadedUpdater(Thread):
     '''
     def run(self):
         try:
-            epg_db = EpgDb()
+            database, cursor = connectEpgDB()
+            epg_db = EpgDb(database, cursor)
             kodisleep(getTimeSleep())
-            
-            database, cursor = connectEpgDB()   
-            epg_db.setDatabaseObj(database)
-            epg_db.setCursorObj(cursor)
+               
             # Getting last update date.
             update_date = epg_db.getLastUpdateDate()
             
@@ -46,9 +44,7 @@ class ThreadedUpdater(Thread):
             if delta.days < getUpdateFrequency() :        
                 return
             
-            epg_xml = EpgXml(progress_bar=False)
-            epg_xml.setDatabaseObj(database)
-            epg_xml.setCursorObj(cursor)
+            epg_xml = EpgXml(database, cursor, progress_bar=False)
             epg_xml.getXMLTV()
             epg_db.setUpdateDate()
                 

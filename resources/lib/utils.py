@@ -13,12 +13,12 @@ Display a basic notification
 '''    
 
 def notify(message, plus=None):
-    
+    message = message.encode("utf-8", 'ignore')
     log(message, LOGERROR)
     if not plus is None:
         log(plus, LOGERROR)
         
-    executebuiltin('Notification(%s,%s,%s,%s)'%(DIALOG_TITLE, message, 6000, getAddonIcon()))
+    executebuiltin('Notification(%s,%s,%s,%s)'%(DIALOG_TITLE.encode("utf-8", 'ignore'), message, 6000, getAddonIcon()))
     
     
     
@@ -29,7 +29,7 @@ def strToDatetime(datestr):
     try:
         return dt.strptime(datestr, "%Y%m%d%H%M%S")
     except TypeError:
-        return dt.datetime(*(time_strptime(datestr, "%Y%m%d%H%M%S")[0:6]))
+        return dt(*(time_strptime(datestr, "%Y%m%d%H%M%S")[0:6]))
     
     
     
