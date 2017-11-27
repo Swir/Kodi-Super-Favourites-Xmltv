@@ -213,6 +213,13 @@ def getDisplayChannelsCount():
 
 
 '''
+Return the timeline length
+'''
+def getTimelineToDisplay():
+    return int(addon.getSetting('timeline.count')) * 60
+
+
+'''
 Addon consts
 '''
 class AddonConst(object):
@@ -227,9 +234,6 @@ class AddonConst(object):
     # XMLTV
     XMLTV_SOURCE_URL   = 0
     XMLTV_SOURCE_LOCAL = 1
-    
-    # Implemented, will be usefull for future versions.
-    MAXIMUM_TIME_PROGRAMS_DISPLAY = 120
     
     def __init__(self):
         pass

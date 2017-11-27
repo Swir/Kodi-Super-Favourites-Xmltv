@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from resources.lib.settings import getTimelineToDisplay
+
 '''
 Handle View positions.
 '''
@@ -16,7 +18,7 @@ class EPGGridView(object):
     Seconds from delta to x position
     '''
     def secondsToX(self, secs):
-        return self.left + (secs * self.width / 7200) + 24
+        return self.left + (secs * self.width / (getTimelineToDisplay() * 60)) + 24
         
         
 
@@ -43,9 +45,6 @@ class EPGControl(object):
         DATE_TIME_QUARTER_TWO   = 4002
         DATE_TIME_QUARTER_THREE = 4003
         DATE_TIME_QUARTER_FOUR  = 4004
-        
-        #CHANNEL_LABEL_START = 4010
-        #CHANNEL_LOGO_START   = 4110
         
         PROGRAM_TITLE = 4020
         

@@ -99,6 +99,7 @@
     <string id="200022">Image d'arrière plan</string>
     <string id="200023">Sélectionnez votre image de fond</string>  
     <string id="200024">Combien de chaînes afficher ?</string>
+    <string id="200025">Taille de la ligne du temps en heures</string>
     
     <!-- Settings => XMLTV -->  
     <string id="200031">Ou se trouve le fichier xmltv</string>

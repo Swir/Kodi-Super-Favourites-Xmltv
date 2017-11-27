@@ -10,7 +10,6 @@ from resources.lib import EPGXML, superfavourites
 from resources.lib.EPGCtl import EPGControl, EPGGridView
 from resources.lib import strings, settings
 from resources.lib.utils import connectEpgDB, strToDatetime
-from resources.lib.settings import AddonConst
 
 '''
 Global class handling EPG Gui.
@@ -44,32 +43,21 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epgView.cellHeight = globalControl.getHeight() / settings.getDisplayChannelsCount()
         
         start_time = datetime.datetime.now()
-        start_time_view = self.setTimesLabels(str(start_time.hour) + ":" + str(start_time.minute), halfInc=False)
-        self.epgView.start_time = start_time.replace(hour=int(start_time_view[:2]), minute=int(start_time_view[3:]))
+        self.epgView.start_time = start_time.replace(minute=(0 if start_time.minute <= 29 else 30))
         
         self.setEPGBackgrounds() 
+        self.setTimesLabels(self.epgView.start_time)
         self.setTimeMarker(timer=True)
         
         # Setting current day date.
         labelCurrentDate = self.getControl(EPGControl.label.DATE_TIME_TODAY)
         labelCurrentDate.setLabel(time.strftime("%d/%m/%Y"))
         
-        #Setting date and time controls.
-        labelTime1 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_ONE)
-        labelTime2 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_TWO)
-        labelTime3 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_THREE)
-        labelTime4 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_FOUR)
-        
-        labelTime1.setLabel(start_time_view)
-        labelTime2.setLabel(self.setTimesLabels(labelTime1.getLabel()))
-        labelTime3.setLabel(self.setTimesLabels(labelTime2.getLabel()))
-        labelTime4.setLabel(self.setTimesLabels(labelTime3.getLabel()))
-        
         database, cursor = connectEpgDB()
         self.epgDb  = EPGXML.EpgDb(database, cursor)
         self.epgXml = EPGXML.EpgXml(database, cursor, progress_bar=False)
         
-        dt_stop = self.epgView.start_time + datetime.timedelta(minutes=AddonConst.MAXIMUM_TIME_PROGRAMS_DISPLAY - 2)
+        dt_stop = self.epgView.start_time + datetime.timedelta(minutes=settings.getTimelineToDisplay() - 2)
         self.setChannels(self.epgView.start_time, dt_stop)
     
     
@@ -94,7 +82,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         delta = dt_now - self.epgView.start_time
         tm.setVisible(False) 
         
-        if delta.seconds >=  0 and delta.seconds <= AddonConst.MAXIMUM_TIME_PROGRAMS_DISPLAY * 60:
+        if delta.seconds >=  0 and delta.seconds <= settings.getTimelineToDisplay() * 60:
             x = self.epgView.secondsToX(delta.seconds)
             tm.setPosition(int(x), tm.getY())
             tm.setVisible(True)
@@ -106,20 +94,28 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     Return the time turned into EPG style
     '''
-    def setTimesLabels(self, currentDT, halfInc=True):
-        # Defining time for program guide and time labels zone.
-        hours = currentDT[0:currentDT.find(':')]
-        mins  =  currentDT[currentDT.find(':') + 1 :]
-        mins = '00' if int(mins) <= 29 else '30'
+    def setTimesLabels(self, working_time):
         
-        current = dt.time(int(hours), int(mins))
-        if halfInc:
-            later = (dt.datetime.combine(dt.date.today(), current) + dt.timedelta(minutes=30)).time()
-        else:
-            later = current
+
+        #Setting date and time controls.
+        lTime1 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_ONE)
+        lTime2 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_TWO)
+        lTime3 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_THREE)
+        lTime4 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_FOUR)
         
-        return str(("%02d:%02d") % (later.hour, later.minute))
+        lTime1.setLabel(self.__toTimeView(self.epgView.start_time, 0))
+        lTime2.setLabel(self.__toTimeView(self.epgView.start_time, 1))
+        lTime3.setLabel(self.__toTimeView(self.epgView.start_time, 2))
+        lTime4.setLabel(self.__toTimeView(self.epgView.start_time, 3))
+            
     
+    
+    def __toTimeView(self, ctime, multiplier):
+        # Defining time for program guide and time labels zone.            
+        increment = int(settings.getTimelineToDisplay() / 4) * multiplier
+        later = (ctime + dt.timedelta(minutes=increment)).time()
+        return str(("%02d:%02d") % (later.hour, later.minute))
+        
     
     '''
     Sets first channels lines.
@@ -133,7 +129,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         
         idx = 0
         for channel in EPG.values():            
-            y = self.epgView.top + self.epgView.cellHeight * idx - 5
+            y = self.epgView.top + self.epgView.cellHeight * idx + int((self.epgView.cellHeight / 14))
             pchannel = xbmcgui.ControlLabel(16, y, 180, self.epgView.cellHeight - 2, channel["display_name"])
             self.addControl(pchannel)
             

@@ -99,6 +99,7 @@
     <string id="200022">Background image</string>
     <string id="200023">Choose your background image</string>
     <string id="200024">How many channels to display ?</string>
+    <string id="200025">Time line length in hours</string>
     
     <!--  Settings => XMLTV -->
     <string id="200031">Where is XMLTV located ?</string>
