@@ -164,7 +164,11 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                 
                 if x + width > self.epgView.right:
                     width = self.epgView.right - x
+                
                 width -= 2
+                
+                if width < 28:
+                    program["title"] = ""
                 
                 pbutton = xbmcgui.ControlButton(
                     x,y,
