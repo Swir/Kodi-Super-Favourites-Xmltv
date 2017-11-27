@@ -190,12 +190,26 @@ Return a built in background image based on a provided ID
 def getImageBackground():
     background = addon.getSetting('image.background')
         
-    if background == '' or background == None: 
+    if background == '' or background is None: 
         return getAddonBackgroundsPath() + '1.jpg'
     elif int(background) == 0:
         return getAddonBackgroundsPath() + '-transparent.png'
             
     return getAddonBackgroundsPath() + background + '.jpg' 
+
+
+'''
+Return the time marker image as configured in settings.
+'''
+def getImageTimeMarker():
+    
+    timebars = join(getAddonImagesPath(), 'timebars')
+    marker = addon.getSetting('image.timemarker')
+    
+    if marker == '' or marker is None: 
+        marker = '0'
+            
+    return join(timebars, "timebar-" + marker + ".png")
             
 
 '''
@@ -217,6 +231,7 @@ Return the timeline length
 '''
 def getTimelineToDisplay():
     return int(addon.getSetting('timeline.count')) * 60
+
 
 
 '''

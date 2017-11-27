@@ -16,6 +16,8 @@
         <setting type="sep"/>
         <setting id="channels.count"    type="slider" label="200024"  range="4,20" option="int" default="9" />
         <setting id="timeline.count"    type="slider" label="200025"  range="1,4" option="int" default="2" />
+        <setting type="sep"/>
+        <setting id="image.timemarker"  type="enum" label="200026"  lvalues="200261|200262|200263|200264|200265|200266|200267|200268|200269" />
     </category>  
     
     <category label="200003">

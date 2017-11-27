@@ -100,6 +100,7 @@
     <string id="200023">Sélectionnez votre image de fond</string>  
     <string id="200024">Combien de chaînes afficher ?</string>
     <string id="200025">Taille de la ligne du temps en heures</string>
+    <string id="200026">Couleur du marqueur de temps</string>
     
     <!-- Settings => XMLTV -->  
     <string id="200031">Ou se trouve le fichier xmltv</string>
@@ -148,6 +149,17 @@
     <string id="200229">Android</string>
     <string id="2002210">Simplement bleu</string>
     <string id="2002211">Verdoyant</string>
+    
+    <!-- Settings => Style => Time marker image (200026) => values -->
+    <string id="200261">Rouge</string>
+    <string id="200262">Bleu</string>
+    <string id="200263">Orange</string>
+    <string id="200264">Jaune</string>
+    <string id="200265">Noir</string>
+    <string id="200266">Gris</string>
+    <string id="200267">Rose</string>
+    <string id="200268">Vert</string>
+    <string id="200269">Blanc</string>
     
     <!-- Settings => XMLTV => Source type (200032) => values -->
     <string id="200321">URL</string>

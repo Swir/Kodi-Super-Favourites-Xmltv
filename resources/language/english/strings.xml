@@ -100,6 +100,7 @@
     <string id="200023">Choose your background image</string>
     <string id="200024">How many channels to display ?</string>
     <string id="200025">Time line length in hours</string>
+    <string id="200026">Time marker color</string>
     
     <!--  Settings => XMLTV -->
     <string id="200031">Where is XMLTV located ?</string>
@@ -148,6 +149,17 @@
     <string id="200229">Android buddies</string>
     <string id="2002210">Simply blue</string>
     <string id="2002211">Greeny</string>
+    
+    <!-- Settings => Style => Time marker image (200026) => values -->
+    <string id="200261">Red</string>
+    <string id="200262">Blue</string>
+    <string id="200263">Orange</string>
+    <string id="200264">Yellow</string>
+    <string id="200265">Black</string>
+    <string id="200266">Grey</string>
+    <string id="200267">Pink</string>
+    <string id="200268">Green</string>
+    <string id="200269">White</string>
     
     <!-- Settings => XMLTV => Source type (200032) => values -->
     <string id="200321">URL</string>

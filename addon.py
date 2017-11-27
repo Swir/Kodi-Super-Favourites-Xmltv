@@ -70,6 +70,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         custombg = settings.useCustomBackground()
         bg_img = settings.getImageBackgroundCustom() if custombg else settings.getImageBackground()
         bg.setImage(bg_img, useCache=False) 
+        self.getControl(EPGControl.image.TIME_MARKER).setImage(settings.getImageTimeMarker(), useCache=False)
     
     
     '''
@@ -96,6 +97,11 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     def setTimesLabels(self, working_time):
         
+        def __toTimeView(ctime, multiplier):
+            # Defining time for program guide and time labels zone.            
+            increment = int(settings.getTimelineToDisplay() / 4) * multiplier
+            later = (ctime + dt.timedelta(minutes=increment)).time()
+            return str(("%02d:%02d") % (later.hour, later.minute))
 
         #Setting date and time controls.
         lTime1 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_ONE)
@@ -103,18 +109,11 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         lTime3 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_THREE)
         lTime4 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_FOUR)
         
-        lTime1.setLabel(self.__toTimeView(self.epgView.start_time, 0))
-        lTime2.setLabel(self.__toTimeView(self.epgView.start_time, 1))
-        lTime3.setLabel(self.__toTimeView(self.epgView.start_time, 2))
-        lTime4.setLabel(self.__toTimeView(self.epgView.start_time, 3))
-            
+        lTime1.setLabel(__toTimeView(self.epgView.start_time, 0))
+        lTime2.setLabel(__toTimeView(self.epgView.start_time, 1))
+        lTime3.setLabel(__toTimeView(self.epgView.start_time, 2))
+        lTime4.setLabel(__toTimeView(self.epgView.start_time, 3))
     
-    
-    def __toTimeView(self, ctime, multiplier):
-        # Defining time for program guide and time labels zone.            
-        increment = int(settings.getTimelineToDisplay() / 4) * multiplier
-        later = (ctime + dt.timedelta(minutes=increment)).time()
-        return str(("%02d:%02d") % (later.hour, later.minute))
         
     
     '''
