@@ -6,14 +6,15 @@
         <setting id="update.frequency"  type="enum" label="200012"  lvalues="200121|200122|200123|200124|200125|200126|200127" />
         <setting type="sep"/>
         <setting id="cleanup.treshold"  type="enum" label="200013"  lvalues="200131|200132|200133|200134|200135|200136|200137" />
-        <setting id="next.aired"        type="enum" label="200014"  lvalues="200141|200142|200143" />
     </category>
     
     <category label="200002">    
-        <!-- EPG background selection settings. -->
+        <!-- EPG skin settings. -->
         <setting id="type.background"   type="bool"  label="200021"  default="true"></setting>        
         <setting id="image.background"  type="enum"  label="200022"  visible="eq(-1,true)"  lvalues="200221|200222|200223|200224|200225|200226|200227|200228|200229|2002210|2002211" />
         <setting id="custom.background" type="image" label="200023"  visible="eq(-2,false)" value="path_to_files"/>
+        <setting type="sep"/>
+        <setting id="channels.count"    type="slider" label="200024"  range="4,20" option="int" default="9" />
     </category>  
     
     <category label="200003">

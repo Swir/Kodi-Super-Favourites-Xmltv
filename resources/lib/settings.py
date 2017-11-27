@@ -183,6 +183,7 @@ Return True if user wants to use its custom background.
 def useCustomBackground():
     return not str(addon.getSetting('type.background')) == 'true'
 
+
 '''
 Return a built in background image based on a provided ID
 '''
@@ -203,6 +204,14 @@ Return the current background custom image path.
 def getImageBackgroundCustom():
     return addon.getSetting('custom.background')
 
+
+'''
+Return how many channels to display
+'''
+def getDisplayChannelsCount():
+    return int(addon.getSetting('channels.count'))
+
+
 '''
 Addon consts
 '''
@@ -220,7 +229,6 @@ class AddonConst(object):
     XMLTV_SOURCE_LOCAL = 1
     
     # Implemented, will be usefull for future versions.
-    CHANNELS_ON_PAGE = 9
     MAXIMUM_TIME_PROGRAMS_DISPLAY = 120
     
     def __init__(self):

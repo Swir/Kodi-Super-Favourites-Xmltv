@@ -93,12 +93,12 @@
     <string id="200011">Update EPG on Kodi startup</string>
     <string id="200012">Update Frequency</string>
     <string id="200013">Cleanup programs older than </string>
-    <string id="200014">Display next aired </string>
     
     <!-- Settings => Style -->
     <string id="200021">Use built in background ( disable this to use a custom one )</string>
     <string id="200022">Background image</string>
     <string id="200023">Choose your background image</string>
+    <string id="200024">How many channels to display ?</string>
     
     <!--  Settings => XMLTV -->
     <string id="200031">Where is XMLTV located ?</string>
@@ -134,11 +134,6 @@
     <string id="200135">5 days</string>
     <string id="200136">6 days</string>
     <string id="200137">7 days</string>
-
-    <!-- Settings => General => Next aired (200014) => values -->
-    <string id="200141">1 day</string>
-    <string id="200142">2 days</string>
-    <string id="200143">3 days</string>
     
     <!-- Settings => Style => Background image (200022) => values -->
     <string id="200221">No background</string>
@@ -162,4 +157,3 @@
     <string id="200432">Channel display name</string>
        
 </strings>
-

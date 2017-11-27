@@ -41,7 +41,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epgView.right = self.epgView.left + globalControl.getWidth()
         self.epgView.bottom = self.epgView.top + globalControl.getHeight()
         self.epgView.width = globalControl.getWidth()
-        self.epgView.cellHeight = globalControl.getHeight() / AddonConst.CHANNELS_ON_PAGE
+        self.epgView.cellHeight = globalControl.getHeight() / settings.getDisplayChannelsCount()
         
         start_time = datetime.datetime.now()
         start_time_view = self.setTimesLabels(str(start_time.hour) + ":" + str(start_time.minute), halfInc=False)
@@ -126,14 +126,17 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     def setChannels(self, dt_start, dt_stop):
         
-        EPG = self.epgDb.getEpgGrid(dt_start, dt_stop)
+        EPG = self.epgDb.getEpgGrid(dt_start, dt_stop, settings.getDisplayChannelsCount())
         
         noFocusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey.png')
         focusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey-focus.png')
         
         idx = 0
-        for channel in EPG.values():
-            self.getControl(EPGControl.label.CHANNEL_LABEL_START + idx).setLabel(channel["display_name"])    
+        for channel in EPG.values():            
+            y = self.epgView.top + self.epgView.cellHeight * idx - 5
+            pchannel = xbmcgui.ControlLabel(16, y, 180, self.epgView.cellHeight - 2, channel["display_name"])
+            self.addControl(pchannel)
+            
             # Program details.
             programs = channel["programs"]
             

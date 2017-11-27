@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import xbmc
 from glob import glob
 from os import rename, remove
 from os.path import isfile, isdir, join
@@ -471,6 +472,7 @@ class EpgDb(object):
     def getAllChannels(self, channels_limit=9):
         try:
             get = 'SELECT * FROM channels WHERE visible="1" ORDER BY id ASC LIMIT %i' % channels_limit
+            xbmc.log(get, xbmc.LOGERROR)
             self.cursor.execute(get)
             return self.cursor.fetchall()
         except SqliteError as e:

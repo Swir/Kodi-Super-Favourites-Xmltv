@@ -93,12 +93,12 @@
     <string id="200011">Mettre à jour l'EPG au démarrage de Kodi</string>
     <string id="200012">Fréquence de mise à jour</string>
     <string id="200013">Nettoyer les programmes vieux de plus de </string>
-    <string id="200014">Affichage des programmes suivants sur </string>
     
     <!-- Settings => Style -->
     <string id="200021">Utiliser un fond pré installé (désactivez pour choisir le vôtre)</string>
     <string id="200022">Image d'arrière plan</string>
     <string id="200023">Sélectionnez votre image de fond</string>  
+    <string id="200024">Combien de chaînes afficher ?</string>
     
     <!-- Settings => XMLTV -->  
     <string id="200031">Ou se trouve le fichier xmltv</string>
@@ -134,11 +134,6 @@
     <string id="200135">5 jours</string>
     <string id="200136">6 jours</string>
     <string id="200137">7 jours</string>
-    
-    <!-- Settings => General => Next aired (200014) => values -->
-    <string id="200141">1 jour</string>
-    <string id="200142">2 jours</string>
-    <string id="200143">3 jours</string>
     
     <!-- Settings => Style => Background image (200022) => values -->
     <string id="200221">Pas d'image de fond</string>
