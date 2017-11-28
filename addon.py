@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-import time, datetime
+import datetime
 import datetime as dt
 import xbmc, xbmcgui  
 
 from threading import Timer
 from os.path import join
+
+from xbmcgui import ACTION_MOVE_DOWN, ACTION_MOUSE_WHEEL_DOWN, ACTION_MOVE_UP, \
+                    ACTION_MOUSE_WHEEL_UP, ACTION_MOVE_RIGHT, ACTION_MOVE_LEFT
 
 from resources.lib import EPGXML, superfavourites
 from resources.lib.EPGCtl import EPGControl, EPGGridView
@@ -35,7 +38,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         # Init EPG Grid global View
         globalControl = self.getControl(EPGControl.GLOBAL_CONTROL)
         
-        self.epgView = EPGGridView()
+        self.epgView = EPGGridView(self)
+
         self.epgView.left, self.epgView.top = globalControl.getPosition()
         self.epgView.right = self.epgView.left + globalControl.getWidth()
         self.epgView.bottom = self.epgView.top + globalControl.getHeight()
@@ -44,21 +48,18 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         
         start_time = datetime.datetime.now()
         self.epgView.start_time = start_time.replace(minute=(0 if start_time.minute <= 29 else 30))
+        self.epgView.stop_time = self.epgView.start_time + datetime.timedelta(minutes=settings.getTimelineToDisplay() - 2)
         
         self.setEPGBackgrounds() 
-        self.setTimesLabels(self.epgView.start_time)
+        self.setTimesLabels()
         self.setTimeMarker(timer=True)
-        
-        # Setting current day date.
-        labelCurrentDate = self.getControl(EPGControl.label.DATE_TIME_TODAY)
-        labelCurrentDate.setLabel(time.strftime("%d/%m/%Y"))
         
         database, cursor = connectEpgDB()
         self.epgDb  = EPGXML.EpgDb(database, cursor)
         self.epgXml = EPGXML.EpgXml(database, cursor, progress_bar=False)
         
-        dt_stop = self.epgView.start_time + datetime.timedelta(minutes=settings.getTimelineToDisplay() - 2)
-        self.setChannels(self.epgView.start_time, dt_stop)
+        self.epgView.globalGrid = self.epgDb.getEpgGrid()
+        self.setChannels()
     
     
     '''
@@ -95,13 +96,13 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     Return the time turned into EPG style
     '''
-    def setTimesLabels(self, working_time):
+    def setTimesLabels(self):
         
         def __toTimeView(ctime, multiplier):
             # Defining time for program guide and time labels zone.            
             increment = int(settings.getTimelineToDisplay() / 4) * multiplier
             later = (ctime + dt.timedelta(minutes=increment)).time()
-            return str(("%02d:%02d") % (later.hour, later.minute))
+            return str(("[B]%02d:%02d[/B]") % (later.hour, later.minute))
 
         #Setting date and time controls.
         lTime1 = self.getControl(EPGControl.label.DATE_TIME_QUARTER_ONE)
@@ -113,38 +114,47 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         lTime2.setLabel(__toTimeView(self.epgView.start_time, 1))
         lTime3.setLabel(__toTimeView(self.epgView.start_time, 2))
         lTime4.setLabel(__toTimeView(self.epgView.start_time, 3))
+        
+        labelCurrentDate = self.getControl(EPGControl.label.DATE_TIME_TODAY)
+        labelCurrentDate.setLabel(self.epgView.start_time.strftime("[B]%d/%m/%Y[/B]"))
     
         
     
     '''
     Sets first channels lines.
     '''
-    def setChannels(self, dt_start, dt_stop):
+    def setChannels(self):
         
-        EPG = self.epgDb.getEpgGrid(dt_start, dt_stop, settings.getDisplayChannelsCount())
+        EPG_page = self.epgView.getGridPortion() 
         
         noFocusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey.png')
         focusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey-focus.png')
         
         idx = 0
-        for channel in EPG.values():            
+        for channel in EPG_page:            
             y = self.epgView.top + self.epgView.cellHeight * idx + int((self.epgView.cellHeight / 14))
-            pchannel = xbmcgui.ControlLabel(16, y, 180, self.epgView.cellHeight - 2, channel["display_name"])
-            self.addControl(pchannel)
+            pchannel = xbmcgui.ControlLabel(16, y, 180, self.epgView.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
             
+            self.addControl(pchannel)
+            self.epgView.labelControls.append(pchannel)
+                        
             # Program details.
+            controls_x_grid = []
             programs = channel["programs"]
             
             if len(programs) == 0:
-                nothing = "No data available"
+                
                 pbutton = xbmcgui.ControlButton(
                     self.epgView.left, 
                     self.epgView.top + self.epgView.cellHeight * idx, 
                     self.epgView.right - self.epgView.left - 2, 
                     self.epgView.cellHeight - 2, 
-                    nothing, focusTexture, noFocusTexture)
+                    strings.PROGRAM_NO_INFOS, focusTexture, noFocusTexture)
+                
                 self.addControl(pbutton)
-                  
+                controls_x_grid.append({"db_id": None, "desc": strings.PROGRAM_NO_INFOS, 
+                                        "title": strings.PROGRAM_NO_INFOS, "start": None, 
+                                        "stop":  None, "control_id": pbutton.getId()})
             for program in programs: 
                 
                 program_start = strToDatetime(program["start"])    
@@ -176,8 +186,14 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                     program["title"],
                     noFocusTexture=noFocusTexture,
                     focusTexture=focusTexture
-                )            
-                self.addControl(pbutton)                        
+                )    
+                
+                self.addControl(pbutton)  
+                controls_x_grid.append({"db_id": program["db_id"], "desc": program["desc"], 
+                                        "title": program["title"], "start": program_start, 
+                                        "stop":  program_end, "control_id": pbutton.getId()})
+                
+            self.epgView.append(controls_x_grid)                      
             idx += 1
         
     
@@ -186,14 +202,58 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Handle all xbmc action messages.
     '''
     def onAction(self, action):
-        
-        # Same as normal python Windows.
-        if action == xbmcgui.ACTION_PREVIOUS_MENU:
+
+        if action in [xbmcgui.ACTION_PREVIOUS_MENU, xbmcgui.ACTION_NAV_BACK]:
             self.is_closing = True
             self.close()
+            
+        if action in [ACTION_MOVE_DOWN, ACTION_MOUSE_WHEEL_DOWN, ACTION_MOVE_UP, 
+                      ACTION_MOUSE_WHEEL_UP, ACTION_MOVE_RIGHT, ACTION_MOVE_LEFT]:
+            
+            update = False
+            delta = datetime.timedelta(minutes=settings.getTimelineToDisplay())
+            
+            if action == ACTION_MOVE_LEFT :
+                if self.epgView.previous() == False:
+                    self.epgView.stop_time -= delta
+                    self.epgView.start_time -= delta
+                    update = True
+                    self.epgView.reset(clear_grid=True, cons_y=True)
+                    
+            elif action == ACTION_MOVE_RIGHT:
+                if self.epgView.next() == False:
+                    self.epgView.stop_time += delta
+                    self.epgView.start_time += delta
+                    update = True
+                    self.epgView.reset(clear_grid=True, cons_y=True)
+                 
+                    
+            elif action in [ACTION_MOVE_UP, ACTION_MOUSE_WHEEL_UP]:
+                if self.epgView.up() == False:
+                    if self.epgView.start_channel_id - settings.getDisplayChannelsCount() < 0:
+                        self.epgView.start_channel_id = 0
+                    else:
+                        self.epgView.start_channel_id -= settings.getDisplayChannelsCount()
+                        update = True
+                    self.epgView.reset(clear_grid=True)
         
-        #if action == xbmcgui.ACTION_MOUSE_LEFT_CLICK or action == xbmcgui.ACTION_SELECT_ITEM:
-        #    pass
+        
+            elif action in [ACTION_MOVE_DOWN, ACTION_MOUSE_WHEEL_DOWN]:
+                if self.epgView.down() == False:
+                    if (self.epgView.start_channel_id + settings.getDisplayChannelsCount()) > (self.epgView.getChannelsCount() - settings.getDisplayChannelsCount()):
+                        self.epgView.start_channel_id = self.epgView.getChannelsCount() - settings.getDisplayChannelsCount() 
+                    else:
+                        self.epgView.start_channel_id += settings.getDisplayChannelsCount()
+                    update = True
+                    self.epgView.reset(clear_grid=True)
+            
+            if update:    
+                self.setChannels()
+                self.setTimesLabels()
+        
+        
+            # Rester sur la meme ligne de chaine si on va vers la gauche
+            # protéger le fin de liste de chaines d'un index out of range si self.viex.start_channel est plus grand que ce qui est dispo en db
 
 
     '''
@@ -209,7 +269,10 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Handle focusses changes between controls
     '''
     def onFocus(self, controlID):
-        pass    
+         
+        if self.epgView.isProgramControl(controlID):
+            self.epgView.setInfos(controlID) 
+        
         
 
 ''''''''''''''''''''''''''''''

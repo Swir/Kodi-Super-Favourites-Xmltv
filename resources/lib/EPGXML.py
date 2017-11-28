@@ -451,11 +451,9 @@ class EpgDb(object):
     '''
     Return all programs for a given channel
     ''' 
-    def getChannelPrograms(self, id_channel, start_time, end_time):
-        try:            
-            between_v1 = start_time.strftime("%Y%m%d%H%M%S")
-            between_v2 = end_time.strftime("%Y%m%d%H%M%S")
-            get = 'SELECT * FROM programs WHERE channel="%s" AND ((CAST(end_date AS INTEGER) BETWEEN %i AND %i) OR (CAST(start_date AS INTEGER) BETWEEN %i AND %i)) ORDER BY start_date ASC' % (id_channel, int(between_v1), int(between_v2), int(between_v1), int(between_v2))
+    def getChannelPrograms(self, id_channel):
+        try:
+            get = 'SELECT * FROM programs WHERE channel="%s" ORDER BY start_date ASC' % id_channel
             self.cursor.execute(get)
             return self.cursor.fetchall()
         except SqliteError as e:
@@ -468,9 +466,9 @@ class EpgDb(object):
     '''
     Return all available channels
     '''
-    def getAllChannels(self, channels_limit=9):
+    def getAllChannels(self):
         try:
-            get = 'SELECT * FROM channels WHERE visible="1" ORDER BY id ASC LIMIT %i' % channels_limit
+            get = 'SELECT * FROM channels WHERE visible="1" ORDER BY id ASC'
             self.cursor.execute(get)
             return self.cursor.fetchall()
         except SqliteError as e:
@@ -483,23 +481,26 @@ class EpgDb(object):
     '''
     Return the complete EPG grid.
     '''
-    def getEpgGrid(self, start_dt, end_dt, limit=9):
+    def getEpgGrid(self):
         
-        channels = self.getAllChannels(channels_limit=limit)
+        channels = self.getAllChannels()
         
-        grid = dict()
+        grid = []
                              
         for channel in channels:
-            programs = self.getChannelPrograms(channel[1], start_dt, end_dt)
+            programs = self.getChannelPrograms(channel[1])
             
             programs_list = []
             for program in programs:
                 # Storing program
-                plist = {"title": program[2], "desc": program[5], "start": program[3], "end": program[4]}
+                plist = {"title": program[2], "desc": program[5], "start": program[3], 
+                         "end": program[4], "db_id": program[0]}
                 programs_list.append(plist)    
                                 
-            grid[channel[0]] = {"id_channel": channel[1], "display_name" : channel[2], "programs": programs_list}
-        
+            grid.append({"db_id": channel[0],"id_channel": channel[1], 
+                         "display_name" : channel[2], "programs": programs_list
+                        }) 
+            
         return grid
     
     

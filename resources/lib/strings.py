@@ -77,4 +77,5 @@ GET_CHANNEL_ERROR          = plugin.addon.getLocalizedString(300067)
 REMOVE_CHANNEL_ERROR       = plugin.addon.getLocalizedString(300068)
 UPDATE_CHANNEL_ERROR       = plugin.addon.getLocalizedString(300069)
 ADDING_CHANNEL_ERROR       = plugin.addon.getLocalizedString(3000610)
+PROGRAM_NO_INFOS           = plugin.addon.getLocalizedString(3000611)
 
