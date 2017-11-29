@@ -39,10 +39,9 @@ class EPGGridView(object):
     '''
     Reset the control grid
     '''
-    def reset(self, clear_grid = False, cons_y=False):
+    def reset(self, clear_grid=False):
         self.current_x = 0
-        if not cons_y:
-            self.current_y = 0
+        self.current_y = 0
         if clear_grid:
             self.clearGrid()
     

@@ -124,7 +124,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Sets first channels lines.
     '''
     def setChannels(self):
-        
+        self.epgView.reset(clear_grid=True)
         EPG_page = self.epgView.getGridPortion() 
         
         noFocusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey.png')
@@ -210,23 +210,21 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         if action in [ACTION_MOVE_DOWN, ACTION_MOUSE_WHEEL_DOWN, ACTION_MOVE_UP, 
                       ACTION_MOUSE_WHEEL_UP, ACTION_MOVE_RIGHT, ACTION_MOVE_LEFT]:
             
-            update = False
             delta = datetime.timedelta(minutes=settings.getTimelineToDisplay())
             
             if action == ACTION_MOVE_LEFT :
                 if self.epgView.previous() == False:
                     self.epgView.stop_time -= delta
                     self.epgView.start_time -= delta
-                    update = True
-                    self.epgView.reset(clear_grid=True, cons_y=True)
+                    self.setChannels()      
                     
             elif action == ACTION_MOVE_RIGHT:
                 if self.epgView.next() == False:
+                    y = self.epgView.current_y
                     self.epgView.stop_time += delta
                     self.epgView.start_time += delta
-                    update = True
-                    self.epgView.reset(clear_grid=True, cons_y=True)
-                 
+                    self.setChannels()   
+                    self.epgView.setFocus(0, y)
                     
             elif action in [ACTION_MOVE_UP, ACTION_MOUSE_WHEEL_UP]:
                 if self.epgView.up() == False:
@@ -234,9 +232,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                         self.epgView.start_channel_id = 0
                     else:
                         self.epgView.start_channel_id -= settings.getDisplayChannelsCount()
-                        update = True
-                    self.epgView.reset(clear_grid=True)
-        
+                    self.setChannels()
+                    self.epgView.setFocus(0, settings.getDisplayChannelsCount() - 1)
         
             elif action in [ACTION_MOVE_DOWN, ACTION_MOUSE_WHEEL_DOWN]:
                 if self.epgView.down() == False:
@@ -244,17 +241,10 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                         self.epgView.start_channel_id = self.epgView.getChannelsCount() - settings.getDisplayChannelsCount() 
                     else:
                         self.epgView.start_channel_id += settings.getDisplayChannelsCount()
-                    update = True
-                    self.epgView.reset(clear_grid=True)
-            
-            if update:    
-                self.setChannels()
-                self.setTimesLabels()
+                    self.setChannels()
+                
+            self.setTimesLabels()
         
-        
-            # Rester sur la meme ligne de chaine si on va vers la gauche
-            # protéger le fin de liste de chaines d'un index out of range si self.viex.start_channel est plus grand que ce qui est dispo en db
-
 
     '''
     @overrided
