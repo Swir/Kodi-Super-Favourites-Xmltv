@@ -4,15 +4,13 @@ import datetime as dt
 import xbmc, xbmcgui  
 
 from threading import Timer
-from os.path import join
-
 from xbmcgui import ACTION_MOVE_DOWN, ACTION_MOUSE_WHEEL_DOWN, ACTION_MOVE_UP, \
                     ACTION_MOUSE_WHEEL_UP, ACTION_MOVE_RIGHT, ACTION_MOVE_LEFT
 
 from resources.lib import EPGXML, superfavourites
 from resources.lib.EPGCtl import EPGControl, EPGGridView
 from resources.lib import strings, settings
-from resources.lib.utils import connectEpgDB, strToDatetime
+from resources.lib.utils import connectEpgDB
 
 '''
 Global class handling EPG Gui.
@@ -59,7 +57,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epgXml = EPGXML.EpgXml(database, cursor, progress_bar=False)
         
         self.epgView.globalGrid = self.epgDb.getEpgGrid()
-        self.setChannels()
+        self.epgView.setChannels()
+        self.epgView.setFocus(0, 0)
     
     
     '''
@@ -120,82 +119,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     
         
     
-    '''
-    Sets first channels lines.
-    '''
-    def setChannels(self):
-        self.epgView.reset(clear_grid=True)
-        EPG_page = self.epgView.getGridPortion() 
-        
-        noFocusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey.png')
-        focusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey-focus.png')
-        
-        idx = 0
-        for channel in EPG_page:            
-            y = self.epgView.top + self.epgView.cellHeight * idx + int((self.epgView.cellHeight / 14))
-            pchannel = xbmcgui.ControlLabel(16, y, 180, self.epgView.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
-            
-            self.addControl(pchannel)
-            self.epgView.labelControls.append(pchannel)
-                        
-            # Program details.
-            controls_x_grid = []
-            programs = channel["programs"]
-            
-            if len(programs) == 0:
-                
-                pbutton = xbmcgui.ControlButton(
-                    self.epgView.left, 
-                    self.epgView.top + self.epgView.cellHeight * idx, 
-                    self.epgView.right - self.epgView.left - 2, 
-                    self.epgView.cellHeight - 2, 
-                    strings.PROGRAM_NO_INFOS, focusTexture, noFocusTexture)
-                
-                self.addControl(pbutton)
-                controls_x_grid.append({"db_id": None, "desc": strings.PROGRAM_NO_INFOS, 
-                                        "title": strings.PROGRAM_NO_INFOS, "start": None, 
-                                        "stop":  None, "control_id": pbutton.getId()})
-            for program in programs: 
-                
-                program_start = strToDatetime(program["start"])    
-                program_end   = strToDatetime(program["end"])            
-                
-                deltaStart = program_start - self.epgView.start_time
-                deltaStop  = program_end - self.epgView.start_time
-                
-                y = self.epgView.top + self.epgView.cellHeight * idx
-                x = self.epgView.secondsToX(deltaStart.seconds)
-                
-                if deltaStart.days < 0:
-                    x = self.epgView.left
-                
-                width = self.epgView.secondsToX(deltaStop.seconds) - x
-                
-                if x + width > self.epgView.right:
-                    width = self.epgView.right - x
-                
-                width -= 2
-                
-                if width < 28:
-                    program["title"] = ""
-                
-                pbutton = xbmcgui.ControlButton(
-                    x,y,
-                    width,
-                    self.epgView.cellHeight - 2,
-                    program["title"],
-                    noFocusTexture=noFocusTexture,
-                    focusTexture=focusTexture
-                )    
-                
-                self.addControl(pbutton)  
-                controls_x_grid.append({"db_id": program["db_id"], "desc": program["desc"], 
-                                        "title": program["title"], "start": program_start, 
-                                        "stop":  program_end, "control_id": pbutton.getId()})
-                
-            self.epgView.append(controls_x_grid)                      
-            idx += 1
-        
+    
     
     '''
     @overrided
@@ -214,16 +138,18 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
             
             if action == ACTION_MOVE_LEFT :
                 if self.epgView.previous() == False:
+                    y = self.epgView.current_y
                     self.epgView.stop_time -= delta
                     self.epgView.start_time -= delta
-                    self.setChannels()      
+                    self.epgView.setChannels() 
+                    self.epgView.setFocus(0, y)     
                     
             elif action == ACTION_MOVE_RIGHT:
                 if self.epgView.next() == False:
                     y = self.epgView.current_y
                     self.epgView.stop_time += delta
                     self.epgView.start_time += delta
-                    self.setChannels()   
+                    self.epgView.setChannels()   
                     self.epgView.setFocus(0, y)
                     
             elif action in [ACTION_MOVE_UP, ACTION_MOUSE_WHEEL_UP]:
@@ -232,7 +158,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                         self.epgView.start_channel_id = 0
                     else:
                         self.epgView.start_channel_id -= settings.getDisplayChannelsCount()
-                    self.setChannels()
+                    self.epgView.setChannels()
                     self.epgView.setFocus(0, settings.getDisplayChannelsCount() - 1)
         
             elif action in [ACTION_MOVE_DOWN, ACTION_MOUSE_WHEEL_DOWN]:
@@ -241,7 +167,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                         self.epgView.start_channel_id = self.epgView.getChannelsCount() - settings.getDisplayChannelsCount() 
                     else:
                         self.epgView.start_channel_id += settings.getDisplayChannelsCount()
-                    self.setChannels()
+                    self.epgView.setChannels()
+                    self.epgView.setFocus(0,0)
                 
             self.setTimesLabels()
         
