@@ -561,7 +561,7 @@ class EpgDb(object):
                          "end": program[4], "db_id": program[0]}
                 programs_list.append(plist)    
                                 
-            grid.append({"db_id": channel[0],"id_channel": channel[1], 
+            grid.append({"db_id": channel[0],"id_channel": channel[1], "logo" : channel[3], 
                          "display_name" : channel[2], "programs": programs_list
                         }) 
             

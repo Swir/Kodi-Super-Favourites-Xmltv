@@ -259,8 +259,8 @@ class EPGGridView(object):
                     programs.append(program)
             
             tbr.append({"db_id":channel["db_id"],"id_channel": channel["id_channel"], 
-                         "display_name" : channel["display_name"], "programs": programs
-                        }) 
+                        "display_name" : channel["display_name"], "programs": programs,
+                        "logo" : channel["logo"]}) 
         return tbr
     
         
@@ -280,8 +280,12 @@ class EPGGridView(object):
         idx = 0
         for channel in EPG_page:            
             y = self.top + self.cellHeight * idx + int((self.cellHeight / 14))
-            pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
-            
+            if not settings.useXMLTVSourceLogos():
+                pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
+            else:
+                logo = join(settings.getChannelsLogoPath(), channel["logo"])
+                pchannel = xbmcgui.ControlImage(16, y -8, 180, self.cellHeight + 8, logo, aspectRatio=2)
+                
             gridControls.append(pchannel)
             self.labelControls.append(pchannel)
                         
