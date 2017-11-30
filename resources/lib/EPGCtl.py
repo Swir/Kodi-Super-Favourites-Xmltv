@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+import xbmcgui
 from os.path import join
-from resources.lib.settings import getTimelineToDisplay, getDisplayChannelsCount, getAddonImagesPath
+from datetime import timedelta, datetime
+from threading import Timer
+from xbmc import abortRequested
+from resources.lib import settings
 from resources.lib.utils import strToDatetime
 from resources.lib.strings import PROGRAM_NO_INFOS
-import xbmcgui, xbmc
+
+
 '''
 Handle View positions.
 '''
@@ -17,20 +22,96 @@ class EPGGridView(object):
     
     current_x = 0
     current_y = 0
-    current_control = None
+    current_control = None    
+    is_closing = False
+
     
     '''
     Defining grid view points.
     '''
     def __init__(self, window):
         self.window = window
-        self.top = self.left = self.right = self.bottom = self.width = self.cellHeight = 0
         self.start_time = self.stop_time = None
         self.start_channel_id = 0
         
-        self.noFocusTexture = join(getAddonImagesPath(), 'buttons', 'tvguide-program-grey.png')
-        self.focusTexture = join(getAddonImagesPath(), 'buttons', 'tvguide-program-grey-focus.png')
+        globalControl = self.window.getControl(EPGControl.GLOBAL_CONTROL)
+        self.left, self.top = globalControl.getPosition()
+        self.right = self.left + globalControl.getWidth()
+        self.bottom = self.top + globalControl.getHeight()
+        self.width = globalControl.getWidth()
+        self.cellHeight = globalControl.getHeight() / settings.getDisplayChannelsCount()
+        
+        self.noFocusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey.png')
+        self.focusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey-focus.png')
+        
+        start_time = datetime.now()
+        self.start_time = start_time.replace(minute=(0 if start_time.minute <= 29 else 30))
+        self.stop_time = self.start_time + timedelta(minutes=settings.getTimelineToDisplay() - 2)
     
+        self.setEPGBackgrounds()
+        self.setTimeMarker(timer=True)
+        self.setTimesLabels()
+        
+        
+    
+    
+    '''
+    Set the EPG background with customer settings.
+    '''
+    def setEPGBackgrounds(self):
+        
+        bg = self.window.getControl(EPGControl.image.BACKGROUND)
+        custombg = settings.useCustomBackground()
+        bg_img = settings.getImageBackgroundCustom() if custombg else settings.getImageBackground()
+        bg.setImage(bg_img, useCache=False) 
+        self.window.getControl(EPGControl.image.TIME_MARKER).setImage(settings.getImageTimeMarker(), useCache=False)
+       
+    
+    '''
+    Set the time marker position
+    '''
+    def setTimeMarker(self, timer=False):
+        
+        tm = self.window.getControl(EPGControl.image.TIME_MARKER)
+        dt_now = datetime.now()
+        delta = dt_now - self.start_time
+        tm.setVisible(False) 
+        
+        if delta.seconds >=  0 and delta.seconds <= settings.getTimelineToDisplay() * 60:
+            x = self.secondsToX(delta.seconds)
+            tm.setPosition(int(x), tm.getY())
+            tm.setVisible(True)
+                 
+        if timer and not abortRequested and not self.is_closing:
+            Timer(1, self.setTimeMarker, {timer: True}).start() 
+            
+            
+    '''
+    Return the time turned into EPG style
+    '''
+    def setTimesLabels(self):
+        
+        def __toTimeView(ctime, multiplier):
+            # Defining time for program guide and time labels zone.            
+            increment = int(settings.getTimelineToDisplay() / 4) * multiplier
+            later = (ctime + timedelta(minutes=increment)).time()
+            return str(("[B]%02d:%02d[/B]") % (later.hour, later.minute))
+
+        #Setting date and time controls.
+        lTime1 = self.window.getControl(EPGControl.label.DATE_TIME_QUARTER_ONE)
+        lTime2 = self.window.getControl(EPGControl.label.DATE_TIME_QUARTER_TWO)
+        lTime3 = self.window.getControl(EPGControl.label.DATE_TIME_QUARTER_THREE)
+        lTime4 = self.window.getControl(EPGControl.label.DATE_TIME_QUARTER_FOUR)
+        
+        lTime1.setLabel(__toTimeView(self.start_time, 0))
+        lTime2.setLabel(__toTimeView(self.start_time, 1))
+        lTime3.setLabel(__toTimeView(self.start_time, 2))
+        lTime4.setLabel(__toTimeView(self.start_time, 3))
+        
+        labelCurrentDate = self.window.getControl(EPGControl.label.DATE_TIME_TODAY)
+        labelCurrentDate.setLabel(self.start_time.strftime("[B]%d/%m/%Y[/B]"))
+            
+            
     '''                            '''
     ''' Grid XBMC controls related '''
     ''' ___________________________'''    
@@ -72,8 +153,7 @@ class EPGGridView(object):
     Set the focus to the given control coordonates.
     '''
     def setFocus(self, x, y):
-        epgbtn = self.currentGrid[y][x]
-        self.window.setFocus(epgbtn["control"]) 
+        self.window.setFocus(self.currentGrid[y][x]["control"])
     
     
     
@@ -131,13 +211,19 @@ class EPGGridView(object):
     Seconds from delta to x position
     '''
     def secondsToX(self, secs):
-        return self.left + (secs * self.width / (getTimelineToDisplay() * 60)) + 24
+        return self.left + (secs * self.width / (settings.getTimelineToDisplay() * 60)) + 24
      
      
      
     '''                              '''
     ''' Grid Data from EPGdb related '''
     ''' _____________________________'''  
+    
+    '''
+    Set the grid data to be displayed
+    '''
+    def setGlobalDataGrid(self, grid):
+        self.globalGrid = grid
            
         
     '''
@@ -151,7 +237,7 @@ class EPGGridView(object):
     Return a grid portion based on channels count and programs time
     '''
     def __getGridPortion(self):
-        grid = self.globalGrid[self.start_channel_id : self.start_channel_id + getDisplayChannelsCount()]
+        grid = self.globalGrid[self.start_channel_id : self.start_channel_id + settings.getDisplayChannelsCount()]
         tbr = []
         for channel in grid:
             programs = []
@@ -177,7 +263,7 @@ class EPGGridView(object):
     '''
     Sets channels lines
     '''
-    def setChannels(self):
+    def displayChannels(self):
         self.reset(clear_grid=True)
         EPG_page = self.__getGridPortion() 
         
@@ -187,7 +273,7 @@ class EPGGridView(object):
             y = self.top + self.cellHeight * idx + int((self.cellHeight / 14))
             pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
             
-            self.window.addControl(pchannel)
+            gridControls.append(pchannel)
             self.labelControls.append(pchannel)
                         
             # Program details.
@@ -237,26 +323,44 @@ class EPGGridView(object):
                 gridControls.append(pbutton)  
                 controls_x_grid.append({"db_id": program["db_id"], "desc": program["desc"], 
                                         "title": program["title"], "start": program_start, 
-                                        "stop":  program_end, "control": pbutton})
-                
+                                        "stop":  program_end, "control": pbutton})   
             self.append(controls_x_grid)                      
             idx += 1
             
         self.window.addControls(gridControls)
         
         
-    
+    '''
+    Go to the next program control or next page.
+    '''
     def next(self):
         if len(self.currentGrid[self.current_y]) - 1 == self.current_x:
-            return False
+            # Load new page
+            delta = timedelta(minutes=settings.getTimelineToDisplay())
+            y = self.current_y
+            self.stop_time += delta
+            self.start_time += delta
+            self.displayChannels()   
+            self.setFocus(0, y)
+            self.setTimesLabels()
         else:
+            # Next control
             self.current_x += 1
             self.setFocus(self.current_x, self.current_y)
     
     
+    '''
+    Go to the previous control or previous page.
+    '''
     def previous(self):
         if self.current_x == 0:
-            return False
+            delta = timedelta(minutes=settings.getTimelineToDisplay())
+            y = self.current_y
+            self.stop_time -= delta
+            self.start_time -= delta
+            self.displayChannels() 
+            self.setFocus(0, y)
+            self.setTimesLabels()
         else:
             self.current_x -= 1
             self.setFocus(self.current_x, self.current_y)
@@ -264,7 +368,13 @@ class EPGGridView(object):
     
     def up(self):
         if self.current_y == 0:
-            return False
+            if self.start_channel_id - settings.getDisplayChannelsCount() < 0:
+                self.start_channel_id = 0
+            else:
+                self.start_channel_id -= settings.getDisplayChannelsCount()
+                self.displayChannels()
+                self.setFocus(0, settings.getDisplayChannelsCount() - 1)
+            self.setTimesLabels()
         else:
             self.current_y -= 1
             self.current_x = 0
@@ -274,7 +384,13 @@ class EPGGridView(object):
     def down(self):
         #xbmc.log(str(len(self.currentGrid)), xbmc.LOGERROR)
         if len(self.currentGrid) - 1 == self.current_y:
-            return False
+            if (self.start_channel_id + settings.getDisplayChannelsCount()) > (self.getChannelsCount() - settings.getDisplayChannelsCount()):
+                self.start_channel_id = self.getChannelsCount() - settings.getDisplayChannelsCount() 
+            else:
+                self.start_channel_id += settings.getDisplayChannelsCount()
+                self.displayChannels()
+                self.setFocus(0,0)
+                self.setTimesLabels()
         else:
             self.current_y += 1
             self.current_x = 0
