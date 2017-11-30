@@ -34,7 +34,7 @@
             <posy>0</posy>
             <width>1280</width>
             <height>720</height>
-            <texture>tvguide-background.png</texture>
+            <texture>guide-backgrounds/guide-bg-0.png</texture>
             <visible>true</visible>
 
         </control>
