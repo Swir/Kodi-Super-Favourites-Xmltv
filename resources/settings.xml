@@ -6,6 +6,7 @@
         <setting id="update.frequency"  type="enum" label="200012"  lvalues="200121|200122|200123|200124|200125|200126|200127" />
         <setting type="sep"/>
         <setting id="cleanup.treshold"  type="enum" label="200013"  lvalues="200131|200132|200133|200134|200135|200136|200137" />
+        <setting id="xmltv.logos"  type="bool" label="200014"  default="true"/>
     </category>
     
     <category label="200002">    

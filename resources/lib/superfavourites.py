@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import mkdir
 from os.path import isfile, join
-from xbmcgui import DialogProgress
+from xbmcgui import DialogProgress, ControlList, ListItem
 from sqlite3 import Error as SqliteError
 
 from resources.lib.strings import SF_DIR_STRING, SF_CHANNELS_INFOS_ERROR
@@ -80,3 +80,44 @@ class SuperFavouritesIptvFolder(object):
             del self.database
         except:
             pass
+        
+        
+        
+class ControlSuperFavourites(ControlList):
+    
+    def __init__(self, x, y, width, height, focus, nofocus):
+        ControlList.__init__(self, x, y, width, height, _itemTextXOffset=0)
+        
+        
+    def populate(self):
+        self.reset()
+        '''
+        litem1 = ListItem("label 1", 'labe 2')
+        litem2 = ListItem("label 1", 'labe 2')
+        litem3 = ListItem("label 1", 'labe 2')
+        litem4 = ListItem("label 1", 'labe 2')
+        
+        litem1.select(True)
+
+        self.addItem(litem1)
+        self.addItem(litem2)
+        self.addItem(litem3)
+        self.addItem(litem4)
+        '''
+
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

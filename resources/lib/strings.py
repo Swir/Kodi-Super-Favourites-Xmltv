@@ -31,6 +31,9 @@ SFX_DOWNLOADING_MSG           = plugin.addon.getLocalizedString(300026)
 SFX_LONG_TIME_MSG             = plugin.addon.getLocalizedString(300027)
 SFX_CHANNEL                   = plugin.addon.getLocalizedString(300028)
 SFX_PROGRAM                   = plugin.addon.getLocalizedString(300029)
+SFX_ICONS_DOWNLOAD            = plugin.addon.getLocalizedString(300030)
+SFX_ICON                      = plugin.addon.getLocalizedString(300031)
+
 
 # HTTP Errors
 HTTP_UNCHANGED_REMOTE_FILE = plugin.addon.getLocalizedString(300031)
@@ -43,6 +46,7 @@ HTTP_BAD_GATEWAY           = plugin.addon.getLocalizedString(300037)
 HTTP_SERVER_OVERLOADED     = plugin.addon.getLocalizedString(300038)
 HTTP_REQUEST_TIMEOUT       = plugin.addon.getLocalizedString(300039)
 HTTP_UNHANDLED_ERROR       = plugin.addon.getLocalizedString(3000310)
+HTTP_DOWNLOAD_LOGO_ERROR   = plugin.addon.getLocalizedString(3000311)
 
 # Zip / Tar archives.
 ARCHIVE_UNSUPPORTED_FORMAT   = plugin.addon.getLocalizedString(300041)

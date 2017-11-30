@@ -7,6 +7,7 @@ from xbmc import abortRequested
 from resources.lib import settings
 from resources.lib.utils import strToDatetime
 from resources.lib.strings import PROGRAM_NO_INFOS
+from resources.lib.superfavourites import ControlSuperFavourites
 
 
 '''
@@ -16,13 +17,15 @@ Handle View positions.
 class EPGGridView(object):
     
     window = None
+    
     globalGrid = []
     currentGrid = []
     labelControls = []
+    superfavs = None
     
     current_x = 0
     current_y = 0
-    current_control = None    
+    current_control = None  
     is_closing = False
 
     
@@ -50,8 +53,13 @@ class EPGGridView(object):
     
         self.setEPGBackgrounds()
         self.setTimeMarker(timer=True)
-        self.setTimesLabels()
+        self.setTimesLabels() 
         
+        desc = self.window.getControl(EPGControl.label.PROGRAM_DESCRIPTION)
+        sfx = desc.getWidth() + int(desc.getWidth() / 8.5)
+        self.superfavs = ControlSuperFavourites(sfx,desc.getY() + 1 ,400,400, self.focusTexture, self.noFocusTexture)
+        
+        self.window.addControl(self.superfavs)
         
     
     
@@ -154,6 +162,7 @@ class EPGGridView(object):
     '''
     def setFocus(self, x, y):
         self.window.setFocus(self.currentGrid[y][x]["control"])
+        self.superfavs.populate()
     
     
     

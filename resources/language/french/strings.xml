@@ -31,6 +31,8 @@
     <string id="300027">Cette opération peut durer longtemps, soyez patient</string>
     <string id="300028">Chaîne</string>
     <string id="300029">Programme</string>
+    <string id="300030">Téléchargement des logos des chaînes</string>
+    <string id="300031">Logos des chaînes: </string>
     
     <!-- HTTP Errors -->
     <string id="300031">Le fichier XMLTV du serveur n'a pas changé</string>
@@ -43,6 +45,7 @@
     <string id="300038">XMLTV charge serveur trop élevée</string>
     <string id="300039">XMLTV serveur timeout</string>
     <string id="3000310">XMLTV serveur non joignable</string>  
+    <string id="3000311">Erreur en téléchargant les logos</string>     
     
     <!-- Zip / Tar archives -->
     <string id="300041">XMLTV format de compression non supporté</string>  
@@ -94,6 +97,7 @@
     <string id="200011">Mettre à jour l'EPG au démarrage de Kodi</string>
     <string id="200012">Fréquence de mise à jour</string>
     <string id="200013">Nettoyer les programmes vieux de plus de </string>
+    <string id="200014">Utiliser les logos de chaines du fichier XMLTV si présents</string>
     
     <!-- Settings => Style -->
     <string id="200021">Utiliser un fond pré installé (désactivez pour choisir le vôtre)</string>

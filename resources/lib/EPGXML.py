@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from glob import glob
-from os import rename, remove
+from os import rename, remove, mkdir
 from os.path import isfile, isdir, join
 from shutil  import rmtree
 from xml.dom import minidom
@@ -15,7 +15,8 @@ from resources.lib import strings
 from resources.lib.utils import strToDatetime, notify, copyfile
 from resources.lib.settings import DEBUG, AddonConst, getXMLTVSourceType,\
      getEpgXmlFilePath, getAddonUserDataPath, getXMLTVURLLocal, getXMLTVURLRemote, \
-     isXMLTVCompressed, getCleanupTreshold
+     isXMLTVCompressed, getCleanupTreshold, useXMLTVSourceLogos, getChannelsLogoPath
+from xbmc import sleep
 
 '''
 Handle XMLTV itself.
@@ -194,6 +195,7 @@ class EpgXml(object):
         programs = xmltv.getElementsByTagName('programme')
         plist = []
         clist = []
+        icons_sources = []
 
         i = 1
         for channel in channels:
@@ -206,8 +208,12 @@ class EpgXml(object):
             display_name = display_name.replace(r'/', '-')
             display_name = display_name.replace("\\", "-")
             
+            if channel.getElementsByTagName('icon').length > 0:
+                icon = channel.getElementsByTagName('icon')[0].getAttribute('src').encode('utf-8', 'ignore')
+                icons_sources.append(icon)
+                icon = icon[icon.rfind(r"/") + 1 :] 
             if not self.epg_db.channelExists(id_channel):
-                clist.append([id_channel, display_name, '', '', '1'])
+                clist.append([id_channel, display_name, icon, '', '1'])
             i += 1
         
         self.epg_db.addChannels(clist)
@@ -251,12 +257,60 @@ class EpgXml(object):
             if program_end + timedelta(days=1) > datetime.now():
                 plist.append([id_channel, ptitle, program_start.strftime("%Y%m%d%H%M%S"), program_end.strftime("%Y%m%d%H%M%S"), desc])
             
+            
+                
             i += 1
             
         self.epg_db.addPrograms(plist)
         self.progress_bar.close()
+        
+        if useXMLTVSourceLogos():
+            self.downloadIcons(icons_sources)
+            
+        
         return True
+    
+    
+    '''
+    Download icons from xmltv source
+    '''
+    def downloadIcons(self, sources):
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
+        self.progress_bar.create(strings.DIALOG_TITLE, strings.SFX_ICONS_DOWNLOAD)
 
+        dest_dir = getChannelsLogoPath() 
+        if not isdir(dest_dir):
+            mkdir(dest_dir)     
+        
+        try:             
+            i = 1
+            for source in sources:
+                
+                self.progress_bar.update(int( ( i / float(len(sources)) ) * 100), "", 
+                                         strings.SFX_PROGRAM + ' %i/%i' % (i, len(sources)))
+                
+                dest_file = join(dest_dir, source[source.rfind(r"/") + 1 :])
+                download = urlopen(source, timeout=30)
+            
+                if isfile(dest_file):
+                    remove(dest_file)
+         
+                tsf = open(dest_file, "w")
+                tsf.write(download.read())
+                tsf.close()
+                del tsf
+                i += 1
+                sleep(200)
+                
+            self.progress_bar.close()
+            
+        except HTTPError as e:
+            self.progress_bar.close()
+            if e.code in [304, 301, 400, 401, 403, 404, 500, 502, 503, 504]:
+                notify(strings.HTTP_DOWNLOAD_LOGO_ERROR, e.reason)
+            return
+    
             
     '''
     Cose the epg_db oject
@@ -339,6 +393,16 @@ class EpgDb(object):
     '''
     def removeChannel(self, id_channel):
         try:
+            
+            try:
+                rlogo = 'SELECT logo FROM channels WHERE id_channel="%s"' % id_channel
+                self.cursor.execute(rlogo)
+                logo = self.cursor.fetchone()[0]
+                if logo != "":
+                    remove(join(getChannelsLogoPath(), logo))
+            except TypeError:
+                pass
+            
             delete = 'DELETE FROM channels WHERE id_channel="%s"' % id_channel
             programs = 'DELETE FROM programs WHERE channel="%s"' % id_channel
             self.cursor.execute(delete)

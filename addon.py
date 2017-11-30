@@ -32,7 +32,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         
         self.epgView.displayChannels()
         self.epgView.setFocus(0, 0)
-    
+            
     '''
     Handle all xbmc action messages.
     '''
@@ -43,7 +43,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
             self.epgDb.close()
             del self.epgView
             self.close()
-            
+        
+        # Grid actions    
         elif action == xbmcgui.ACTION_MOVE_LEFT :
             self.epgView.previous()
                                  

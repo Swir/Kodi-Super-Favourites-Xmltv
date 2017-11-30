@@ -84,6 +84,13 @@ def getAddonIcon():
     return addon.getAddonInfo('icon')
 
 
+'''
+Return the channels logos path
+'''
+def getChannelsLogoPath():
+    return join(getAddonUserDataPath(), "logos")
+
+
 
 '''
 Return tables structures
@@ -233,6 +240,11 @@ def getTimelineToDisplay():
     return int(addon.getSetting('timeline.count')) * 60
 
 
+'''
+Return true if epg will use the xmltv logo
+'''
+def useXMLTVSourceLogos():
+    return True if addon.getSetting('xmltv.logos') == 'true' else False
 
 '''
 Addon consts

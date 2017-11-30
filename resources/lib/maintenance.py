@@ -7,7 +7,7 @@ from shutil import rmtree
 
 from strings import HARD_RESET_OK, HARD_RESET_NOK, DIALOG_TITLE, HARD_RESET_FOLDERS_OK
 from settings import AddonConst
-from settings import getEpgDbFilePath, getEpgXmlFilePath, getSFFolder
+from settings import getEpgDbFilePath, getEpgXmlFilePath, getSFFolder, getChannelsLogoPath
 
 try:
     if int(argv[1]) == AddonConst.ACTION_HARD_RESET:
@@ -19,6 +19,9 @@ try:
         
         if isfile(getEpgXmlFilePath()):
             remove(getEpgXmlFilePath())
+        
+        if isdir(getChannelsLogoPath()):
+            rmtree(getChannelsLogoPath(), ignore_errors=True)
         
         if not isfile(getEpgDbFilePath()) and not isfile(getEpgXmlFilePath()):
             Dialog().ok(DIALOG_TITLE, HARD_RESET_OK)

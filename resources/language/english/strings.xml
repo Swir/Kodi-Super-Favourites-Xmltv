@@ -31,6 +31,8 @@
     <string id="300027">This operation can take a long time, so, be patient</string>
     <string id="300028">Channel</string>
     <string id="300029">Program</string>
+    <string id="300030">Downloading channels icons</string>
+    <string id="300031">Channel icon</string>
     
     <!-- HTTP Errors -->
     <string id="300031">URL xmltv file did not changed</string>
@@ -43,6 +45,7 @@
     <string id="300038">XMLTV server high load</string>
     <string id="300039">XMLTV server timeout</string>
     <string id="3000310">XMLTV unreachable</string> 
+    <string id="3000311">Error downloading icons</string>     
     
     <!-- Zip / Tar archives --> 
     <string id="300041">XMLTV unsupported compression format</string>  
@@ -94,6 +97,7 @@
     <string id="200011">Update EPG on Kodi startup</string>
     <string id="200012">Update Frequency</string>
     <string id="200013">Cleanup programs older than </string>
+    <string id="200014">Use XMLTV channels icons source if any</string>
     
     <!-- Settings => Style -->
     <string id="200021">Use built in background ( disable this to use a custom one )</string>
