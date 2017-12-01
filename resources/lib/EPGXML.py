@@ -208,6 +208,7 @@ class EpgXml(object):
             display_name = display_name.replace(r'/', '-')
             display_name = display_name.replace("\\", "-")
             
+            icon = ""
             if channel.getElementsByTagName('icon').length > 0:
                 icon = channel.getElementsByTagName('icon')[0].getAttribute('src').encode('utf-8', 'ignore')
                 icons_sources.append(icon)
