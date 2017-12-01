@@ -5,7 +5,7 @@ from resources.lib import EPGXML, superfavourites
 from resources.lib.EPGCtl import EPGGridView
 from resources.lib import strings, settings
 from resources.lib.utils import connectEpgDB
-
+ 
 '''
 Global class handling EPG Gui.
 '''

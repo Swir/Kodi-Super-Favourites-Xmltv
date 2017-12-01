@@ -9,7 +9,7 @@ from resources.lib.utils import strToDatetime
 from resources.lib.strings import PROGRAM_NO_INFOS
 from resources.lib.superfavourites import ControlSuperFavourites
 
-
+ 
 '''
 Handle View positions.
 '''
@@ -385,8 +385,8 @@ class EPGGridView(object):
                 self.start_channel_id = 0
             else:
                 self.start_channel_id -= settings.getDisplayChannelsCount()
-                self.displayChannels()
-                self.setFocus(0, settings.getDisplayChannelsCount() - 1)
+            self.displayChannels()
+            self.setFocus(0, settings.getDisplayChannelsCount() - 1)
             self.setTimesLabels()
         else:
             self.current_y -= 1
@@ -401,9 +401,9 @@ class EPGGridView(object):
                 self.start_channel_id = self.getChannelsCount() - settings.getDisplayChannelsCount() 
             else:
                 self.start_channel_id += settings.getDisplayChannelsCount()
-                self.displayChannels()
-                self.setFocus(0,0)
-                self.setTimesLabels()
+            self.displayChannels()
+            self.setFocus(0,0)
+            self.setTimesLabels()
         else:
             self.current_y += 1
             self.current_x = 0
