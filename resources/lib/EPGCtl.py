@@ -9,7 +9,7 @@ from resources.lib.utils import strToDatetime
 from resources.lib.strings import PROGRAM_NO_INFOS
 from resources.lib.superfavourites import ControlSuperFavourites
 
- 
+
 '''
 Handle View positions.
 '''

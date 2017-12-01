@@ -85,7 +85,7 @@ if __name__ == '__main__':
     ok, error_msg = settings.checkMandatorySettings()
     if not ok:
         xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.BAD_ADDON_CONFIGURATION, 
-                            error_msg, strings.CONFIGURATION_TAKE_TIME_MSG)
+                            error_msg.encode("utf-8", "ignore"), strings.CONFIGURATION_TAKE_TIME_MSG)
         settings.addon.openSettings()
     
     else:      

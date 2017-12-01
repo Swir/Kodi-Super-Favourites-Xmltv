@@ -19,17 +19,20 @@ DEBUG = True if addon.getSetting('debug.mode') == 'true' else False
 def checkMandatorySettings():
     
     # Checking xmltv type
-    if getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_URL:
-        if not getXMLTVURLRemote():
-            return False, strings.XMLTV_NO_URL_PROVIDED
-            
-    elif getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_LOCAL:
-        if not getXMLTVURLLocal() :
-            return False, strings.XMLTV_NO_FILE_PROVIDED 
-      
-    if getSFFolder() == 'special://home':
-        return False, strings.NO_SUPER_FAVOURITES_FOLDER
-    
+    try:
+        if getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_URL:
+            if not getXMLTVURLRemote():
+                return False, strings.XMLTV_NO_URL_PROVIDED
+                
+        elif getXMLTVSourceType() == AddonConst.XMLTV_SOURCE_LOCAL:
+            if not getXMLTVURLLocal() :
+                return False, strings.XMLTV_NO_FILE_PROVIDED 
+          
+        if getSFFolder() == 'special://home':
+            return False, strings.NO_SUPER_FAVOURITES_FOLDER
+    except ValueError:
+        return False, ""
+        
     return True, ""
 
 
