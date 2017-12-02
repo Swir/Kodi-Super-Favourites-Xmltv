@@ -413,9 +413,39 @@ class EPGGridView(object):
             self.current_x = 0
             self.setFocus(self.current_x, self.current_y)
                        
-            
 
+'''
+Hansle splash screen loading image in case of large xmltv files
+'''
+class SplashScreen(object):
+    
+    def __init__(self, window, viewWidth, viewHeight):
+        self.window = window
+        
+        x = int(viewWidth / 2) + int(193 / 4)
+        y = int(viewHeight / 2) + int(192 / 4)
+        
+        img = join(settings.getAddonImagesPath(), "splashscreen", "loading.gif")
+        bg = join(settings.getAddonImagesPath(), "splashscreen", "splash-bg.png")
+        
+        self.splash = xbmcgui.ControlImage(x, y, int(193 / 2), int(192 / 2), img)
+        self.splashBg = xbmcgui.ControlImage(0, 0, viewWidth * 2, viewHeight * 2, bg)
+              
 
+    '''
+    Display slashscreen
+    '''
+    def start(self):
+        self.window.addControl(self.splashBg)
+        self.window.addControl(self.splash)
+        
+    
+    '''
+    Removes the splah screen.
+    '''
+    def stop(self):
+        self.window.removeControl(self.splashBg)
+        self.window.removeControl(self.splash)
 
 
 '''

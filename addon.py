@@ -2,7 +2,7 @@
 import xbmc, xbmcgui  
 
 from resources.lib import EPGXML, superfavourites
-from resources.lib.EPGCtl import EPGGridView
+from resources.lib.EPGCtl import EPGGridView, SplashScreen
 from resources.lib import strings, settings
 from resources.lib.utils import connectEpgDB
  
@@ -27,11 +27,14 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         database, cursor = connectEpgDB()
         
         self.epgView = EPGGridView(self)
+        loading = SplashScreen(self, self.epgView.width, self.epgView.bottom)
+        loading.start()
         self.epgDb   = EPGXML.EpgDb(database, cursor)
-        self.epgView.setGlobalDataGrid(self.epgDb.getEpgGrid())  
-        
+        self.epgView.setGlobalDataGrid(self.epgDb.getEpgGrid())      
         self.epgView.displayChannels()
         self.epgView.setFocus(0, 0)
+        loading.stop()
+        
             
     '''
     Handle all xbmc action messages.
