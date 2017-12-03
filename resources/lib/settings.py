@@ -250,6 +250,12 @@ def useXMLTVSourceLogos():
     return True if addon.getSetting('xmltv.logos') == 'true' else False
 
 '''
+Return true if we will use thetvdblogo as channels icons source
+'''
+def useTheTvDBSourceLogos():
+    return True if addon.getSetting('thetvdb.logos') == 'true' else False
+
+'''
 Addon consts
 '''
 class AddonConst(object):

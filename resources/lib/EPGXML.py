@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+
 from glob import glob
-from os import rename, remove, mkdir
-from os.path import isfile, isdir, join
+from json import load
+from xbmc import sleep
 from shutil  import rmtree
 from xml.dom import minidom
+from os import rename, remove, mkdir
+from os.path import isfile, isdir, join
 from urllib2 import HTTPError, urlopen
+from urllib import quote_plus
 from sqlite3 import Error as SqliteError
 from xbmcgui import DialogProgress, DialogProgressBG
 from zipfile import is_zipfile, ZipFile, BadZipfile, LargeZipFile
@@ -15,8 +19,10 @@ from resources.lib import strings
 from resources.lib.utils import strToDatetime, notify, copyfile
 from resources.lib.settings import DEBUG, AddonConst, getXMLTVSourceType,\
      getEpgXmlFilePath, getAddonUserDataPath, getXMLTVURLLocal, getXMLTVURLRemote, \
-     isXMLTVCompressed, getCleanupTreshold, useXMLTVSourceLogos, getChannelsLogoPath
-from xbmc import sleep
+     isXMLTVCompressed, getCleanupTreshold, useXMLTVSourceLogos, getChannelsLogoPath,\
+    useTheTvDBSourceLogos
+     
+import xbmc
 
 '''
 Handle XMLTV itself.
@@ -209,10 +215,24 @@ class EpgXml(object):
             display_name = display_name.replace("\\", "-")
             
             icon = ""
-            if channel.getElementsByTagName('icon').length > 0:
-                icon = channel.getElementsByTagName('icon')[0].getAttribute('src').encode('utf-8', 'ignore')
+            if useXMLTVSourceLogos():
+                if channel.getElementsByTagName('icon').length > 0:
+                    icon = channel.getElementsByTagName('icon')[0].getAttribute('src').encode('utf-8', 'ignore')
+            
+                elif useTheTvDBSourceLogos():
+                    search = TheTvDbLogoChannel(display_name)
+                    if search.search():
+                        icon = search.getLogo()
+            
+            elif useTheTvDBSourceLogos():
+                search = TheTvDbLogoChannel(display_name)
+                if search.search():
+                    icon = search.getLogo()
+                    
+            if not icon == "" and not icon is None:
                 icons_sources.append(icon)
                 icon = icon[icon.rfind(r"/") + 1 :] 
+                                    
             if not self.epg_db.channelExists(id_channel):
                 clist.append([id_channel, display_name, icon, '', '1'])
             i += 1
@@ -265,7 +285,7 @@ class EpgXml(object):
         self.epg_db.addPrograms(plist)
         self.progress_bar.close()
         
-        if useXMLTVSourceLogos():
+        if useXMLTVSourceLogos() or useTheTvDBSourceLogos():
             self.downloadIcons(icons_sources)
             
         
@@ -283,34 +303,32 @@ class EpgXml(object):
         dest_dir = getChannelsLogoPath() 
         if not isdir(dest_dir):
             mkdir(dest_dir)     
-        
-        try:             
-            i = 1
-            for source in sources:
-                
+                   
+        i = 1
+        for source in sources:
+            try:
                 self.progress_bar.update(int( ( i / float(len(sources)) ) * 100), "", 
                                          strings.SFX_PROGRAM + ' %i/%i' % (i, len(sources)))
                 
-                dest_file = join(dest_dir, source[source.rfind(r"/") + 1 :])
-                download = urlopen(source, timeout=30)
+                if not source is None:
+                    dest_file = join(dest_dir, source[source.rfind(r"/") + 1 :])
+                    download = urlopen(source, timeout=30)
             
-                if isfile(dest_file):
-                    remove(dest_file)
+                    if isfile(dest_file):
+                        remove(dest_file)
          
-                tsf = open(dest_file, "w")
-                tsf.write(download.read())
-                tsf.close()
-                del tsf
-                i += 1
-                sleep(200)
-                
-            self.progress_bar.close()
+                    tsf = open(dest_file, "w")
+                    tsf.write(download.read())
+                    tsf.close()
+                    del tsf
+                    i += 1
+                    sleep(200)
+                            
+            except HTTPError as e:
+                if e.code in [304, 301, 400, 401, 403, 404, 500, 502, 503, 504]:
+                    notify(strings.HTTP_DOWNLOAD_LOGO_ERROR, e.message)
+        self.progress_bar.close()
             
-        except HTTPError as e:
-            self.progress_bar.close()
-            if e.code in [304, 301, 400, 401, 403, 404, 500, 502, 503, 504]:
-                notify(strings.HTTP_DOWNLOAD_LOGO_ERROR, e.reason)
-            return
     
             
     '''
@@ -710,4 +728,56 @@ class EpgDb(object):
             del self.cursor
             del self.database
         except:
-            pass     
+            pass
+        
+        
+        
+        
+'''
+Handle the tv db channels icons.
+'''
+class TheTvDbLogoChannel():
+        
+        data = None
+        
+        '''
+        The Tv DB object init
+        '''
+        def __init__(self, channelStr):
+            self.channel = quote_plus(channelStr)
+            self.baseUrl = "http://www.thelogodb.com/api/json/v1"
+            self.api_key = "7361"
+            
+        
+        '''
+        Search the tvdb for channel icon
+        '''
+        def search(self):
+            try:
+                request = '%s/%s/tvchannel.php?s=%s' % (self.baseUrl,self.api_key, self.channel)
+                response = urlopen(request)
+                self.data = load(response)
+                return not self.data["channels"] is None
+            except:
+                return False
+            
+        
+        '''
+        Download the logo, return False in case of error
+        '''
+        def getLogo(self):
+            logo = None
+            if not self.data["channels"][0]['strLogoWide'] is None:
+                logo = self.data["channels"][0]["strLogoWide"]
+            elif not self.data["channels"][0]['strLogoWideBW'] is None:
+                logo = self.data["channels"][0]["strLogoWideBW"]
+            elif not self.data["channels"][0]['strLogoSquare'] is None:
+                logo = self.data["channels"][0]["strLogoSquare"]
+            elif not self.data["channels"][0]['strLogoSquareBW'] is None:
+                logo = self.data["channels"][0]["strLogoSquareBW"]
+            return logo
+            
+            
+        
+        
+                     

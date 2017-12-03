@@ -97,7 +97,8 @@
     <string id="200011">Update EPG on Kodi startup</string>
     <string id="200012">Update Frequency</string>
     <string id="200013">Cleanup programs older than </string>
-    <string id="200014">Use XMLTV channels icons source if any</string>
+    <string id="200014">Use XMLTV channels icons source (uncheck to only use thelogodb)</string>
+    <string id="200015">Try to find missed channels icons on TheLogoDB website</string>
     
     <!-- Settings => Style -->
     <string id="200021">Use built in background ( disable this to use a custom one )</string>

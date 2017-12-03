@@ -97,7 +97,8 @@
     <string id="200011">Mettre à jour l'EPG au démarrage de Kodi</string>
     <string id="200012">Fréquence de mise à jour</string>
     <string id="200013">Nettoyer les programmes vieux de plus de </string>
-    <string id="200014">Utiliser les logos de chaines du fichier XMLTV si présents</string>
+    <string id="200014">Utiliser les logos de chaines du fichier XMLTV (décochez pour n'utiliser que thelogodb)</string>
+    <string id="200015">Essayer de trouver les logos manquant sur thelogodb</string>
     
     <!-- Settings => Style -->
     <string id="200021">Utiliser un fond pré installé (désactivez pour choisir le vôtre)</string>

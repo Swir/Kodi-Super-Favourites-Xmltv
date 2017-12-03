@@ -284,9 +284,9 @@ class EPGGridView(object):
             if not settings.useXMLTVSourceLogos():
                 pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
             else:
-                if channel["logo"] != "":
+                if channel["logo"] != "" and channel["logo"] is not None:
                     logo = join(settings.getChannelsLogoPath(), channel["logo"])
-                    pchannel = xbmcgui.ControlImage(16, y -8, 180, self.cellHeight + 8, logo, aspectRatio=2)
+                    pchannel = xbmcgui.ControlImage(16, y -8, 170, self.cellHeight - 2, logo, aspectRatio=2)
                 else:
                     pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
  
