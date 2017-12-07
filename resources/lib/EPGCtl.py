@@ -7,7 +7,8 @@ from xbmc import abortRequested
 from resources.lib import settings
 from resources.lib.utils import strToDatetime
 from resources.lib.strings import PROGRAM_NO_INFOS
-from resources.lib.superfavourites import ControlSuperFavourites
+
+import superfavourites
 
 
 '''
@@ -27,6 +28,7 @@ class EPGGridView(object):
     current_y = 0
     current_control = None  
     is_closing = False
+    isControlBox = False
 
     
     '''
@@ -54,12 +56,9 @@ class EPGGridView(object):
         self.setEPGBackgrounds()
         self.setTimeMarker(timer=True)
         self.setTimesLabels() 
+                
+        self.superfavs = superfavourites.ChannelControler(self.window, self.focusTexture, self.noFocusTexture)
         
-        desc = self.window.getControl(EPGControl.label.PROGRAM_DESCRIPTION)
-        sfx = desc.getWidth() + int(desc.getWidth() / 8.5)
-        self.superfavs = ControlSuperFavourites(sfx,desc.getY() + 1 ,400,400, self.focusTexture, self.noFocusTexture)
-        
-        self.window.addControl(self.superfavs)
         
     
     
@@ -162,8 +161,15 @@ class EPGGridView(object):
     '''
     def setFocus(self, x, y):
         self.window.setFocus(self.currentGrid[y][x]["control"])
-        self.superfavs.populate()
+        
+        self.superfavs.setChannel(self.currentGrid[y][x]["cdb_id"], self.currentGrid[y][x]["cdisplay_name"])    
     
+    
+    '''
+    Set fcus on actions grid
+    '''
+    def setFocusOnActions(self):
+        self.superfavs.setFocus()
     
     
     '''
@@ -214,6 +220,13 @@ class EPGGridView(object):
     def isProgramControl(self, controlID):
         status, y, x = self.getInfosFromCurrentGrid(controlID)
         return status is not None
+    
+    
+    '''
+    Return True if the given control ID is related to the 3 controls buttons ( right bottom )
+    '''
+    def isControlBoxControl(self, controlID):
+        return controlID in self.superfavs.getControls()
     
     
     '''
@@ -307,7 +320,9 @@ class EPGGridView(object):
                 gridControls.append(pbutton)
                 controls_x_grid.append({"db_id": None, "desc": PROGRAM_NO_INFOS, 
                                         "title": PROGRAM_NO_INFOS, "start": None, 
-                                        "stop":  None, "control": pbutton})
+                                        "stop":  None, "control": pbutton,
+                                        "cdisplay_name":channel["display_name"],
+                                        "cdb_id":channel["db_id"]})
             for program in programs: 
                 
                 program_start = strToDatetime(program["start"])    
@@ -340,7 +355,9 @@ class EPGGridView(object):
                 gridControls.append(pbutton)  
                 controls_x_grid.append({"db_id": program["db_id"], "desc": program["desc"], 
                                         "title": program["title"], "start": program_start, 
-                                        "stop":  program_end, "control": pbutton})   
+                                        "stop":  program_end, "control": pbutton,
+                                        "cdisplay_name":channel["display_name"],
+                                        "cdb_id":channel["db_id"]})   
             self.append(controls_x_grid)                      
             idx += 1
             
@@ -448,6 +465,7 @@ class SplashScreen(object):
         self.window.removeControl(self.splash)
 
 
+
 '''
 Reference to EPG kodi controls.
 '''
@@ -463,7 +481,7 @@ class EPGControl(object):
         TIME_MARKER = 4100
         
     '''
-    Labels reference
+    Labels references
     '''
     class label(object):
         DATE_TIME_TODAY         = 4000
@@ -475,6 +493,8 @@ class EPGControl(object):
         PROGRAM_TITLE = 4020
         PROGRAM_DESCRIPTION = 4022
         PROGRAM_TIME = 4021
+        
+        CHANNEL_DETAIL   = 4030
         
         
         

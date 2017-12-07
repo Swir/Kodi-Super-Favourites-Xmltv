@@ -83,3 +83,8 @@ UPDATE_CHANNEL_ERROR       = plugin.addon.getLocalizedString(300069)
 ADDING_CHANNEL_ERROR       = plugin.addon.getLocalizedString(3000610)
 PROGRAM_NO_INFOS           = plugin.addon.getLocalizedString(3000611)
 
+# Buttons
+VIEW_CHANNEL    = plugin.addon.getLocalizedString(300071)
+NOTIFY_PROGRAM  = plugin.addon.getLocalizedString(300072)
+CHANNEL_ACTIONS = plugin.addon.getLocalizedString(300073)
+

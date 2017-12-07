@@ -80,7 +80,12 @@
     <string id="300069">Erreur en modifiant une chaîne</string>
     <string id="3000610">Erreur en ajoutant une chaîne</string>
     <string id="3000611">Aucune info disponible</string>
-  
+    
+    <!-- Control buttons -->
+    <string id="300071">Regarder la chaîne</string>
+    <string id="300072">Me le notifier</string>
+    <string id="300073">Modifier la chaine</string>
+ 
   
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

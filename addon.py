@@ -43,23 +43,39 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     def onAction(self, action):
 
         if action in [xbmcgui.ACTION_PREVIOUS_MENU, xbmcgui.ACTION_NAV_BACK]:
-            self.epgView.is_closing = True
-            self.epgDb.close()
-            del self.epgView
-            self.close()
-        
-        # Grid actions    
-        elif action == xbmcgui.ACTION_MOVE_LEFT :
-            self.epgView.previous()
+            if not self.epgView.isControlBox:
+                self.epgView.is_closing = True
+                self.epgDb.close()
+                self.close()
+            else:
+                self.epgView.isControlBox = False
+                self.epgView.setFocus(self.epgView.current_x, self.epgView.current_y)
+            
+        # Grid actions 
+        elif not self.epgView.isControlBox:
+           
+            if action == xbmcgui.ACTION_MOVE_LEFT :
+                self.epgView.previous()
                                  
-        elif action == xbmcgui.ACTION_MOVE_RIGHT:
-            self.epgView.next()
+            elif action == xbmcgui.ACTION_MOVE_RIGHT:
+                self.epgView.next()
         
-        elif action in [xbmcgui.ACTION_MOVE_UP, xbmcgui.ACTION_MOUSE_WHEEL_UP]:
-                self.epgView.up()
+            elif action in [xbmcgui.ACTION_MOVE_UP, xbmcgui.ACTION_MOUSE_WHEEL_UP]:
+                    self.epgView.up()
                      
-        elif action in [xbmcgui.ACTION_MOVE_DOWN, xbmcgui.ACTION_MOUSE_WHEEL_DOWN]:
-            self.epgView.down()
+            elif action in [xbmcgui.ACTION_MOVE_DOWN, xbmcgui.ACTION_MOUSE_WHEEL_DOWN]:
+                self.epgView.down()
+            
+            elif action == xbmcgui.ACTION_SELECT_ITEM:
+                self.epgView.setFocusOnActions()
+        
+        # Controls buttons.
+        else:
+            if action in [xbmcgui.ACTION_MOVE_UP, xbmcgui.ACTION_MOUSE_WHEEL_UP]:
+                self.epgView.superfavs.previous()
+                     
+            elif action in [xbmcgui.ACTION_MOVE_DOWN, xbmcgui.ACTION_MOUSE_WHEEL_DOWN]:
+                self.epgView.superfavs.next()
                     
         
 
@@ -74,11 +90,14 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Handle focusses changes between controls
     '''
     def onFocus(self, controlID):
-         
+        
         if self.epgView.isProgramControl(controlID):
+            self.epgView.isControlBox = False
             self.epgView.setInfos(controlID) 
         
-        
+        elif self.epgView.isControlBoxControl(controlID):
+            self.epgView.isControlBox = True
+            
 
 ''''''''''''''''''''''''''''''
 '''    Plugin entry point. '''
