@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 import xbmcgui
-from os.path import join
+from os import rename
+from os.path import join, exists
 from datetime import timedelta, datetime
 from threading import Timer
 from xbmc import abortRequested
 from resources.lib import settings
-from resources.lib.utils import strToDatetime
+from resources.lib.EPGXML import EpgDb
+from resources.lib.utils import strToDatetime, connectEpgDB
 from resources.lib.strings import PROGRAM_NO_INFOS
 
-import superfavourites
-
+import xbmc
 
 '''
 Handle View positions.
@@ -22,7 +23,6 @@ class EPGGridView(object):
     globalGrid = []
     currentGrid = []
     labelControls = []
-    superfavs = None
     
     current_x = 0
     current_y = 0
@@ -55,10 +55,7 @@ class EPGGridView(object):
     
         self.setEPGBackgrounds()
         self.setTimeMarker(timer=True)
-        self.setTimesLabels() 
-                
-        self.superfavs = superfavourites.ChannelControler(self.window, self.focusTexture, self.noFocusTexture)
-        
+        self.setTimesLabels()         
         
     
     
@@ -160,16 +157,16 @@ class EPGGridView(object):
     Set the focus to the given control coordonates.
     '''
     def setFocus(self, x, y):
-        self.window.setFocus(self.currentGrid[y][x]["control"])
-        
-        self.superfavs.setChannel(self.currentGrid[y][x]["cdb_id"], self.currentGrid[y][x]["cdisplay_name"])    
+        self.window.setFocus(self.currentGrid[y][x]["control"])   
     
     
     '''
-    Set fcus on actions grid
+    Return the current targeted channel id and channel name.
     '''
-    def setFocusOnActions(self):
-        self.superfavs.setFocus()
+    def getChannel(self, x=None, y=None):
+        x = x if not x is None else self.current_x
+        y = y if not y is None else self.current_y
+        return self.currentGrid[y][x]["cdb_id"], self.currentGrid[y][x]["cdisplay_name"]   
     
     
     '''
@@ -198,6 +195,10 @@ class EPGGridView(object):
                 time = "00:00 - 00:00"
             ctime = self.window.getControl(EPGControl.label.PROGRAM_TIME)
             ctime.setLabel(time) 
+            
+            self.window.getControl(EPGControl.label.CHANNEL_NAME).setLabel(self.currentGrid[self.current_y][self.current_x]["cdisplay_name"])
+            logo = join(settings.getChannelsLogoPath(), self.currentGrid[self.current_y][self.current_x]["logo"])
+            self.window.getControl(EPGControl.image.CHANNEL_LOGO).setImage(logo, False)
         
     
         
@@ -220,13 +221,6 @@ class EPGGridView(object):
     def isProgramControl(self, controlID):
         status, y, x = self.getInfosFromCurrentGrid(controlID)
         return status is not None
-    
-    
-    '''
-    Return True if the given control ID is related to the 3 controls buttons ( right bottom )
-    '''
-    def isControlBoxControl(self, controlID):
-        return controlID in self.superfavs.getControls()
     
     
     '''
@@ -297,9 +291,14 @@ class EPGGridView(object):
             if not settings.useXMLTVSourceLogos():
                 pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
             else:
-                if channel["logo"] != "" and channel["logo"] is not None:
-                    logo = join(settings.getChannelsLogoPath(), channel["logo"])
-                    pchannel = xbmcgui.ControlImage(16, y -8, 170, self.cellHeight - 2, logo, aspectRatio=2)
+                logo = channel["logo"]
+                
+                if logo != "" and logo is not None:
+                    logo = join(settings.getChannelsLogoPath(), logo)
+                    if exists(logo):
+                        pchannel = xbmcgui.ControlImage(16, y -8, 170, self.cellHeight - 2, logo, aspectRatio=2)
+                    else:
+                        pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
                 else:
                     pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
  
@@ -322,7 +321,7 @@ class EPGGridView(object):
                                         "title": PROGRAM_NO_INFOS, "start": None, 
                                         "stop":  None, "control": pbutton,
                                         "cdisplay_name":channel["display_name"],
-                                        "cdb_id":channel["db_id"]})
+                                        "cdb_id":channel["db_id"], "logo":channel["logo"]})
             for program in programs: 
                 
                 program_start = strToDatetime(program["start"])    
@@ -357,7 +356,7 @@ class EPGGridView(object):
                                         "title": program["title"], "start": program_start, 
                                         "stop":  program_end, "control": pbutton,
                                         "cdisplay_name":channel["display_name"],
-                                        "cdb_id":channel["db_id"]})   
+                                        "cdb_id":channel["db_id"], "logo":channel["logo"]})   
             self.append(controls_x_grid)                      
             idx += 1
             
@@ -465,6 +464,74 @@ class SplashScreen(object):
         self.window.removeControl(self.splash)
 
 
+   
+    
+'''
+Edit channel popup window
+'''
+class EditWindow(xbmcgui.WindowXMLDialog):
+    
+    display_name = id_channel = None
+        
+    def __init__(self, strXMLname, strFallbackPath):       
+        xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
+        self.addControl(xbmcgui.ControlLabel(x=25, y=25, width=500, height=25, label="Test"))    
+    
+    
+    
+    '''
+    Window init.
+    '''
+    def onInit(self):
+        xbmcgui.WindowXMLDialog.onInit(self)
+        #self.getControl(4101).setLabel(ACTIONS_EDIT_CHANNEL + " " + self.display_name)
+        #self.getControl(4000).setLabel(ACTIONS_HIDE_CHANNEL)
+        #self.getControl(4001).setLabel(ACTIONS_RENAME_CHANNEL)
+        #self.getControl(4002).setLabel(ACTIONS_QUIT_WINDOW)
+                
+        
+    '''
+    Sets the target channel is and name
+    '''
+    def setChannel(self, c_id, c_name):
+        self.display_name = c_name
+        self.id_channel = c_id
+        
+        
+    '''
+    Handle clicks actions.
+    '''
+    def onClick(self, controlId):
+        if controlId == 4002:
+            self.close()
+        
+        elif controlId in [4000, 4001]:
+            database, cursor = connectEpgDB()
+            epgDb = EpgDb(database, cursor)
+            
+            # Hide channel from EPG and exit current window.
+            if controlId == 4000:
+                epgDb.updateChannel(self.id_channel, visible=False)
+            
+            elif controlId == 4001:
+                new_name = xbmcgui.Dialog().input("ACTIONS_RENAME_TITLE", self.display_name)
+                if not new_name is None or new_name == "":
+                    epgDb.updateChannel(self.id_channel, display_name=new_name)
+                    # renaming sf directory if 'display names' are used.
+                    if not settings.getSFFoldersPattern() == settings.AddonConst.SF_XMLTV_ID_PATTERN:
+                        joined = join(settings.getSFFolder(translate=True), self.display_name)
+                        xbmc.log("File Path: " + joined, xbmc.LOGERROR)
+                        if exists(joined):
+                            xbmc.log("provided file exists", xbmc.LOGERROR)
+                            rename(joined, join(settings.getSFFolder(translate=True), new_name))
+                        else:
+                            xbmc.log("provided file does not exists", xbmc.LOGERROR)
+                        
+            del database
+            del cursor
+            epgDb.close()
+            del epgDb
+        
 
 '''
 Reference to EPG kodi controls.
@@ -479,6 +546,7 @@ class EPGControl(object):
     class image(object):
         BACKGROUND = 4600
         TIME_MARKER = 4100
+        CHANNEL_LOGO   = 4031
         
     '''
     Labels references
@@ -494,7 +562,6 @@ class EPGControl(object):
         PROGRAM_DESCRIPTION = 4022
         PROGRAM_TIME = 4021
         
-        CHANNEL_DETAIL   = 4030
-        
+        CHANNEL_NAME   = 4030
         
         

@@ -2,7 +2,7 @@
 import xbmc, xbmcgui  
 
 from resources.lib import EPGXML, superfavourites
-from resources.lib.EPGCtl import EPGGridView, SplashScreen
+from resources.lib.EPGCtl import EPGGridView, SplashScreen, EditWindow
 from resources.lib import strings, settings
 from resources.lib.utils import connectEpgDB
 
@@ -30,7 +30,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epgView = EPGGridView(self)
         loading = SplashScreen(self, self.epgView.width, self.epgView.bottom)
         loading.start()
-        self.epgDb   = EPGXML.EpgDb(database, cursor)
+        self.epgDb = EPGXML.EpgDb(database, cursor)
         self.epgView.setGlobalDataGrid(self.epgDb.getEpgGrid())      
         self.epgView.displayChannels()
         self.epgView.setFocus(0, 0)
@@ -65,9 +65,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                      
             elif action in [xbmcgui.ACTION_MOVE_DOWN, xbmcgui.ACTION_MOUSE_WHEEL_DOWN]:
                 self.epgView.down()
-            
-            elif action == xbmcgui.ACTION_SELECT_ITEM:
-                self.epgView.setFocusOnActions()
         
         # Controls buttons.
         else:
@@ -83,8 +80,11 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Handle all controls clicks, provide a control ID
     '''
     def onClick(self, controlID):
-        pass
-        
+        editWindow = EditWindow('epg-menu-edit.xml', settings.getAddonPath())
+        c_id, c_name = self.epgView.getChannel()
+        editWindow.setChannel(c_id, c_name)
+        editWindow.doModal()
+        del editWindow
        
     '''
     Handle focusses changes between controls

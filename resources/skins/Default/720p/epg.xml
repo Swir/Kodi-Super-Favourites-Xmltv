@@ -154,6 +154,16 @@
                 <font>font13</font>
                 <aligny>center</aligny>
             </control>
+            
+            
+            <control type="image" id="4031">
+                <posx>1070</posx>
+                <posy>580</posy>
+                <width>80</width>
+                <height>80</height>
+                <visible>true</visible>
+                <aspectratio>keep</aspectratio>
+            </control>
 			            
 
             <control type="image" id="4100">

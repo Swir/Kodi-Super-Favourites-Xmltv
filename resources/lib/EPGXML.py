@@ -22,8 +22,6 @@ from resources.lib.settings import DEBUG, AddonConst, getXMLTVSourceType,\
      isXMLTVCompressed, getCleanupTreshold, useXMLTVSourceLogos, getChannelsLogoPath,\
     useTheTvDBSourceLogos
      
-import xbmc
-
 '''
 Handle XMLTV itself.
 '''
@@ -301,6 +299,7 @@ class EpgXml(object):
         self.progress_bar.create(strings.DIALOG_TITLE, strings.SFX_ICONS_DOWNLOAD)
 
         dest_dir = getChannelsLogoPath() 
+        
         if not isdir(dest_dir):
             mkdir(dest_dir)     
                    
@@ -327,6 +326,7 @@ class EpgXml(object):
             except HTTPError as e:
                 if e.code in [304, 301, 400, 401, 403, 404, 500, 502, 503, 504]:
                     notify(strings.HTTP_DOWNLOAD_LOGO_ERROR, e.message)
+         
         self.progress_bar.close()
             
     
@@ -378,25 +378,26 @@ class EpgDb(object):
     '''
     Update a given channel.
     '''
-    def updateChannel(self, id_channel, cid_channel=None, display_name=None, logo=None, source=None, visible=None):
+    def updateChannel(self, id_channel, display_name=None, logo=None, source=None, visible=None):
         
         try:
             update = "UPDATE channels set "
             
-            if not cid_channel is None:
-                update += 'id_channel="%s",' % (cid_channel, )
-                # Updating programs
-                programs = 'UPDATE programs SET channel="%s" WHERE id_channel="%s"' % (cid_channel, id_channel)
-                self.cursor.execute(programs)
-                self.database.commit()
+            if display_name is not None:
+                update += 'display_name="%s",' % display_name
             
-            update += 'display_name="%s",' % display_name if not display_name is None else ""
-            update += 'logo="%s",' % logo if not logo is None else ""  
-            update += 'source="%s",' % source if not source is None else ""
-            update += 'visible=%i' % 1 if visible else 0 if not visible is None else ""   
-            update += ' WHERE id_channel="%s"' % id_channel
-            update = ''.join(update.rsplit(",", 1)) if visible is None else update
-
+            if not logo is None:
+                update += 'logo="%s",' % logo
+                
+            if not source is None:
+                update += 'source="%s",' % source
+            
+            if not visible is None:
+                update += 'visible=%i,' % 0 if not visible else 1   
+            
+            update += ' WHERE id=%i' % id_channel
+            update = ''.join(update.rsplit(",", 1))
+            
             self.cursor.execute(update) 
             self.database.commit()
             
@@ -474,30 +475,6 @@ class EpgDb(object):
         except SqliteError as e:
             if DEBUG:
                 notify(strings.ADDING_PROGRAM_ERROR, e.message)
-            return False
-        return True
-    
-    
-    '''
-    Update a program into the tale.
-    '''
-    def updateProgram(self, id_program, channel=None, title=None, start_date=None, end_date=None, description=None):
-        try:
-            update = "UPDATE programs set "
-            update += 'channel="%s",' % channel if not channel is None else ""
-            update += 'title="%s",' % title if not title is None else ""
-            update += 'start_date="%s",' % start_date if not start_date is None else ""
-            update += 'end_date="%s",' % end_date if not end_date is None else ""
-            update += 'description="%s" ,' % description if not description is None else ""
-            update += ' WHERE id_program=%i' % id_program
-            update = ''.join(update.rsplit(",", 1))
-
-            self.cursor.execute(update) 
-            self.database.commit()
-            
-        except SqliteError as e:
-            if DEBUG:
-                notify(strings.UPDATE_PROGRAM_ERROR, e.message)
             return False
         return True
     
