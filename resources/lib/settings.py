@@ -255,6 +255,23 @@ Return true if we will use thetvdblogo as channels icons source
 def useTheTvDBSourceLogos():
     return True if addon.getSetting('thetvdb.logos') == 'true' else False
 
+
+'''
+Return the maximum 'previous' number of days to load from the programs db
+'''
+def getMaxPrevLoad():
+    load = addon.getSetting('prev.load')
+    return abs( (int(load) + 1 if not load is None or load == '' else 1) - 7) + 1
+
+
+'''
+Return the maximum 'next' number of days to load from the programs db
+'''
+def getMaxNextLoad():
+    load = addon.getSetting('next.load')
+    return abs( (int(load) + 1 if not load is None or load == '' else 1) - 7) + 1
+
+
 '''
 Addon consts
 '''

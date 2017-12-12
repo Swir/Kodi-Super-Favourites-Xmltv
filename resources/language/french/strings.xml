@@ -99,6 +99,9 @@
     <string id="200013">Nettoyer les programmes vieux de plus de </string>
     <string id="200014">Utiliser les logos de chaines du fichier XMLTV (décochez pour n'utiliser que thelogodb)</string>
     <string id="200015">Essayer de trouver les logos manquant sur thelogodb</string>
+    <string id="200016">Diminuez ces valeurs si le plugin est lent au démarrage</string>
+    <string id="200017">Nombre maximum de jours précédents à charger</string>
+    <string id="200018">Nombre maximum de jours suivants à charger</string>
     
     <!-- Settings => Style -->
     <string id="200021">Utiliser un fond pré installé (désactivez pour choisir le vôtre)</string>

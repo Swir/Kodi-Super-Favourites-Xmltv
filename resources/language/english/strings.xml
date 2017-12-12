@@ -99,6 +99,9 @@
     <string id="200013">Cleanup programs older than </string>
     <string id="200014">Use XMLTV channels icons source (uncheck to only use thelogodb)</string>
     <string id="200015">Try to find missed channels icons on TheLogoDB website</string>
+    <string id="200016">Decrease these values if you're encountering long loading times at startup</string>
+    <string id="200017">Max previous days to load from programs DB</string>
+    <string id="200018">Max next days to load from programs DB</string>
     
     <!-- Settings => Style -->
     <string id="200021">Use built in background ( disable this to use a custom one )</string>

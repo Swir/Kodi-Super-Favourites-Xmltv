@@ -8,6 +8,11 @@
         <setting id="cleanup.treshold"  type="enum" label="200013"  lvalues="200131|200132|200133|200134|200135|200136|200137" />
         <setting id="xmltv.logos"  type="bool" label="200014"  default="true"/>
         <setting id="thetvdb.logos"  type="bool" label="200015"  default="true"/>
+        
+        <setting type="lsep" label="200016"/>
+        <setting id = "prev.load" type="enum" label="200017" lvalues="200137|200136|200135|200134|200133|200132|200131"/>
+        <setting id = "next.load" type="enum" label="200018" lvalues="200137|200136|200135|200134|200133|200132|200131"/>
+        
     </category>
     
     <category label="200002">    

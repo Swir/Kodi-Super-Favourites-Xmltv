@@ -20,7 +20,7 @@ from resources.lib.utils import strToDatetime, notify, copyfile
 from resources.lib.settings import DEBUG, AddonConst, getXMLTVSourceType,\
      getEpgXmlFilePath, getAddonUserDataPath, getXMLTVURLLocal, getXMLTVURLRemote, \
      isXMLTVCompressed, getCleanupTreshold, useXMLTVSourceLogos, getChannelsLogoPath,\
-    useTheTvDBSourceLogos
+     useTheTvDBSourceLogos, getMaxNextLoad, getMaxPrevLoad
      
 '''
 Handle XMLTV itself.
@@ -511,9 +511,14 @@ class EpgDb(object):
     '''
     Return all programs for a given channel
     ''' 
-    def getChannelPrograms(self, id_channel):
+    def getChannelPrograms(self, id_channel, start, stop):
         try:
-            get = 'SELECT * FROM programs WHERE channel="%s" ORDER BY start_date ASC' % id_channel
+            
+            get = '''
+                  SELECT * FROM programs 
+                  WHERE channel="%s" AND ( CAST(start_date as INTEGER ) BETWEEN %i AND %i )
+                  ORDER BY start_date ASC
+                  ''' % ( id_channel, int(start), int(stop) )
             self.cursor.execute(get)
             return self.cursor.fetchall()
         except SqliteError as e:
@@ -546,9 +551,13 @@ class EpgDb(object):
         channels = self.getAllChannels()
         
         grid = []
+        
+        now = datetime.now()
+        start = (now - timedelta(days=getMaxPrevLoad())).strftime("%Y%m%d%H%M%S")
+        stop  = (now + timedelta(days=getMaxNextLoad())).strftime("%Y%m%d%H%M%S")
                              
         for channel in channels:
-            programs = self.getChannelPrograms(channel[1])
+            programs = self.getChannelPrograms(channel[1], start, stop)
             
             programs_list = []
             for program in programs:
