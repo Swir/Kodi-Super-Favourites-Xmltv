@@ -289,18 +289,18 @@ class EPGGridView(object):
             y = self.top + self.cellHeight * idx + int((self.cellHeight / 14))
             
             if not settings.useXMLTVSourceLogos():
-                pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
+                pchannel = xbmcgui.ControlLabel(16, y + 2, 180, self.cellHeight - 8, "[B]" + channel["display_name"] + "[/B]")
             else:
                 logo = channel["logo"]
                 
                 if logo != "" and logo is not None:
                     logo = join(settings.getChannelsLogoPath(), logo)
                     if exists(logo):
-                        pchannel = xbmcgui.ControlImage(16, y -8, 170, self.cellHeight - 2, logo, aspectRatio=2)
+                        pchannel = xbmcgui.ControlImage(16, y + 2, 170, self.cellHeight - 8, logo, aspectRatio=2)
                     else:
-                        pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
+                        pchannel = xbmcgui.ControlLabel(16, y + 2, 180, self.cellHeight - 8, "[B]" + channel["display_name"] + "[/B]")
                 else:
-                    pchannel = xbmcgui.ControlLabel(16, y, 180, self.cellHeight - 2, "[B]" + channel["display_name"] + "[/B]")
+                    pchannel = xbmcgui.ControlLabel(16, y + 2, 180, self.cellHeight - 8, "[B]" + channel["display_name"] + "[/B]")
  
             gridControls.append(pchannel)
             self.labelControls.append(pchannel)
