@@ -10,8 +10,6 @@ from resources.lib.EPGXML import EpgDb
 from resources.lib.utils import strToDatetime, connectEpgDB
 from resources.lib.strings import PROGRAM_NO_INFOS
 
-import xbmc
-
 '''
 Handle View positions.
 '''
@@ -253,11 +251,28 @@ class EPGGridView(object):
     Return a grid portion based on channels count and programs time
     '''
     def __getGridPortion(self):
+        
+        def __removeDuplicates(plist):
+            rem = []
+            for i in range(len(plist)):
+                for y in range(len(plist)):
+                    if y != i and int(plist[y]["start"]) == int(plist[i]["start"]) : 
+                        idx = i if int(plist[y]["end"]) > int(plist[i]["end"]) else y
+                        if not idx in rem:
+                            rem.append( idx ) 
+                        break
+            remrt = []
+            for i in range(len(plist)):
+                if not i in rem:
+                    remrt.append(plist[i])
+            return remrt
+            
+            
         grid = self.globalGrid[self.start_channel_id : self.start_channel_id + settings.getDisplayChannelsCount()]
         tbr = []
         for channel in grid:
             programs = []
-            for program in channel["programs"]:
+            for program in __removeDuplicates(channel["programs"]):
                 
                 stop = strToDatetime(program["end"])
                 start = strToDatetime(program["start"])
@@ -269,7 +284,7 @@ class EPGGridView(object):
                         "display_name" : channel["display_name"], "programs": programs,
                         "logo" : channel["logo"]}) 
         return tbr
-    
+
         
     
     '''                              '''
@@ -520,13 +535,10 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                     # renaming sf directory if 'display names' are used.
                     if not settings.getSFFoldersPattern() == settings.AddonConst.SF_XMLTV_ID_PATTERN:
                         joined = join(settings.getSFFolder(translate=True), self.display_name)
-                        xbmc.log("File Path: " + joined, xbmc.LOGERROR)
                         if exists(joined):
-                            xbmc.log("provided file exists", xbmc.LOGERROR)
                             rename(joined, join(settings.getSFFolder(translate=True), new_name))
                         else:
-                            xbmc.log("provided file does not exists", xbmc.LOGERROR)
-                        
+                            pass                        
             del database
             del cursor
             epgDb.close()

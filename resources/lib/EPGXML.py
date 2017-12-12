@@ -462,10 +462,12 @@ class EpgDb(object):
                 notify(strings.GET_CHANNEL_ERROR, e.message)
         return False
     
+    
     '''
     Add a program into the program table.
     '''
-    def addPrograms(self, program_list):     
+    def addPrograms(self, program_list):  
+                    
         try:
             for program in program_list:
                 program_req = 'INSERT INTO programs (channel, title, start_date, end_date, description) VALUES (?,?,?,?,?)'            
@@ -765,5 +767,3 @@ class TheTvDbLogoChannel():
             
             
         
-        
-                     
