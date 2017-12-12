@@ -35,6 +35,18 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epgView.displayChannels()
         self.epgView.setFocus(0, 0)
         loading.stop()
+        
+    
+    '''
+    Clear available controls.
+    '''
+    def clear(self):
+        self.epgView.is_closing = True
+        xbmc.sleep(1500)
+        self.epgView.reset(clear_grid=True)
+        self.epgDb.close()
+        del self.epgDb
+        del self.epgView
            
             
     '''
@@ -65,14 +77,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
                      
             elif action in [xbmcgui.ACTION_MOVE_DOWN, xbmcgui.ACTION_MOUSE_WHEEL_DOWN]:
                 self.epgView.down()
-        
-        # Controls buttons.
-        else:
-            if action in [xbmcgui.ACTION_MOVE_UP, xbmcgui.ACTION_MOUSE_WHEEL_UP]:
-                self.epgView.superfavs.previous()
-                     
-            elif action in [xbmcgui.ACTION_MOVE_DOWN, xbmcgui.ACTION_MOUSE_WHEEL_DOWN]:
-                self.epgView.superfavs.next()
                     
         
 
@@ -83,11 +87,13 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         editWindow = EditWindow('epg-menu-edit.xml', settings.getAddonPath())
         c_id, c_name = self.epgView.getChannel()
         editWindow.setChannel(c_id, c_name)
+        editWindow.setParent(self)
         editWindow.doModal()
         del editWindow
        
+       
     '''
-    Handle focusses changes between controls
+    Handle focuses changes between controls
     '''
     def onFocus(self, controlID):
         

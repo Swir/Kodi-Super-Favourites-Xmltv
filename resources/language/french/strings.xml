@@ -80,7 +80,14 @@
     <string id="300069">Erreur en modifiant une chaîne</string>
     <string id="3000610">Erreur en ajoutant une chaîne</string>
     <string id="3000611">Aucune info disponible</string>
-      
+    
+    <!-- --------------------------------------------- -->
+    <!-- --------Edit window interface strings-------- -->
+    <!-- --------------------------------------------- --> 
+    <string id="40001">Quitter</string>
+    <string id="40002">Renommer la chaine</string>
+    <string id="40003">Masquer la chaine</string> 
+    <string id="40004">Chaine:</string>   
   
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

@@ -8,9 +8,10 @@ from xbmc import abortRequested
 from resources.lib import settings
 from resources.lib.EPGXML import EpgDb
 from resources.lib.utils import strToDatetime, connectEpgDB
-from resources.lib.strings import PROGRAM_NO_INFOS
+from resources.lib.strings import PROGRAM_NO_INFOS, ACTIONS_QUIT_WINDOW, \
+     ACTIONS_RENAME_CHANNEL, ACTIONS_HIDE_CHANNEL, ACTIONS_EDIT_CHANNEL
 
-'''
+''' 
 Handle View positions.
 '''
 
@@ -487,22 +488,24 @@ Edit channel popup window
 class EditWindow(xbmcgui.WindowXMLDialog):
     
     display_name = id_channel = None
+    titleLabel = None
+    parent = None
         
     def __init__(self, strXMLname, strFallbackPath):       
         xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
-        self.addControl(xbmcgui.ControlLabel(x=25, y=25, width=500, height=25, label="Test"))    
-    
-    
+        
     
     '''
     Window init.
     '''
     def onInit(self):
         xbmcgui.WindowXMLDialog.onInit(self)
-        #self.getControl(4101).setLabel(ACTIONS_EDIT_CHANNEL + " " + self.display_name)
-        #self.getControl(4000).setLabel(ACTIONS_HIDE_CHANNEL)
-        #self.getControl(4001).setLabel(ACTIONS_RENAME_CHANNEL)
-        #self.getControl(4002).setLabel(ACTIONS_QUIT_WINDOW)
+        self.titleLabel = self.getControl(4101)
+        self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + " " + self.display_name)
+        
+        self.getControl(4000).setLabel(ACTIONS_HIDE_CHANNEL)
+        self.getControl(4001).setLabel(ACTIONS_RENAME_CHANNEL)
+        self.getControl(4002).setLabel(ACTIONS_QUIT_WINDOW)
                 
         
     '''
@@ -511,12 +514,22 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     def setChannel(self, c_id, c_name):
         self.display_name = c_name
         self.id_channel = c_id
+    
+    
+    
+    '''
+    Set the parent window
+    '''
+    def setParent(self, parentWindow):
+        self.parent = parentWindow   
         
         
     '''
     Handle clicks actions.
     '''
     def onClick(self, controlId):
+        self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + " " + self.display_name)
+        
         if controlId == 4002:
             self.close()
         
@@ -543,6 +556,11 @@ class EditWindow(xbmcgui.WindowXMLDialog):
             del cursor
             epgDb.close()
             del epgDb
+            if not self.parent is None:
+                self.parent.clear()
+                self.parent.onInit()
+        
+        
         
 
 '''

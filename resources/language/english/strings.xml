@@ -80,7 +80,14 @@
     <string id="300069">Error updating a channel</string>
     <string id="3000610">Error adding a channel</string>
     <string id="3000611">No data available</string>
-       
+    
+    <!-- --------------------------------------------- -->
+    <!-- --------Edit window interface strings-------- -->
+    <!-- --------------------------------------------- --> 
+    <string id="40001">Quit</string>
+    <string id="40002">Rename channel</string>  
+    <string id="40003">Hide channel</string>  
+    <string id="40004">Channel:</string>  
     
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

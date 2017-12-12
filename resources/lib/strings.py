@@ -83,3 +83,9 @@ UPDATE_CHANNEL_ERROR       = plugin.addon.getLocalizedString(300069)
 ADDING_CHANNEL_ERROR       = plugin.addon.getLocalizedString(3000610)
 PROGRAM_NO_INFOS           = plugin.addon.getLocalizedString(3000611)
 
+# Edit window actions
+ACTIONS_QUIT_WINDOW    = plugin.addon.getLocalizedString(40001)
+ACTIONS_RENAME_CHANNEL = plugin.addon.getLocalizedString(40002)
+ACTIONS_HIDE_CHANNEL   = plugin.addon.getLocalizedString(40003)
+ACTIONS_EDIT_CHANNEL   = plugin.addon.getLocalizedString(40004)
+
