@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 import xbmcgui
-from os import rename
+from os import rename, mkdir
 from os.path import join, exists
+from shutil import copy2 as copy
+from uuid import uuid4
 from datetime import timedelta, datetime
 from threading import Timer
 from xbmc import abortRequested
 from resources.lib import settings
 from resources.lib.EPGXML import EpgDb
-from resources.lib.utils import strToDatetime, connectEpgDB
+from resources.lib.utils import strToDatetime, connectEpgDB, notify
 from resources.lib.strings import PROGRAM_NO_INFOS, ACTIONS_QUIT_WINDOW, \
      ACTIONS_RENAME_CHANNEL, ACTIONS_HIDE_CHANNEL, ACTIONS_EDIT_CHANNEL, \
-     ACTIONS_LOGO_UPDATE, ACTIONS_PROGRAM_START, ACTIONS_PROGRAM_REMIND, ACTIONS_PROGRAM_LABEL
+     ACTIONS_LOGO_UPDATE, ACTIONS_PROGRAM_START, ACTIONS_PROGRAM_REMIND, \
+     ACTIONS_PROGRAM_LABEL, EDIT_LOGO_HEADER, EDIT_LOGO_THE_LOGODB, \
+     EDIT_LOGO_FROM_LOCAL, EDIT_LOGO_ERROR
 
 ''' 
 Handle View positions.
@@ -555,17 +559,21 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     def onClick(self, controlId):
         self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + "[CR]" + self.display_name)
         
+        # Close
         if controlId == EditControls.QUIT:
             self.close()
         
-        elif controlId in [EditControls.CHANNEL_HIDE, EditControls.CHANNEL_RENAME]:
+        # Channel actions
+        elif controlId in [EditControls.CHANNEL_HIDE, EditControls.CHANNEL_RENAME, 
+                           EditControls.CHANNEL_LOGO_UPDATE]:
             database, cursor = connectEpgDB()
             epgDb = EpgDb(database, cursor)
             
-            # Hide channel from EPG and exit current window.
+            # Hide channel from EPG
             if controlId == EditControls.CHANNEL_HIDE:
                 epgDb.updateChannel(self.id_channel, visible=False)
             
+            # Rename the current channel.
             elif controlId == EditControls.CHANNEL_RENAME:
                 new_name = xbmcgui.Dialog().input("ACTIONS_RENAME_TITLE", self.display_name)
                 if not new_name is None or new_name == "":
@@ -576,7 +584,28 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                         if exists(joined):
                             rename(joined, join(settings.getSFFolder(translate=True), new_name))
                         else:
-                            pass                        
+                            mkdir(join(settings.getSFFolder(translate=True), new_name))  
+            # Update channel logo
+            elif controlId == EditControls.CHANNEL_LOGO_UPDATE:
+                source = xbmcgui.Dialog().select(EDIT_LOGO_HEADER, [EDIT_LOGO_FROM_LOCAL, EDIT_LOGO_THE_LOGODB])    
+                
+                # Start local source dialog browser
+                if source == 0:
+                    n_logo = xbmcgui.Dialog().browse(2, EDIT_LOGO_HEADER, 'files')
+                    if not n_logo is None:
+                        name = str(uuid4()) + n_logo[n_logo.rfind(r".") :]
+                        dest = join(settings.getChannelsLogoPath(), name)
+                        try:
+                            copy(n_logo, dest)
+                            epgDb.updateChannel(self.id_channel, logo=name)
+                        except:
+                            if settings.DEBUG:
+                                notify(EDIT_LOGO_ERROR)
+                                
+                # Start TheLogoDb search       
+                elif source == 1:
+                    pass
+                             
             del database
             del cursor
             epgDb.close()
@@ -585,6 +614,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                 self.parent.clear()
                 self.parent.onInit()
         
+        # Program actions.
 
 '''
 Reference to EPG kodi controls.

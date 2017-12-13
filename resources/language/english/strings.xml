@@ -92,6 +92,9 @@
     <string id="40006">Watch</string>  
     <string id="40007">Remind me</string> 
     <string id="40008">Program:</string> 
+    <string id="40009">Select a logo stored on computer</string> 
+    <string id="40010">Select a logo from TheLogoDb website</string> 
+    <string id="40011">Select source</string> 
     
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

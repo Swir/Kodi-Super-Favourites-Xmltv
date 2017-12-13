@@ -91,7 +91,10 @@
     <string id="40005">Changer le logo</string> 
     <string id="40006">Regarder</string>  
     <string id="40007">Me rappeler</string>
-    <string id="40008">Programme:</string>    
+    <string id="40008">Programme:</string> 
+    <string id="40009">Selectionner un logo sur mon ordinateur</string> 
+    <string id="40010">Selectionner un logo à partir du site TheLogoDb</string> 
+    <string id="40011">Select source</string>    
   
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

@@ -92,5 +92,8 @@ ACTIONS_LOGO_UPDATE    = plugin.addon.getLocalizedString(40005)
 ACTIONS_PROGRAM_START  = plugin.addon.getLocalizedString(40006)
 ACTIONS_PROGRAM_REMIND = plugin.addon.getLocalizedString(40007)
 ACTIONS_PROGRAM_LABEL  = plugin.addon.getLocalizedString(40008)
-
+EDIT_LOGO_FROM_LOCAL   = plugin.addon.getLocalizedString(40009)
+EDIT_LOGO_THE_LOGODB   = plugin.addon.getLocalizedString(40010)
+EDIT_LOGO_HEADER       = plugin.addon.getLocalizedString(40011)
+EDIT_LOGO_ERROR        = plugin.addon.getLocalizedString(40012)
 
