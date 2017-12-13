@@ -218,12 +218,12 @@ class EpgXml(object):
                     icon = channel.getElementsByTagName('icon')[0].getAttribute('src').encode('utf-8', 'ignore')
             
                 elif useTheTvDBSourceLogos():
-                    search = TheTvDbLogoChannel(display_name)
+                    search = TheLogoDbChannel(display_name)
                     if search.search():
                         icon = search.getLogo()
             
             elif useTheTvDBSourceLogos():
-                search = TheTvDbLogoChannel(display_name)
+                search = TheLogoDbChannel(display_name)
                 if search.search():
                     icon = search.getLogo()
                     
@@ -724,7 +724,7 @@ class EpgDb(object):
 '''
 Handle the tv db channels icons.
 '''
-class TheTvDbLogoChannel():
+class TheLogoDbChannel():
         
         data = None
         
@@ -764,6 +764,22 @@ class TheTvDbLogoChannel():
             elif not self.data["channels"][0]['strLogoSquareBW'] is None:
                 logo = self.data["channels"][0]["strLogoSquareBW"]
             return logo
+         
+         
+        '''
+        Return all available logos
+        '''   
+        def getLogos(self):
+            logos_list = []
+            for channel in self.data["channels"]:
+                if not channel['strLogoWide'] is None:
+                    logos_list.append(channel["strLogoWide"])
+                elif not channel['strLogoWideBW'] is None:
+                    logos_list.append(channel["strLogoWideBW"])
+                elif not channel['strLogoSquare'] is None:
+                    logos_list.append(channel["strLogoSquare"])
+                elif not channel['strLogoSquareBW'] is None:
+                    logos_list.append(channel["strLogoSquareBW"])
             
-            
+            return logos_list
         

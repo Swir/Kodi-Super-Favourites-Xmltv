@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window type="dialog">
+	<allowoverlay>no</allowoverlay>
+	<defaultcontrol always="false">50</defaultcontrol>
+	<coordinates>
+		<system>1</system>
+		<posx>1000</posx>
+		<posy>0</posy>
+	</coordinates>
+    <animation effect="slide" start="0,720" end="0,0" time="300">WindowOpen</animation>
+    <animation effect="slide" start="0,0" end="0,720" time="300">WindowClose</animation>
+    <controls>
+
+        <control type="image">
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>280</width>
+            <height>620</height>
+            <texture>popups/glasspane.png</texture>
+        </control>
+        <control type="image">
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>280</width>
+            <height>720</height>
+            <texture>popups/glasspane.png</texture>
+        </control>
+
+        <!-- Title label -->
+        <control type="label" id="5000">
+            <posx>20</posx>
+            <posy>50</posy>
+            <width>240</width>
+            <height>50</height>
+            <align>center</align>
+            <aligny>center</aligny>
+            <font>font13</font>
+            <textcolor>ffffffff</textcolor>
+            <wrapmultiline>true</wrapmultiline>
+        </control>
+        
+        
+        <control type="list" id="50">
+            <description>My first list container</description>
+            <left>20</left>
+            <top>120</top>
+            <width>550</width>
+            <height>430</height>
+            <visible>true</visible>
+            <onup>2</onup>
+            <ondown>3</ondown>
+            <onleft>1</onleft>
+            <onright>1</onright>
+            <viewtype label="3D list">list</viewtype>
+            <orientation>vertical</orientation>
+            <pagecontrol>25</pagecontrol>
+            <autoscroll>false</autoscroll>
+            <scrolltime tween="sine" easing="out">200</scrolltime>
+            <itemlayout width="250" height="90">
+                <control type="image">
+                        <left>5</left>
+                        <top>3</top>
+                        <width>66</width>
+                        <height>66</height>
+                        <aspectratio>keep</aspectratio>
+                        <info>ListItem.Icon</info>
+                </control>
+                <control type="label">
+                        <left>82</left>
+                        <top>3</top>
+                        <width>460</width>
+                        <height>66</height>
+                        <font>font13</font>
+                        <aligny>center</aligny>
+                        <align>left</align>
+                        <info>ListItem.Label</info>
+                </control>
+                <control type="label">
+                        <left>475</left>
+                        <top>3</top>
+                        <width>300</width>
+                        <height>66</height>
+                        <font>font13</font>
+                        <aligny>center</aligny>
+                        <align>right</align>
+                        <info>ListItem.Label2</info>
+                </control>
+              </itemlayout>
+              <focusedlayout height="90" width="250">
+                <control type="image">
+                        <width>485</width>
+                        <height>88</height>
+                        <left>0</left>
+                        <top>3</top>
+                        <visible>Control.HasFocus(50)</visible>
+                        <texture>popups/grey.png</texture>
+                </control>
+                <control type="image">
+                        <left>5</left>
+                        <top>3</top>
+                        <width>88</width>
+                        <height>88</height>
+                        <info>ListItem.Icon</info>
+                        <aspectratio>keep</aspectratio>
+                </control>
+                <control type="label">
+                        <left>88</left>
+                        <top>3</top>
+                        <width>430</width>
+                        <height>66</height>
+                        <font>font13</font>
+                        <aligny>center</aligny>
+                        <align>left</align>
+                        <info>ListItem.Label</info>
+                </control>
+                <control type="label">
+                        <left>475</left>
+                        <top>3</top>
+                        <width>300</width>
+                        <height>66</height>
+                        <font>font13</font>
+                        <aligny>center</aligny>
+                        <align>right</align>
+                        <info>ListItem.Label2</info>
+                </control>
+              </focusedlayout>
+        </control>
+        
+        
+        <control type="button" id="5002">
+            <posx>20</posx>
+            <posy>590</posy>
+            <width>240</width>
+            <height>50</height>
+            <texturefocus>popups/grey-focus.png</texturefocus>
+            <texturenofocus>popups/grey.png</texturenofocus>
+            <align>center</align>
+            <aligny>center</aligny>
+            <font>font13</font>
+            <textcolor>ffffffff</textcolor>        
+        </control>
+        
+         
+         <!-- Quit button -->
+        <control type="button" id="5001">
+            <posx>20</posx>
+            <posy>650</posy>
+            <width>240</width>
+            <height>50</height>
+            <texturefocus>popups/grey-focus.png</texturefocus>
+            <texturenofocus>popups/grey.png</texturenofocus>
+            <align>center</align>
+            <aligny>center</aligny>
+            <font>font13</font>
+            <textcolor>ffffffff</textcolor>        
+        </control>
+        
+    </controls>
+</window>

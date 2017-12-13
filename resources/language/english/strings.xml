@@ -95,7 +95,12 @@
     <string id="40009">Select a logo stored on computer</string> 
     <string id="40010">Select a logo from TheLogoDb website</string> 
     <string id="40011">Select source</string> 
-    
+    <string id="40012">Error getting this logo</string> 
+    <string id="40013">No logo found for this channel</string>
+    <string id="40014">Searching for logos</string> 
+    <string id="40015">Choose the appropriate logo</string>
+    <string id="40016">Select</string>   
+       
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->
     <!-- --------------------------------------------- -->
@@ -111,7 +116,7 @@
     <string id="200011">Update EPG on Kodi startup</string>
     <string id="200012">Update Frequency</string>
     <string id="200013">Cleanup programs older than </string>
-    <string id="200014">Use XMLTV channels icons source (uncheck to only use thelogodb)</string>
+    <string id="200014">Use XMLTV channels icons source (uncheck to only use TheLogoDb)</string>
     <string id="200015">Try to find missed channels icons on TheLogoDB website</string>
     <string id="200016">Decrease these values if you're encountering long loading times at startup</string>
     <string id="200017">Max previous days to load from programs DB</string>

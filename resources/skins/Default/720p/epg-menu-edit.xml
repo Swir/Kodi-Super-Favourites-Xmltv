@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window type="dialog">
 	<allowoverlay>no</allowoverlay>
-	<defaultcontrol always="false">4000</defaultcontrol>
+	<defaultcontrol always="false">3998</defaultcontrol>
 	<coordinates>
 		<system>1</system>
 		<posx>1000</posx>
@@ -48,7 +48,7 @@
         
         <control type="label" id="4101">
             <posx>20</posx>
-            <posy>250</posy>
+            <posy>300</posy>
             <width>240</width>
             <height>50</height>
             <align>center</align>
@@ -90,7 +90,7 @@
 
         <control type="button" id="4000">
             <posx>20</posx>
-            <posy>320</posy>
+            <posy>370</posy>
             <width>240</width>
             <height>50</height>
             <texturefocus>popups/grey-focus.png</texturefocus>
@@ -105,7 +105,7 @@
 
         <control type="button" id="4001">
             <posx>20</posx>
-            <posy>380</posy>
+            <posy>430</posy>
             <width>240</width>
             <height>50</height>
             <texturefocus>popups/grey-focus.png</texturefocus>
@@ -120,7 +120,7 @@
         
         <control type="button" id="4003">
             <posx>20</posx>
-            <posy>440</posy>
+            <posy>490</posy>
             <width>240</width>
             <height>50</height>
             <texturefocus>popups/grey-focus.png</texturefocus>

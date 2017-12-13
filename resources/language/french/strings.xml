@@ -95,6 +95,11 @@
     <string id="40009">Selectionner un logo sur mon ordinateur</string> 
     <string id="40010">Selectionner un logo à partir du site TheLogoDb</string> 
     <string id="40011">Select source</string>    
+    <string id="40012">Erreur en récupérant le logo</string> 
+    <string id="40013">Aucun logo trouvé pour cette chaine</string> 
+    <string id="40014">Recherche de logos</string> 
+    <string id="40015">Choisissez le logo approprié</string> 
+    <string id="40016">Sélectionner</string> 
   
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->
@@ -112,7 +117,7 @@
     <string id="200012">Fréquence de mise à jour</string>
     <string id="200013">Nettoyer les programmes vieux de plus de </string>
     <string id="200014">Utiliser les logos de chaines du fichier XMLTV (décochez pour n'utiliser que thelogodb)</string>
-    <string id="200015">Essayer de trouver les logos manquant sur thelogodb</string>
+    <string id="200015">Essayer de trouver les logos manquant sur TheLogoDb</string>
     <string id="200016">Diminuez ces valeurs si le plugin est lent au démarrage</string>
     <string id="200017">Nombre maximum de jours précédents à charger</string>
     <string id="200018">Nombre maximum de jours suivants à charger</string>

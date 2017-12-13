@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import xbmcgui
+import xbmcgui, xbmc
 from os import rename, mkdir
 from os.path import join, exists
 from shutil import copy2 as copy
@@ -8,17 +8,18 @@ from datetime import timedelta, datetime
 from threading import Timer
 from xbmc import abortRequested
 from resources.lib import settings
-from resources.lib.EPGXML import EpgDb
+from resources.lib.EPGXML import EpgDb, TheLogoDbChannel
 from resources.lib.utils import strToDatetime, connectEpgDB, notify
 from resources.lib.strings import PROGRAM_NO_INFOS, ACTIONS_QUIT_WINDOW, \
      ACTIONS_RENAME_CHANNEL, ACTIONS_HIDE_CHANNEL, ACTIONS_EDIT_CHANNEL, \
      ACTIONS_LOGO_UPDATE, ACTIONS_PROGRAM_START, ACTIONS_PROGRAM_REMIND, \
      ACTIONS_PROGRAM_LABEL, EDIT_LOGO_HEADER, EDIT_LOGO_THE_LOGODB, \
-     EDIT_LOGO_FROM_LOCAL, EDIT_LOGO_ERROR
+     EDIT_LOGO_FROM_LOCAL, EDIT_LOGO_ERROR, EDIT_NO_LOGO_FOUND, DIALOG_TITLE, \
+     SFX_ICONS_DOWNLOAD, EDIT_LOGOS_SEARCH, EDIT_CHOOSE_LOGO, EDIT_CHOOSE_FROM_SELECT
 
 ''' 
 Handle View positions.
-'''
+''' 
 
 class EPGGridView(object):
     
@@ -584,7 +585,11 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                         if exists(joined):
                             rename(joined, join(settings.getSFFolder(translate=True), new_name))
                         else:
-                            mkdir(join(settings.getSFFolder(translate=True), new_name))  
+                            mkdir(join(settings.getSFFolder(translate=True), new_name)) 
+                        
+                        self.display_name = new_name
+                        self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + "[CR]" + self.display_name)
+ 
             # Update channel logo
             elif controlId == EditControls.CHANNEL_LOGO_UPDATE:
                 source = xbmcgui.Dialog().select(EDIT_LOGO_HEADER, [EDIT_LOGO_FROM_LOCAL, EDIT_LOGO_THE_LOGODB])    
@@ -601,10 +606,64 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                         except:
                             if settings.DEBUG:
                                 notify(EDIT_LOGO_ERROR)
+                            del database
+                            del cursor
+                            epgDb.close()
+                            del epgDb
+                            return
                                 
                 # Start TheLogoDb search       
                 elif source == 1:
-                    pass
+                    thelogodb = TheLogoDbChannel(self.display_name)
+                    if thelogodb.search():
+                        progress = xbmcgui.DialogProgress()
+                        progress.create(DIALOG_TITLE, SFX_ICONS_DOWNLOAD)
+                        
+                        # Display found logos.
+                        logos = thelogodb.getLogos()
+                        logos_local = []
+                        win_logo = LogoEditWindowXML('logo-edit-window.xml', settings.getAddonPath())
+                        
+                        import ssl
+                        from urllib2 import urlopen, HTTPError
+                        from os.path import isdir
+                        from shutil import rmtree
+                        
+                        ssl._create_default_https_context = ssl._create_unverified_context
+                        dest_dir = join(xbmc.translatePath("special://home/temp"), "logos_tmp")
+        
+                        if not isdir(dest_dir):
+                            mkdir(dest_dir) 
+                        i = 1
+                        for logo in logos:
+                            progress.update(int( ( i / float(len(logos)) ) * 100), "", EDIT_LOGOS_SEARCH)
+                            try:
+                                if not logo is None:
+                                    dest_file = join(dest_dir, logo[logo.rfind(r"/") + 1 :])
+                                    download = urlopen(logo, timeout=30)
+         
+                                    tsf = open(dest_file, "w")
+                                    tsf.write(download.read())
+                                    tsf.close()
+                                    del tsf   
+                                    logos_local.append(dest_file)  
+                                    i += 1                       
+                            except HTTPError as e:
+                                if e.code in [304, 301, 400, 401, 403, 404, 500, 502, 503, 504]:
+                                    notify(EDIT_LOGO_ERROR)  
+                                progress.close()      
+                        
+                        progress.close()
+                        
+                        win_logo.addToList(logos_local)  
+                        win_logo.id_channel = self.id_channel                            
+                        win_logo.doModal()
+                        del win_logo
+                        rmtree(dest_dir)
+                         
+                    else:
+                        xbmcgui.Dialog().ok(EDIT_LOGO_HEADER, EDIT_NO_LOGO_FOUND)
+                        
                              
             del database
             del cursor
@@ -615,6 +674,95 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                 self.parent.onInit()
         
         # Program actions.
+        
+        
+'''
+Create a window that can be use in many configuration situations.
+'''
+class LogoEditWindowXML(xbmcgui.WindowXMLDialog):
+    
+    init = False
+    list_items = None
+    list_items_controls = None
+    listItemsContainer = None
+    id_channel = 0
+    
+    '''
+    init
+    '''
+    def __init__(self, strXMLname, strFallbackPath):
+        xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
+
+
+    '''
+    Gui init.
+    '''
+    def onInit(self):
+        xbmcgui.WindowXMLDialog.onInit(self)
+        self.getControl(5000).setLabel(EDIT_CHOOSE_LOGO)
+        self.getControl(5001).setLabel(ACTIONS_QUIT_WINDOW)
+        self.getControl(5002).setLabel(EDIT_CHOOSE_FROM_SELECT)
+        self.listItemsContainer = self.getControl(50)
+        self.listItemsContainer.addItems(self.list_items_controls)
+        if len(self.list_items_controls) > 0:
+            self.listItemsContainer.selectItem(0)
+        
+    
+    '''
+    Add items to items list
+    ''' 
+    def addToList(self, liste):
+        self.list_items = []
+        self.list_items_controls = []
+        
+        i = 1
+        for item in liste:
+            self.list_items.append(item)
+            it = xbmcgui.ListItem(label="Logo " + str(i), iconImage=item)
+            self.list_items_controls.append(it)
+            i +=  1
+            
+    
+    '''
+    Handle onClick actions.
+    '''    
+    def onClick(self, controlId):
+        if controlId == 5001:
+            self.close()
+        
+        elif controlId == 5002:
+            logo = self.list_items[self.getControl(50).getSelectedPosition()]
+            if not logo is None:
+                database, cursor = connectEpgDB()
+                epgDb = EpgDb(database, cursor)
+                
+                name = str(uuid4()) + logo[logo.rfind(r".") :]
+                dest = join(settings.getChannelsLogoPath(), name)
+                try:
+                    copy(logo, dest)
+                    epgDb.updateChannel(self.id_channel, logo=name)
+                except:
+                    if settings.DEBUG:
+                        notify(EDIT_LOGO_ERROR)
+                    del database
+                    del cursor
+                    epgDb.close()
+                    del epgDb
+                    return
+                self.close()
+                
+     
+    '''
+    Handle window exit
+    '''   
+    def onAction(self, action):
+        if action in [xbmcgui.ACTION_PREVIOUS_MENU, xbmcgui.ACTION_NAV_BACK]:
+            self.close() 
+        
+        if action in [xbmcgui.ACTION_MOVE_LEFT, xbmcgui.ACTION_MOVE_RIGHT, 
+                      xbmcgui.ACTION_SELECT_ITEM, xbmcgui.ACTION_MOUSE_DOUBLE_CLICK]:
+            self.setFocus(self.getControl(5002))
+            
 
 '''
 Reference to EPG kodi controls.
