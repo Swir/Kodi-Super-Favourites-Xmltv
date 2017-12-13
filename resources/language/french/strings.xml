@@ -87,7 +87,11 @@
     <string id="40001">Quitter</string>
     <string id="40002">Renommer la chaine</string>
     <string id="40003">Masquer la chaine</string> 
-    <string id="40004">Chaine:</string>   
+    <string id="40004">Chaine:</string>  
+    <string id="40005">Changer le logo</string> 
+    <string id="40006">Regarder</string>  
+    <string id="40007">Me rappeler</string>
+    <string id="40008">Programme:</string>    
   
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

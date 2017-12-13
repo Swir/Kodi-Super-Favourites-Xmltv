@@ -85,8 +85,10 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     '''
     def onClick(self, controlID):
         editWindow = EditWindow('epg-menu-edit.xml', settings.getAddonPath())
-        c_id, c_name = self.epgView.getChannel()
+        c_id, c_name  = self.epgView.getChannel()
+        p_id, p_title = self.epgView.getProgram(controlID)
         editWindow.setChannel(c_id, c_name)
+        editWindow.setProgram(p_id, p_title)
         editWindow.setParent(self)
         editWindow.doModal()
         del editWindow
@@ -101,9 +103,6 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
             self.epgView.isControlBox = False
             self.epgView.setInfos(controlID) 
         
-        elif self.epgView.isControlBoxControl(controlID):
-            self.epgView.isControlBox = True
-            
 
 ''''''''''''''''''''''''''''''
 '''    Plugin entry point. '''

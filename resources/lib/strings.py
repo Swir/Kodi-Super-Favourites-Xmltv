@@ -88,4 +88,9 @@ ACTIONS_QUIT_WINDOW    = plugin.addon.getLocalizedString(40001)
 ACTIONS_RENAME_CHANNEL = plugin.addon.getLocalizedString(40002)
 ACTIONS_HIDE_CHANNEL   = plugin.addon.getLocalizedString(40003)
 ACTIONS_EDIT_CHANNEL   = plugin.addon.getLocalizedString(40004)
+ACTIONS_LOGO_UPDATE    = plugin.addon.getLocalizedString(40005)
+ACTIONS_PROGRAM_START  = plugin.addon.getLocalizedString(40006)
+ACTIONS_PROGRAM_REMIND = plugin.addon.getLocalizedString(40007)
+ACTIONS_PROGRAM_LABEL  = plugin.addon.getLocalizedString(40008)
+
 

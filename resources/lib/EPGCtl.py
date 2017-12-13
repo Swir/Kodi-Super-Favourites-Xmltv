@@ -9,7 +9,8 @@ from resources.lib import settings
 from resources.lib.EPGXML import EpgDb
 from resources.lib.utils import strToDatetime, connectEpgDB
 from resources.lib.strings import PROGRAM_NO_INFOS, ACTIONS_QUIT_WINDOW, \
-     ACTIONS_RENAME_CHANNEL, ACTIONS_HIDE_CHANNEL, ACTIONS_EDIT_CHANNEL
+     ACTIONS_RENAME_CHANNEL, ACTIONS_HIDE_CHANNEL, ACTIONS_EDIT_CHANNEL, \
+     ACTIONS_LOGO_UPDATE, ACTIONS_PROGRAM_START, ACTIONS_PROGRAM_REMIND, ACTIONS_PROGRAM_LABEL
 
 ''' 
 Handle View positions.
@@ -165,7 +166,15 @@ class EPGGridView(object):
     def getChannel(self, x=None, y=None):
         x = x if not x is None else self.current_x
         y = y if not y is None else self.current_y
-        return self.currentGrid[y][x]["cdb_id"], self.currentGrid[y][x]["cdisplay_name"]   
+        return self.currentGrid[y][x]["cdb_id"], self.currentGrid[y][x]["cdisplay_name"]  
+    
+    
+    '''
+    Return the current targeted program basic infos : db id and title
+    '''
+    def getProgram(self, control):
+        infos, x, y = self.getInfosFromCurrentGrid(control)
+        return infos["db_id"], infos["title"]
     
     
     '''
@@ -487,8 +496,9 @@ Edit channel popup window
 '''
 class EditWindow(xbmcgui.WindowXMLDialog):
     
-    display_name = id_channel = None
-    titleLabel = None
+    program_title = display_name = ""
+    program_id = id_channel = None
+    titleLabel = programLabel = None
     parent = None
         
     def __init__(self, strXMLname, strFallbackPath):       
@@ -500,21 +510,36 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     '''
     def onInit(self):
         xbmcgui.WindowXMLDialog.onInit(self)
-        self.titleLabel = self.getControl(4101)
-        self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + " " + self.display_name)
+        self.titleLabel = self.getControl(EditControls.CHANNEL_LABEL)
+        self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + "[CR]" + self.display_name)
         
-        self.getControl(4000).setLabel(ACTIONS_HIDE_CHANNEL)
-        self.getControl(4001).setLabel(ACTIONS_RENAME_CHANNEL)
-        self.getControl(4002).setLabel(ACTIONS_QUIT_WINDOW)
-                
+        self.programLabel = self.getControl(EditControls.PROGRAM_LABEL)
+        self.programLabel.setLabel(ACTIONS_PROGRAM_LABEL + "[CR]" + self.program_title)
+        
+        self.getControl(EditControls.CHANNEL_HIDE).setLabel(ACTIONS_HIDE_CHANNEL)
+        self.getControl(EditControls.CHANNEL_RENAME).setLabel(ACTIONS_RENAME_CHANNEL)
+        self.getControl(EditControls.QUIT).setLabel(ACTIONS_QUIT_WINDOW)
+        self.getControl(EditControls.CHANNEL_LOGO_UPDATE).setLabel(ACTIONS_LOGO_UPDATE)
+        self.getControl(EditControls.PROGRAM_START).setLabel(ACTIONS_PROGRAM_START)
+        self.getControl(EditControls.PROGRAM_REMINDER).setLabel(ACTIONS_PROGRAM_REMIND)
+        self.setFocus(self.getControl(EditControls.PROGRAM_START))
+
+
         
     '''
-    Sets the target channel is and name
+    Sets the target channel id and name
     '''
     def setChannel(self, c_id, c_name):
-        self.display_name = c_name
+        self.display_name = c_name.decode("utf-8", 'ignore')
         self.id_channel = c_id
     
+    
+    '''
+    Sets the target program id and title
+    '''
+    def setProgram(self, p_id, p_title):
+        self.program_title = p_title.decode("utf-8", 'ignore')
+        self.program_id = p_id
     
     
     '''
@@ -528,20 +553,20 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     Handle clicks actions.
     '''
     def onClick(self, controlId):
-        self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + " " + self.display_name)
+        self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + "[CR]" + self.display_name)
         
-        if controlId == 4002:
+        if controlId == EditControls.QUIT:
             self.close()
         
-        elif controlId in [4000, 4001]:
+        elif controlId in [EditControls.CHANNEL_HIDE, EditControls.CHANNEL_RENAME]:
             database, cursor = connectEpgDB()
             epgDb = EpgDb(database, cursor)
             
             # Hide channel from EPG and exit current window.
-            if controlId == 4000:
+            if controlId == EditControls.CHANNEL_HIDE:
                 epgDb.updateChannel(self.id_channel, visible=False)
             
-            elif controlId == 4001:
+            elif controlId == EditControls.CHANNEL_RENAME:
                 new_name = xbmcgui.Dialog().input("ACTIONS_RENAME_TITLE", self.display_name)
                 if not new_name is None or new_name == "":
                     epgDb.updateChannel(self.id_channel, display_name=new_name)
@@ -559,8 +584,6 @@ class EditWindow(xbmcgui.WindowXMLDialog):
             if not self.parent is None:
                 self.parent.clear()
                 self.parent.onInit()
-        
-        
         
 
 '''
@@ -593,5 +616,21 @@ class EPGControl(object):
         PROGRAM_TIME = 4021
         
         CHANNEL_NAME   = 4030
+    
+'''
+Edit window controls
+'''
+class EditControls(object):
+        
+    QUIT = 4002
+    CHANNEL_HIDE   = 4000
+    CHANNEL_RENAME = 4001
+    CHANNEL_LOGO_UPDATE = 4003
+    CHANNEL_LABEL  = 4101
+    
+    PROGRAM_LABEL    = 4102
+    PROGRAM_START    = 3998
+    PROGRAM_REMINDER = 3999
+    
         
         

@@ -88,6 +88,10 @@
     <string id="40002">Rename channel</string>  
     <string id="40003">Hide channel</string>  
     <string id="40004">Channel:</string>  
+    <string id="40005">Update logo</string>  
+    <string id="40006">Watch</string>  
+    <string id="40007">Remind me</string> 
+    <string id="40008">Program:</string> 
     
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->
