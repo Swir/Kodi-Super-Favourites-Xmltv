@@ -210,8 +210,13 @@ class EPGGridView(object):
             ctime.setLabel(time) 
             
             self.window.getControl(EPGControl.label.CHANNEL_NAME).setLabel(self.currentGrid[self.current_y][self.current_x]["cdisplay_name"])
-            logo = join(settings.getChannelsLogoPath(), self.currentGrid[self.current_y][self.current_x]["logo"])
-            self.window.getControl(EPGControl.image.CHANNEL_LOGO).setImage(logo, False)
+            
+            logo = self.currentGrid[self.current_y][self.current_x]["logo"] 
+            if not logo == "" and not logo is None:
+                logo = join(settings.getChannelsLogoPath(), logo)
+                self.window.getControl(EPGControl.image.CHANNEL_LOGO).setImage(logo, False)
+            else:
+                self.window.getControl(EPGControl.image.CHANNEL_LOGO).setImage("", False)
         
     
         
