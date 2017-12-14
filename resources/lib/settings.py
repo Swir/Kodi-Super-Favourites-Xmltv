@@ -2,6 +2,7 @@
 from xbmcaddon import Addon
 from xbmc import translatePath
 from os.path import join
+from datetime import timedelta
 try:
     from resources.lib import strings
 except ImportError:
@@ -285,7 +286,6 @@ def useProgramsReminder():
 Return the selected time for notifications
 '''
 def getRemindersTime():
-    from datetime import timedelta
     settings_time = addon.getSetting('reminders.time')
     settings_time = int(settings_time) + 1 if not settings_time is None or settings_time == '' else 1
     
@@ -321,6 +321,30 @@ def getReminderFocusTexture():
 
 
 '''
+Return true if user want to adjust time with timezone setting.
+'''
+def useTimeZone():
+    return True if addon.getSetting('timezone.enabled') == 'true' else False
+
+
+'''
+Return the delta representing the timezone setting value.
+'''
+def getTimeZoneDelta():
+    
+    return timedelta(hours=int(addon.getSetting("timezone.value")))
+
+
+'''
+Return timezone action.
+'''
+def getTimeZoneOperation():
+    action = addon.getSetting('timezone.action')
+    return int(action) if not action is None or action == '' else 0
+
+
+
+'''
 Addon consts
 '''
 class AddonConst(object):
@@ -336,6 +360,9 @@ class AddonConst(object):
     # XMLTV
     XMLTV_SOURCE_URL   = 0
     XMLTV_SOURCE_LOCAL = 1
+    
+    TIMEZONE_ADD = 0
+    TIMEZONE_SUB = 1
     
     def __init__(self):
         pass

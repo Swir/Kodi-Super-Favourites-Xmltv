@@ -34,6 +34,10 @@
         <setting id="xmltv.local.value" type="file" label="200033"  visible="eq(-1,1)" value="path_to_files"/>
         <setting id="xmltv.url.value"   type="text" label="200034"  visible="eq(-2,0)" />
         <setting id="xmltv.compressed"  type="bool" label="200035"  default="false"/>
+        <setting type="lsep" label="200036" />
+        <setting id="timezone.enabled"  type="bool" label="200037"  default="false"/>
+        <setting id="timezone.action" type="select" label="200039" lvalues="200391|200392" />
+        <setting id="timezone.value" type="enum" label ="200038" values="$HOURS" default="01:00"/>
     </category>  
     
     <category label="200004">  

@@ -139,6 +139,10 @@
     <string id="200033">Chemin vers le XMLTV</string>
     <string id="200034">URL du XMLTV</string>
     <string id="200035">Le fichier XMLTV est compressé ? ( Zip, Tar, Gzip or Bz2 )</string>
+    <string id="200036">Utilisez cette option pour ajuster les programmes à votre time zone</string>
+    <string id="200037">Ajuster les temps de démarrage / arrêt des programmes ?</string>
+    <string id="200038">Nombre d'heures</string>
+    <string id="200039">Ajouter ou retirer des heures?</string>
     
     <!-- Settings => Super Favourites -->
     <string id="200041">Ou créer les sous dossiers qui contiendront les chaines IPTV? (ex:TV) </string>
@@ -201,6 +205,10 @@
     <!-- Settings => XMLTV => Source type (200032) => values -->
     <string id="200321">URL</string>
     <string id="200322">Système de fichiers</string>
+    
+    <!-- Settings => XMLTV => Timezone add time (200039) => values -->
+    <string id="200391">Ajouter des heures aux programmes</string>
+    <string id="200392">Retirer des heures aux programmes</string>
     
     <!-- Settings => Super Favourites => Sub folders pattern (200043) => values -->
     <string id="200431">Id XMLTV de la chaine</string>

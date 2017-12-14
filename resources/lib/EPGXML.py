@@ -20,7 +20,8 @@ from resources.lib.utils import strToDatetime, notify, copyfile
 from resources.lib.settings import DEBUG, AddonConst, getXMLTVSourceType,\
      getEpgXmlFilePath, getAddonUserDataPath, getXMLTVURLLocal, getXMLTVURLRemote, \
      isXMLTVCompressed, getCleanupTreshold, useXMLTVSourceLogos, getChannelsLogoPath,\
-     useTheTvDBSourceLogos, getMaxNextLoad, getMaxPrevLoad, getRemindersTime
+     useTheTvDBSourceLogos, getMaxNextLoad, getMaxPrevLoad, getRemindersTime, useTimeZone, \
+     getTimeZoneDelta, getTimeZoneOperation
      
 '''
 Handle XMLTV itself.
@@ -257,6 +258,17 @@ class EpgXml(object):
             
             program_start = strToDatetime(start_date)
             program_end   = strToDatetime(end_date) 
+            
+            if useTimeZone():
+                delta = getTimeZoneDelta()
+                operation = getTimeZoneOperation()
+                
+                if operation == AddonConst.TIMEZONE_ADD:
+                    program_start += delta
+                    program_end += delta
+                else:
+                    program_start -= delta
+                    program_end -= delta
             
             ptitle = desc = ""
             if program.getElementsByTagName('title').length > 0:

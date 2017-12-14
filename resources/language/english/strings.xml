@@ -103,7 +103,6 @@
     <string id="40016">Select</string>
     <string id="40017">Don't remind</string>   
   
-       
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->
     <!-- --------------------------------------------- -->
@@ -140,6 +139,10 @@
     <string id="200033">Enter path to the xmltv</string>
     <string id="200034">Enter xmltv URL</string>
     <string id="200035">Is XMLTV file compressed ? ( Zip, Tar, Gzip or Bz2 )</string>
+    <string id="200036">Use this options to adjust programs to your timezone</string>
+    <string id="200037">Adjust programs start and stop times ?</string>
+    <string id="200038">Hours amount</string>
+    <string id="200039">Add or remove hours?</string>
     
     <!-- Settings => Super Favourites -->
     <string id="200041">Where should I create sub folders that will contains IPTV channels</string>
@@ -202,6 +205,10 @@
     <!-- Settings => XMLTV => Source type (200032) => values -->
     <string id="200321">URL</string>
     <string id="200322">File system</string>
+    
+    <!-- Settings => XMLTV => Timezone add time (200039) => values -->
+    <string id="200391">Add hours to programs</string>
+    <string id="200392">Remove hours to programs</string>
     
     <!-- Settings => Super Favourites => Sub folders pattern (200043) => values -->
     <string id="200431">XMLTV channel ID</string>
