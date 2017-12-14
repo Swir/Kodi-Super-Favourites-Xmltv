@@ -20,7 +20,7 @@ from resources.lib.utils import strToDatetime, notify, copyfile
 from resources.lib.settings import DEBUG, AddonConst, getXMLTVSourceType,\
      getEpgXmlFilePath, getAddonUserDataPath, getXMLTVURLLocal, getXMLTVURLRemote, \
      isXMLTVCompressed, getCleanupTreshold, useXMLTVSourceLogos, getChannelsLogoPath,\
-     useTheTvDBSourceLogos, getMaxNextLoad, getMaxPrevLoad
+     useTheTvDBSourceLogos, getMaxNextLoad, getMaxPrevLoad, getRemindersTime
      
 '''
 Handle XMLTV itself.
@@ -485,8 +485,54 @@ class EpgDb(object):
     Add a reminder for this program
     '''
     def addReminder(self, program_id):
-        pass
+        start_date = self.getProgramStartDate(program_id)
+        if start_date is None or start_date < datetime.now() + getRemindersTime() :
+            return False
+            
+        ins_request = "INSERT INTO reminders (id_program) VALUES (%i)" % program_id
+        self.cursor.execute(ins_request)
+        self.database.commit()
+        return True
     
+    
+    '''
+    Removes a reminder from the database.
+    '''
+    def removeReminder(self, program_id):
+        try:
+            request = "DELETE FROM reminders WHERE id_program=%i" % program_id 
+            self.cursor.execute(request)
+            self.database.commit()
+        except SqliteError:
+            return False
+        return True
+        
+    
+    '''
+    Return True if a remind were added for the target id_program
+    '''
+    def hasReminder(self, id_program):
+        try:
+            request = "SELECT count(*) FROM reminders WHERE id_program=%i" % id_program
+            self.cursor.execute(request)
+            return int(self.cursor.fetchone()[0]) > 0
+        except SqliteError:
+            pass
+        return False
+    
+    '''
+    Return the program start date from id_program
+    '''
+    def getProgramStartDate(self, program_id):
+        try:
+            progr_infos = "SELECT start_date FROM programs WHERE id_program = %i" % program_id
+            self.cursor.execute(progr_infos)
+            start_date = self.cursor.fetchone()[0]
+            return strToDatetime(start_date)
+        except SqliteError:
+            pass
+        return None
+            
        
     '''
     Remove a program from the program tale.

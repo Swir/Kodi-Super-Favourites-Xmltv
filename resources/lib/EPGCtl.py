@@ -15,7 +15,8 @@ from resources.lib.strings import PROGRAM_NO_INFOS, ACTIONS_QUIT_WINDOW, \
      ACTIONS_LOGO_UPDATE, ACTIONS_PROGRAM_START, ACTIONS_PROGRAM_REMIND, \
      ACTIONS_PROGRAM_LABEL, EDIT_LOGO_HEADER, EDIT_LOGO_THE_LOGODB, \
      EDIT_LOGO_FROM_LOCAL, EDIT_LOGO_ERROR, EDIT_NO_LOGO_FOUND, DIALOG_TITLE, \
-     SFX_ICONS_DOWNLOAD, EDIT_LOGOS_SEARCH, EDIT_CHOOSE_LOGO, EDIT_CHOOSE_FROM_SELECT
+     SFX_ICONS_DOWNLOAD, EDIT_LOGOS_SEARCH, EDIT_CHOOSE_LOGO, EDIT_CHOOSE_FROM_SELECT, \
+     ACTIONS_PROGRAM_FORGET_REMIND
 
 ''' 
 Handle View positions.
@@ -50,9 +51,6 @@ class EPGGridView(object):
         self.bottom = self.top + globalControl.getHeight()
         self.width = globalControl.getWidth()
         self.cellHeight = globalControl.getHeight() / settings.getDisplayChannelsCount()
-        
-        self.noFocusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey.png')
-        self.focusTexture = join(settings.getAddonImagesPath(), 'buttons', 'tvguide-program-grey-focus.png')
         
         start_time = datetime.now()
         self.start_time = start_time.replace(minute=(0 if start_time.minute <= 29 else 30))
@@ -349,7 +347,7 @@ class EPGGridView(object):
                 pbutton = xbmcgui.ControlButton(
                     self.left, self.top + self.cellHeight * idx, 
                     self.right - self.left - 2, self.cellHeight - 2, 
-                    PROGRAM_NO_INFOS, self.focusTexture, self.noFocusTexture)
+                    PROGRAM_NO_INFOS, settings.getFocusTexture(), settings.getNoFocusTexture())
                 
                 gridControls.append(pbutton)
                 controls_x_grid.append({"db_id": None, "desc": PROGRAM_NO_INFOS, 
@@ -381,9 +379,25 @@ class EPGGridView(object):
                 if width < 28:
                     program["title"] = ""
                 
+                # Checking if program is to be reminded.
+                database, cursor = connectEpgDB()
+                epgDb = EpgDb(database, cursor)
+                remind = epgDb.hasReminder(int(program["db_id"]))
+                epgDb.close()
+                del database
+                del cursor
+                del epgDb
+                
+                if remind:
+                    focusTexture = settings.getReminderFocusTexture()
+                    noFocusTexture = settings.getReminderNoFocusTexture()
+                else:
+                    focusTexture = settings.getFocusTexture()
+                    noFocusTexture = settings.getNoFocusTexture()
+                
                 pbutton = xbmcgui.ControlButton(
                     x,y,width, self.cellHeight - 2, program["title"],
-                    noFocusTexture=self.noFocusTexture, focusTexture=self.focusTexture
+                    noFocusTexture=noFocusTexture, focusTexture=focusTexture
                 )    
                 
                 gridControls.append(pbutton)  
@@ -397,7 +411,7 @@ class EPGGridView(object):
             
         self.window.addControls(gridControls)
         
-        
+          
     '''
     Go to the next program control or next page.
     '''
@@ -508,6 +522,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     
     program_title = display_name = ""
     program_id = id_channel = None
+    program_control = None
     titleLabel = programLabel = None
     parent = None
         
@@ -533,6 +548,25 @@ class EditWindow(xbmcgui.WindowXMLDialog):
         self.getControl(EditControls.PROGRAM_START).setLabel(ACTIONS_PROGRAM_START)
         self.getControl(EditControls.PROGRAM_REMINDER).setLabel(ACTIONS_PROGRAM_REMIND)
         self.setFocus(self.getControl(EditControls.PROGRAM_START))
+        
+        database, cursor = connectEpgDB()
+        epgDb = EpgDb(database, cursor)
+        
+        program_start = epgDb.getProgramStartDate(self.program_id)
+        if program_start < datetime.now() + settings.getRemindersTime():
+            self.removeControl(self.getControl(EditControls.PROGRAM_REMINDER))
+            self.getControl(EditControls.PROGRAM_START).controlDown(self.getControl(EditControls.CHANNEL_HIDE))
+        
+        remind = epgDb.hasReminder(self.program_id)
+        if remind:
+            self.getControl(EditControls.PROGRAM_REMINDER).setLabel(ACTIONS_PROGRAM_FORGET_REMIND)
+        
+        self.program_control = self.parent.getControl(self.program_control)
+        
+        epgDb.close()
+        del database
+        del cursor
+        del epgDb
 
 
         
@@ -547,9 +581,10 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     '''
     Sets the target program id and title
     '''
-    def setProgram(self, p_id, p_title):
+    def setProgram(self, p_id, p_title, control):
         self.program_title = p_title.decode("utf-8", 'ignore')
         self.program_id = p_id
+        self.program_control = control
     
     
     '''
@@ -681,6 +716,26 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                 self.parent.onInit()
         
         # Program actions.
+        elif controlId in [EditControls.PROGRAM_REMINDER, EditControls.PROGRAM_START]:
+            
+            if controlId == EditControls.PROGRAM_REMINDER:
+                database, cursor = connectEpgDB()
+                epgDb = EpgDb(database, cursor)
+                if epgDb.hasReminder(self.program_id):
+                    self.getControl(EditControls.PROGRAM_REMINDER).setLabel(ACTIONS_PROGRAM_REMIND)
+                    epgDb.removeReminder(self.program_id)
+                else:
+                    self.getControl(EditControls.PROGRAM_REMINDER).setLabel(ACTIONS_PROGRAM_FORGET_REMIND)
+                    epgDb.addReminder(self.program_id)
+                
+                if not self.parent is None and refreshSkin:
+                    self.parent.clear()
+                    self.parent.onInit()
+                    
+                del database
+                del cursor
+                epgDb.close()
+                del epgDb
         
         
 '''

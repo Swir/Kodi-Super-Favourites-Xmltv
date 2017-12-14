@@ -293,6 +293,34 @@ def getRemindersTime():
 
 
 '''
+Return the no focus texture
+'''
+def getNoFocusTexture():
+    return join(getAddonImagesPath(), 'buttons', 'program-grey.png')
+
+
+'''
+Return the focus texture
+'''
+def getFocusTexture():
+    return join(getAddonImagesPath(), 'buttons', 'program-grey-focus.png')
+
+
+'''
+Return the no focus texture
+'''
+def getReminderNoFocusTexture():
+    return join(getAddonImagesPath(), 'buttons', 'program-red.png')
+
+
+'''
+Return the focus texture
+'''
+def getReminderFocusTexture():
+    return join(getAddonImagesPath(), 'buttons', 'program-red-focus.png')
+
+
+'''
 Addon consts
 '''
 class AddonConst(object):
