@@ -89,7 +89,7 @@
               <focusedlayout height="90" width="250">
                 <control type="image">
                         <width>485</width>
-                        <height>88</height>
+                        <height>102</height>
                         <left>0</left>
                         <top>3</top>
                         <visible>Control.HasFocus(50)</visible>
@@ -104,8 +104,8 @@
                         <aspectratio>keep</aspectratio>
                 </control>
                 <control type="label">
-                        <left>88</left>
-                        <top>3</top>
+                        <left>104</left>
+                        <top>10</top>
                         <width>430</width>
                         <height>66</height>
                         <font>font13</font>
@@ -137,6 +137,8 @@
             <align>center</align>
             <aligny>center</aligny>
             <font>font13</font>
+            <onup>50</onup>
+            <ondown>5001</ondown>
             <textcolor>ffffffff</textcolor>        
         </control>
         
@@ -152,6 +154,8 @@
             <align>center</align>
             <aligny>center</aligny>
             <font>font13</font>
+            <onup>5002</onup>
+            <ondown>50</ondown>
             <textcolor>ffffffff</textcolor>        
         </control>
         

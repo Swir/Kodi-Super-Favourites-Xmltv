@@ -559,6 +559,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     '''
     def onClick(self, controlId):
         self.titleLabel.setLabel(ACTIONS_EDIT_CHANNEL + "[CR]" + self.display_name)
+        refreshSkin = True
         
         # Close
         if controlId == EditControls.QUIT:
@@ -658,18 +659,19 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                         win_logo.addToList(logos_local)  
                         win_logo.id_channel = self.id_channel                            
                         win_logo.doModal()
+                        refreshSkin = win_logo.refresh
                         del win_logo
                         rmtree(dest_dir)
                          
                     else:
                         xbmcgui.Dialog().ok(EDIT_LOGO_HEADER, EDIT_NO_LOGO_FOUND)
                         
-                             
+                            
             del database
             del cursor
             epgDb.close()
             del epgDb
-            if not self.parent is None:
+            if not self.parent is None and refreshSkin:
                 self.parent.clear()
                 self.parent.onInit()
         
@@ -685,6 +687,7 @@ class LogoEditWindowXML(xbmcgui.WindowXMLDialog):
     list_items_controls = None
     listItemsContainer = None
     id_channel = 0
+    refresh = False
     
     '''
     init
@@ -748,6 +751,8 @@ class LogoEditWindowXML(xbmcgui.WindowXMLDialog):
                     epgDb.close()
                     del epgDb
                     return
+                
+                self.refresh = True
                 self.close()
                 
      
