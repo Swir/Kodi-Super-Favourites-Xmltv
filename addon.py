@@ -88,7 +88,7 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         c_id, c_name  = self.epgView.getChannel()
         p_id, p_title = self.epgView.getProgram(controlID)
         editWindow.setChannel(c_id, c_name)
-        editWindow.setProgram(p_id, p_title, controlID)
+        editWindow.setProgram(p_id, p_title)
         editWindow.setParent(self)
         editWindow.doModal()
         del editWindow

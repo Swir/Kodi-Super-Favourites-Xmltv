@@ -379,21 +379,26 @@ class EPGGridView(object):
                 if width < 28:
                     program["title"] = ""
                 
-                # Checking if program is to be reminded.
-                database, cursor = connectEpgDB()
-                epgDb = EpgDb(database, cursor)
-                remind = epgDb.hasReminder(int(program["db_id"]))
-                epgDb.close()
-                del database
-                del cursor
-                del epgDb
                 
-                if remind:
-                    focusTexture = settings.getReminderFocusTexture()
-                    noFocusTexture = settings.getReminderNoFocusTexture()
-                else:
+                if not settings.useProgramsReminder():
                     focusTexture = settings.getFocusTexture()
                     noFocusTexture = settings.getNoFocusTexture()
+                else:
+                    # Checking if program is to be reminded.
+                    database, cursor = connectEpgDB()
+                    epgDb = EpgDb(database, cursor)
+                    remind = epgDb.hasReminder(int(program["db_id"]))
+                    epgDb.close()
+                    del database
+                    del cursor
+                    del epgDb
+                
+                    if remind:
+                        focusTexture = settings.getReminderFocusTexture()
+                        noFocusTexture = settings.getReminderNoFocusTexture()
+                    else:
+                        focusTexture = settings.getFocusTexture()
+                        noFocusTexture = settings.getNoFocusTexture()
                 
                 pbutton = xbmcgui.ControlButton(
                     x,y,width, self.cellHeight - 2, program["title"],
@@ -522,7 +527,6 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     
     program_title = display_name = ""
     program_id = id_channel = None
-    program_control = None
     titleLabel = programLabel = None
     parent = None
         
@@ -549,24 +553,26 @@ class EditWindow(xbmcgui.WindowXMLDialog):
         self.getControl(EditControls.PROGRAM_REMINDER).setLabel(ACTIONS_PROGRAM_REMIND)
         self.setFocus(self.getControl(EditControls.PROGRAM_START))
         
-        database, cursor = connectEpgDB()
-        epgDb = EpgDb(database, cursor)
-        
-        program_start = epgDb.getProgramStartDate(self.program_id)
-        if program_start < datetime.now() + settings.getRemindersTime():
+        if not settings.useProgramsReminder():
             self.removeControl(self.getControl(EditControls.PROGRAM_REMINDER))
             self.getControl(EditControls.PROGRAM_START).controlDown(self.getControl(EditControls.CHANNEL_HIDE))
+        else:
+            database, cursor = connectEpgDB()
+            epgDb = EpgDb(database, cursor)
         
-        remind = epgDb.hasReminder(self.program_id)
-        if remind:
-            self.getControl(EditControls.PROGRAM_REMINDER).setLabel(ACTIONS_PROGRAM_FORGET_REMIND)
+            program_start = epgDb.getProgramStartDate(self.program_id)
+            if program_start < datetime.now() + settings.getRemindersTime():
+                self.removeControl(self.getControl(EditControls.PROGRAM_REMINDER))
+                self.getControl(EditControls.PROGRAM_START).controlDown(self.getControl(EditControls.CHANNEL_HIDE))
         
-        self.program_control = self.parent.getControl(self.program_control)
-        
-        epgDb.close()
-        del database
-        del cursor
-        del epgDb
+            remind = epgDb.hasReminder(self.program_id)
+            if remind:
+                self.getControl(EditControls.PROGRAM_REMINDER).setLabel(ACTIONS_PROGRAM_FORGET_REMIND)
+                
+            epgDb.close()
+            del database
+            del cursor
+            del epgDb
 
 
         
@@ -581,10 +587,9 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     '''
     Sets the target program id and title
     '''
-    def setProgram(self, p_id, p_title, control):
+    def setProgram(self, p_id, p_title):
         self.program_title = p_title.decode("utf-8", 'ignore')
         self.program_id = p_id
-        self.program_control = control
     
     
     '''
