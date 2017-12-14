@@ -41,7 +41,7 @@
         
         
         <control type="list" id="50">
-            <description>My first list container</description>
+            <description>Logos channel container.</description>
             <left>20</left>
             <top>120</top>
             <width>550</width>

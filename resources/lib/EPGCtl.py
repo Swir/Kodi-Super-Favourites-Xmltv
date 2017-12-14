@@ -681,7 +681,6 @@ Create a window that can be use in many configuration situations.
 '''
 class LogoEditWindowXML(xbmcgui.WindowXMLDialog):
     
-    init = False
     list_items = None
     list_items_controls = None
     listItemsContainer = None
