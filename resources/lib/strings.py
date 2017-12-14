@@ -10,9 +10,10 @@ UNEXPECTED_EXCEPTION = plugin.addon.getLocalizedString(31002)
 DEBUG_HEADER         = plugin.addon.getLocalizedString(31003)
 
 # Settings -> Toolbox actions feedback
-HARD_RESET_OK         = plugin.addon.getLocalizedString(300011)
-HARD_RESET_NOK        = plugin.addon.getLocalizedString(300012)
-HARD_RESET_FOLDERS_OK = plugin.addon.getLocalizedString(300013)
+HARD_RESET_OK           = plugin.addon.getLocalizedString(300011)
+HARD_RESET_NOK          = plugin.addon.getLocalizedString(300012)
+HARD_RESET_FOLDERS_OK   = plugin.addon.getLocalizedString(300013)
+HARD_RESET_REMINDERS_OK = plugin.addon.getLocalizedString(300014)
 
 # Database messages
 DB_CONNECTION_ERROR        = plugin.addon.getLocalizedString(300001)

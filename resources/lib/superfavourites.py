@@ -3,6 +3,7 @@ from os import mkdir
 from os.path import isfile, join
 from xbmcgui import DialogProgress
 from sqlite3 import Error as SqliteError
+from xbmcgui import WindowXMLDialog, WindowXML
 
 from resources.lib.strings import SF_DIR_STRING, SF_CHANNELS_INFOS_ERROR
 from resources.lib.strings import SF_SUBFOLDERS_PROGRESS_HEADER, SF_SUBFOLDERS_PROGRESS_MSG
@@ -81,3 +82,23 @@ class SuperFavouritesIptvFolder(object):
             del self.database
         except:
             pass
+        
+        
+        
+class SuperFavouritesXMLDialog(WindowXMLDialog):
+    
+    def __init__(self, strXMLname, strFallbackPath):
+        WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
+    
+    
+    def onInit(self):
+        WindowXMLDialog.onInit(self)
+        
+        
+    def onAction(self, action):
+        WindowXMLDialog.onAction(self, action)
+    
+    
+    def onClick(self, controlId):
+        WindowXMLDialog.onClick(self, controlId)
+    

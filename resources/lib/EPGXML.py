@@ -480,6 +480,13 @@ class EpgDb(object):
             return False
         return True
     
+    
+    '''
+    Add a reminder for this program
+    '''
+    def addReminder(self, program_id):
+        pass
+    
        
     '''
     Remove a program from the program tale.

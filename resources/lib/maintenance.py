@@ -5,11 +5,13 @@ from os import remove, listdir
 from sys import argv
 from shutil import rmtree
 
-from strings import HARD_RESET_OK, HARD_RESET_NOK, DIALOG_TITLE, HARD_RESET_FOLDERS_OK
+from strings import HARD_RESET_OK, HARD_RESET_NOK, DIALOG_TITLE, HARD_RESET_FOLDERS_OK, HARD_RESET_REMINDERS_OK
 from settings import AddonConst
 from settings import getEpgDbFilePath, getEpgXmlFilePath, getSFFolder, getChannelsLogoPath
+import utils
 
 try:
+    # Whole EPG db.
     if int(argv[1]) == AddonConst.ACTION_HARD_RESET:
         
         if isfile(getEpgDbFilePath()):
@@ -28,6 +30,7 @@ try:
         else:
             Dialog().ok(DIALOG_TITLE, HARD_RESET_NOK)
     
+    # Super favourites folers.
     elif int(argv[1]) == AddonConst.ACTION_SF_FOLDERS:
         
         for sfpath in listdir(getSFFolder(True)):
@@ -39,6 +42,19 @@ try:
                 remove(sfpath)
                 
         Dialog().ok(DIALOG_TITLE, HARD_RESET_FOLDERS_OK)
+    
+    # Reminders.
+    elif int(argv[1]) == AddonConst.ACTION_DELETE_REMINDERS:
+        database, cursor = utils.connectEpgDB()
+        delall = "DELETE FROM reminders WHERE 1"
+        cursor.execute(delall)
+        database.commit()
+        cursor.close()
+        database.close()
+        del cursor 
+        del database
+        Dialog().ok(DIALOG_TITLE, HARD_RESET_REMINDERS_OK)
+
             
 except Exception:
     pass

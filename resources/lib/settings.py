@@ -99,10 +99,12 @@ def getChannelsLogoPath():
 Return tables structures
 '''
 def getTablesStructure():
-    channels = "CREATE TABLE channels (id INTEGER PRIMARY KEY AUTOINCREMENT, id_channel TEXT, display_name TEXT, logo TEXT, source TEXT, visible BOOLEAN)"
-    programs = "CREATE TABLE programs (id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TEXT, end_date TEXT, description TEXT)"
-    updates  = "CREATE TABLE updates (id_update INTEGER PRIMARY KEY AUTOINCREMENT, time TIMESTAMP)"  
-    return channels, programs, updates
+    channels  = "CREATE TABLE channels (id INTEGER PRIMARY KEY AUTOINCREMENT, id_channel TEXT, display_name TEXT, logo TEXT, source TEXT, visible BOOLEAN)"
+    programs  = "CREATE TABLE programs (id_program INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, title TEXT, start_date TEXT, end_date TEXT, description TEXT)"
+    updates   = "CREATE TABLE updates (id_update INTEGER PRIMARY KEY AUTOINCREMENT, time TIMESTAMP)"  
+    reminders = "CREATE TABLE reminders (id INTEGER PRIMARY KEY AUTOINCREMENT, id_program INTEGER)"  
+
+    return channels, programs, updates, reminders
 
 
 
@@ -273,6 +275,24 @@ def getMaxNextLoad():
 
 
 '''
+Return true if programs reminders are enabled
+'''
+def useProgramsReminder():
+    return True if addon.getSetting('reminders.enabled') == 'true' else False
+
+
+'''
+Return the selected time for notifications
+'''
+def getRemindersTime():
+    from datetime import timedelta
+    settings_time = addon.getSetting('reminders.time')
+    settings_time = int(settings_time) + 1 if not settings_time is None or settings_time == '' else 1
+    
+    return timedelta(minutes=(settings_time * 15))
+
+
+'''
 Addon consts
 '''
 class AddonConst(object):
@@ -283,6 +303,7 @@ class AddonConst(object):
     # %aintenance consts ( hard reset )
     ACTION_HARD_RESET = 0
     ACTION_SF_FOLDERS = 1
+    ACTION_DELETE_REMINDERS = 2
     
     # XMLTV
     XMLTV_SOURCE_URL   = 0

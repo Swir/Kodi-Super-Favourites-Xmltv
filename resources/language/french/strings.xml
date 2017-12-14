@@ -20,6 +20,7 @@
     <string id="300011">Hard reset terminé avec succès !</string>
     <string id="300012">Une erreur est survenue lors du hard reset</string>
     <string id="300013">Les sous répertoires de Super Favorites ont été supprimés !</string>
+    <string id="300014">Tous les rappels programmes ont été supprimés !</string>
     
     <!-- Progress bars strings -->
     <string id="300021">SFX - Sous répertoires</string> 
@@ -111,6 +112,7 @@
     <string id="200003">XMLTV</string>
     <string id="200004">Super Favourites</string>
     <string id="200005">Boîte à outils</string>
+    <string id="200006">Rappels programmes</string>
     
     <!-- Settings => General -->
     <string id="200011">Mettre à jour l'EPG au démarrage de Kodi</string>
@@ -142,10 +144,16 @@
     <string id="200042">Dossier Super Favourites de base</string>
     <string id="200043">Pattern pour les sous dossiers</string>
     
+    <!-- Settings => Reminders -->
+    <string id="200061">Paramètres pour les rappels de programmes</string>
+    <string id="200062">Activer les rappels de programmes</string>
+    <string id="200063">Me rappeler </string>
+    
     <!-- Settings => Toolbox -->
     <string id="200051">Hard reset de Super Favourites XMLTV ( supprime la db et le xmltv )</string>
     <string id="200052">Supprimer les dossiers Super Favourites XMLTV, supprimera aussi tous vos liens IPTV</string>
-    <string id="200053">Activer le mode debug</string>
+    <string id="200053">Supprimer tous les rappels programmes</string>
+    <string id="200054">Activer le mode debug</string>
     
     <!-- Settings => General => Update frequency => values -->
     <string id="200121">Tous les jours</string>
@@ -196,5 +204,11 @@
     <!-- Settings => Super Favourites => Sub folders pattern (200043) => values -->
     <string id="200431">Id XMLTV de la chaine</string>
     <string id="200432">Nom de la chaîne</string>
+    
+    <!-- Settings => Reminders => Values ( 200063 )-->
+    <string id="200631">15 minutes avant démarrage du programme</string>
+    <string id="200632">30 minutes avant démarrage du programme</string>
+    <string id="200633">45 avant démarrage du programme</string>
+    <string id="200634">1 hour avant démarrage du programme</string>
         
 </strings>

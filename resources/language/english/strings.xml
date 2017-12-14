@@ -20,6 +20,7 @@
     <string id="300011">Hard reset successfully terminated!</string>
     <string id="300012">Hard reset error, please, try again later !</string>
     <string id="300013">Super Favorites sub folders were deleted !</string>
+    <string id="300014">All programs reminders were deleted !</string>
     
     <!-- Progress bars strings -->
     <string id="300021">SFX - Sub folders</string> 
@@ -111,6 +112,7 @@
     <string id="200003">XMLTV</string>
     <string id="200004">Super Favourites</string>
     <string id="200005">Toolbox</string>
+    <string id="200006">Programs reminders</string>
     
     <!-- Settings => General -->
     <string id="200011">Update EPG on Kodi startup</string>
@@ -142,10 +144,16 @@
     <string id="200042">Super Favourites IPTV base Folder</string>
     <string id="200043">Sub folders pattern</string>
     
+    <!-- Settings => Reminders -->
+    <string id="200061">Programs reminders settings</string>
+    <string id="200062">Enable programs reminders</string>
+    <string id="200063">Remind me</string>
+    
     <!-- Settings => Toolbox -->
     <string id="200051">Hard reset Super Favourites XMLTV ( removes db and xmltv )</string>
     <string id="200052">Delete Super Favourites XMLTV folders, will also delete your iptv links</string>
-    <string id="200053">Activate debug mode</string>
+    <string id="200053">Delete all programs reminders</string>
+    <string id="200054">Activate debug mode</string>
     
     <!-- Settings => General => Update frequency (200012) => values -->
     <string id="200121">Every day</string>
@@ -196,5 +204,11 @@
     <!-- Settings => Super Favourites => Sub folders pattern (200043) => values -->
     <string id="200431">XMLTV channel ID</string>
     <string id="200432">Channel display name</string>
-       
+    
+    <!-- Settings => Reminders => Values ( 200063 )-->
+    <string id="200631">15 minutes before program starts</string>
+    <string id="200632">30 minutes before program starts</string>
+    <string id="200633">45 minutes before program starts</string>
+    <string id="200634">1 hour before program starts</string>
+         
 </strings>
