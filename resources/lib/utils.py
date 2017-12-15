@@ -123,11 +123,11 @@ class ThreadedNotifier(Thread):
     Thread run
     '''
     def run(self):
-        #try:
-        xbmc.sleep(2000)
-        self.startNotifier()
-        #except Exception as e:
-        #    log("%s %s" % ( DEBUG_HEADER, e.message), LOGERROR)
+        try:
+            xbmc.sleep(2000)
+            self.startNotifier()
+        except Exception as e:
+            log("%s %s" % ( DEBUG_HEADER, e.message), LOGERROR)
     
     
     '''
