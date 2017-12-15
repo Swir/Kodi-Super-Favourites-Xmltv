@@ -102,7 +102,9 @@
     <string id="40015">Choisissez le logo approprié</string> 
     <string id="40016">Sélectionner</string> 
     <string id="40017">Ne plus rappeler</string>
-    <string id="40018">Ne plus masquer</string>  
+    <string id="40018">Ne plus masquer</string> 
+    <string id="40019">Rappel programme:</string>
+    <string id="40020">va démarrer sur</string>      
   
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

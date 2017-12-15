@@ -103,4 +103,6 @@ EDIT_CHOOSE_LOGO        = plugin.addon.getLocalizedString(40015)
 EDIT_CHOOSE_FROM_SELECT = plugin.addon.getLocalizedString(40016)
 ACTIONS_PROGRAM_FORGET_REMIND = plugin.addon.getLocalizedString(40017)
 ACTIONS_UNHIDE_CHANNEL  = plugin.addon.getLocalizedString(40018)
+NOTIFY_PROGRAM_HEADER   = plugin.addon.getLocalizedString(40019)
+NOTIFY_WILL_START_ON    = plugin.addon.getLocalizedString(40020)
 
