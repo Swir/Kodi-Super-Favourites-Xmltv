@@ -101,7 +101,8 @@
     <string id="40014">Recherche de logos</string> 
     <string id="40015">Choisissez le logo approprié</string> 
     <string id="40016">Sélectionner</string> 
-    <string id="40017">Ne plus rappeler</string> 
+    <string id="40017">Ne plus rappeler</string>
+    <string id="40018">Ne plus masquer</string>  
   
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

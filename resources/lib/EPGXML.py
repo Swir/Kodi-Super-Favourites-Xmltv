@@ -406,7 +406,8 @@ class EpgDb(object):
                 update += 'source="%s",' % source
             
             if not visible is None:
-                update += 'visible=%i,' % 0 if not visible else 1   
+                visible = 0 if not visible else 1
+                update += 'visible=%i,' % visible   
             
             update += ' WHERE id=%i' % id_channel
             update = ''.join(update.rsplit(",", 1))
@@ -474,6 +475,18 @@ class EpgDb(object):
             if DEBUG:
                 notify(strings.GET_CHANNEL_ERROR, e.message)
         return False
+    
+    
+    '''
+    Return True if channel is hiden.
+    '''
+    def isChannelHidden(self, channel_id):
+        try:
+            request = "SELECT visible FROM channels WHERE id=%i" % channel_id
+            self.cursor.execute(request)
+            return True if self.cursor.fetchone()[0] == 1 else False
+        except SqliteError:
+            return False
     
     
     '''

@@ -16,7 +16,7 @@ from resources.lib.strings import PROGRAM_NO_INFOS, ACTIONS_QUIT_WINDOW, \
      ACTIONS_PROGRAM_LABEL, EDIT_LOGO_HEADER, EDIT_LOGO_THE_LOGODB, \
      EDIT_LOGO_FROM_LOCAL, EDIT_LOGO_ERROR, EDIT_NO_LOGO_FOUND, DIALOG_TITLE, \
      SFX_ICONS_DOWNLOAD, EDIT_LOGOS_SEARCH, EDIT_CHOOSE_LOGO, EDIT_CHOOSE_FROM_SELECT, \
-     ACTIONS_PROGRAM_FORGET_REMIND
+     ACTIONS_PROGRAM_FORGET_REMIND, ACTIONS_UNHIDE_CHANNEL
 
 ''' 
 Handle View positions.
@@ -617,7 +617,12 @@ class EditWindow(xbmcgui.WindowXMLDialog):
             
             # Hide channel from EPG
             if controlId == EditControls.CHANNEL_HIDE:
-                epgDb.updateChannel(self.id_channel, visible=False)
+                if epgDb.isChannelHidden(self.id_channel):
+                    epgDb.updateChannel(self.id_channel, visible=False)
+                    self.getControl(EditControls.CHANNEL_HIDE).setLabel(ACTIONS_UNHIDE_CHANNEL)
+                else:
+                    epgDb.updateChannel(self.id_channel, visible=True)
+                    self.getControl(EditControls.CHANNEL_HIDE).setLabel(ACTIONS_HIDE_CHANNEL)
             
             # Rename the current channel.
             elif controlId == EditControls.CHANNEL_RENAME:
