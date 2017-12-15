@@ -17,6 +17,9 @@ from resources.lib.strings import PROGRAM_NO_INFOS, ACTIONS_QUIT_WINDOW, \
      EDIT_LOGO_FROM_LOCAL, EDIT_LOGO_ERROR, EDIT_NO_LOGO_FOUND, DIALOG_TITLE, \
      SFX_ICONS_DOWNLOAD, EDIT_LOGOS_SEARCH, EDIT_CHOOSE_LOGO, EDIT_CHOOSE_FROM_SELECT, \
      ACTIONS_PROGRAM_FORGET_REMIND, ACTIONS_UNHIDE_CHANNEL
+     
+from resources.lib.superfavourites import SuperFavouritesXMLDialog
+
 
 ''' 
 Handle View positions.
@@ -528,6 +531,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     program_id = id_channel = None
     titleLabel = programLabel = None
     parent = None
+    win_logo = None
         
     def __init__(self, strXMLname, strFallbackPath):       
         xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
@@ -561,8 +565,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
         
             program_start = epgDb.getProgramStartDate(self.program_id)
             if program_start < datetime.now() + settings.getRemindersTime():
-                self.removeControl(self.getControl(EditControls.PROGRAM_REMINDER))
-                self.getControl(EditControls.PROGRAM_START).controlDown(self.getControl(EditControls.CHANNEL_HIDE))
+                self.getControl(EditControls.PROGRAM_REMINDER).setVisible(False)
         
             remind = epgDb.hasReminder(self.program_id)
             if remind:
@@ -572,6 +575,8 @@ class EditWindow(xbmcgui.WindowXMLDialog):
             del database
             del cursor
             del epgDb
+        
+        self.win_logo = LogoEditWindowXML('logo-edit-window.xml', settings.getAddonPath())
 
 
         
@@ -672,7 +677,6 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                         # Display found logos.
                         logos = thelogodb.getLogos()
                         logos_local = []
-                        win_logo = LogoEditWindowXML('logo-edit-window.xml', settings.getAddonPath())
                         
                         import ssl
                         from urllib2 import urlopen, HTTPError
@@ -705,11 +709,11 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                         
                         progress.close()
                         
-                        win_logo.addToList(logos_local)  
-                        win_logo.id_channel = self.id_channel                            
-                        win_logo.doModal()
-                        refreshSkin = win_logo.refresh
-                        del win_logo
+                        self.win_logo.addToList(logos_local)  
+                        self.win_logo.id_channel = self.id_channel                            
+                        self.win_logo.doModal()
+                        refreshSkin = self.win_logo.refresh
+                        
                         rmtree(dest_dir)
                          
                     else:
@@ -743,8 +747,14 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                 del cursor
                 epgDb.close()
                 del epgDb
-        
-        
+            
+            '''
+            elif controlId == EditControls.PROGRAM_START:
+                sf_window = SuperFavouritesXMLDialog('superfavourites-window.xml', settings.getAddonPath())
+                sf_window.setChannel(self.id_channel)
+                sf_window.doModal()
+                del sf_window
+            '''
 '''
 Create a window that can be use in many configuration situations.
 '''
@@ -781,6 +791,10 @@ class LogoEditWindowXML(xbmcgui.WindowXMLDialog):
     Add items to items list
     ''' 
     def addToList(self, liste):
+        
+        if not self.list_items_controls is None:
+            self.removeControls(self.list_items_controls)
+        
         self.list_items = []
         self.list_items_controls = []
         

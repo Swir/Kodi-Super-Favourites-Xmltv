@@ -180,6 +180,7 @@ if __name__ == '__main__':
             # Starting GUI
             EPGgui = XMLWindowEPG('epg.xml', settings.getAddonPath())
             EPGgui.doModal()
+            del EPGgui.editWindow.win_logo
             del EPGgui.editWindow 
             del EPGgui        
         
