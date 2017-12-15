@@ -47,6 +47,39 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epgDb.close()
         del self.epgDb
         del self.epgView
+        
+    
+    
+    '''
+    Refresh the whole view
+    '''   
+    def refresh(self):
+        loading = SplashScreen(self, self.epgView.width, self.epgView.bottom)
+        loading.start()
+        
+        x = self.epgView.current_x
+        y = self.epgView.current_y
+        start_time = self.epgView.start_time
+        stop_time = self.epgView.stop_time
+        id_channel = self.epgView.start_channel_id
+        
+        self.clear()
+        
+        database, cursor = connectEpgDB()
+        
+        self.epgView = EPGGridView(self)
+        self.epgDb = EPGXML.EpgDb(database, cursor)
+        self.epgView.setGlobalDataGrid(self.epgDb.getEpgGrid())      
+        
+        self.epgView.current_x = x
+        self.epgView.current_y = y
+        self.epgView.start_time = start_time
+        self.epgView.stop_time = stop_time
+        self.epgView.start_channel_id = id_channel
+        
+        self.epgView.displayChannels()
+        self.epgView.setFocus(x, y)
+        loading.stop()
            
             
     '''

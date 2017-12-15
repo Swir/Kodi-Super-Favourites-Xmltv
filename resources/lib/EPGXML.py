@@ -337,7 +337,8 @@ class EpgXml(object):
                             
             except HTTPError as e:
                 if e.code in [304, 301, 400, 401, 403, 404, 500, 502, 503, 504]:
-                    notify(strings.HTTP_DOWNLOAD_LOGO_ERROR, e.message)
+                    if DEBUG:
+                        notify(strings.HTTP_DOWNLOAD_LOGO_ERROR, e.message)
          
         self.progress_bar.close()
             

@@ -469,7 +469,6 @@ class EPGGridView(object):
     
     
     def down(self):
-        #xbmc.log(str(len(self.currentGrid)), xbmc.LOGERROR)
         if len(self.currentGrid) - 1 == self.current_y:
             if (self.start_channel_id + settings.getDisplayChannelsCount()) > (self.getChannelsCount() - settings.getDisplayChannelsCount()):
                 self.start_channel_id = self.getChannelsCount() - settings.getDisplayChannelsCount() 
@@ -717,8 +716,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
             epgDb.close()
             del epgDb
             if not self.parent is None and refreshSkin:
-                self.parent.clear()
-                self.parent.onInit()
+                self.parent.refresh()
         
         # Program actions.
         elif controlId in [EditControls.PROGRAM_REMINDER, EditControls.PROGRAM_START]:
@@ -734,8 +732,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                     epgDb.addReminder(self.program_id)
                 
                 if not self.parent is None and refreshSkin:
-                    self.parent.clear()
-                    self.parent.onInit()
+                    self.parent.refresh()
                     
                 del database
                 del cursor
