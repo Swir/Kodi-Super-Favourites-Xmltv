@@ -13,6 +13,7 @@ Global class handling EPG Gui.
 class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     
     epgDb = epgXml = epgView = None
+    editWindow = None
         
     '''
     Class init.
@@ -34,6 +35,8 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         self.epgView.setGlobalDataGrid(self.epgDb.getEpgGrid())      
         self.epgView.displayChannels()
         self.epgView.setFocus(0, 0)
+        
+        self.editWindow = EditWindow('epg-menu-edit.xml', settings.getAddonPath())
         loading.stop()
         
     
@@ -117,14 +120,13 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     Handle all controls clicks, provide a control ID
     '''
     def onClick(self, controlID):
-        editWindow = EditWindow('epg-menu-edit.xml', settings.getAddonPath())
         c_id, c_name  = self.epgView.getChannel()
         p_id, p_title = self.epgView.getProgram(controlID)
-        editWindow.setChannel(c_id, c_name)
-        editWindow.setProgram(p_id, p_title)
-        editWindow.setParent(self)
-        editWindow.doModal()
-        del editWindow
+        self.editWindow.setChannel(c_id, c_name)
+        self.editWindow.setProgram(p_id, p_title)
+        self.editWindow.setParent(self)
+        self.editWindow.doModal()
+        
        
        
     '''
@@ -177,6 +179,7 @@ if __name__ == '__main__':
         else:
             # Starting GUI
             EPGgui = XMLWindowEPG('epg.xml', settings.getAddonPath())
-            EPGgui.doModal() 
+            EPGgui.doModal()
+            del EPGgui.editWindow 
             del EPGgui        
         
