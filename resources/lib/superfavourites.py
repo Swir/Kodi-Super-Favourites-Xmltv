@@ -266,7 +266,7 @@ class SuperFavouritesXMLDialog(xbmcgui.WindowXMLDialog):
             xbmc.executebuiltin(cmd)
 
 
-        except Exception, e:
+        except Exception:
             pass   
 
 
@@ -290,9 +290,9 @@ class SuperFavouritesXMLDialog(xbmcgui.WindowXMLDialog):
             plugin   = cmds[1][:-1]
     
         #check if it is a different window and if so activate it
-        id = str(xbmcgui.getCurrentWindowId())    
+        ids = str(xbmcgui.getCurrentWindowId())    
     
-        if id not in activate:
+        if ids not in activate:
             xbmc.executebuiltin(activate)
     
         if plugin: 
@@ -337,9 +337,9 @@ class SuperFavouritesXMLDialog(xbmcgui.WindowXMLDialog):
             except: winID = 10025
     
             #check if it is a different window and if so activate it
-            id = xbmcgui.getCurrentWindowId()
+            ids = xbmcgui.getCurrentWindowId()
     
-            if id != winID :
+            if ids != winID :
                 xbmc.executebuiltin('ActivateWindow(%d)' % winID)
                 
             cmd = 'Container.Update(%s)' % plugin

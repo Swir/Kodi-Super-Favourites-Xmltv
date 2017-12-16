@@ -10,7 +10,7 @@ from resources.lib.utils import connectEpgDB
 '''
 Global class handling EPG Gui.
 '''
-class XMLWindowEPG(xbmcgui.WindowXMLDialog):
+class XMLWindowEPG(xbmcgui.WindowXML):
     
     epgDb = epgXml = epgView = None
     editWindow = None
@@ -20,37 +20,44 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
     ''' 
    
     def __init__(self, strXMLname, strFallbackPath):
-        xbmcgui.WindowXMLDialog.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=False)
+        xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, 'default', '720p', False)
         
     
     '''
     Gui values init.
     '''
     def onInit(self):
-        database, cursor = connectEpgDB()
         
-        self.epgView = EPGGridView(self)
-        loading = SplashScreen(self, self.epgView.width, self.epgView.bottom)
-        loading.start()
-        self.epgDb = EPGXML.EpgDb(database, cursor)
-        self.epgView.setGlobalDataGrid(self.epgDb.getEpgGrid())      
-        self.epgView.displayChannels()
-        self.epgView.setFocus(0, 0)
-        
-        self.editWindow = EditWindow('epg-menu-edit.xml', settings.getAddonPath())
-        loading.stop()
+        if self.epgDb is None:
+            database, cursor = connectEpgDB()
+            
+            self.epgView = EPGGridView(self)
+            loading = SplashScreen(self, self.epgView.width, self.epgView.bottom)
+            loading.start()
+            self.epgDb = EPGXML.EpgDb(database, cursor)
+            self.epgView.setGlobalDataGrid(self.epgDb.getEpgGrid())      
+            self.epgView.displayChannels()
+            self.epgView.setFocus(0, 0)
+            
+            self.editWindow = EditWindow('epg-menu-edit.xml', settings.getAddonPath())
+            loading.stop()
+        else:
+            self.refresh()
         
     
     '''
     Clear available controls.
     '''
     def clear(self):
-        self.epgView.is_closing = True
-        xbmc.sleep(1500)
-        self.epgView.reset(clear_grid=True)
-        self.epgDb.close()
-        del self.epgDb
-        del self.epgView
+        try:
+            self.epgView.is_closing = True
+            xbmc.sleep(1500)
+            self.epgView.reset(clear_grid=True)
+            self.epgDb.close()
+            del self.epgDb
+            del self.epgView
+        except:
+            pass
         
     
     
@@ -179,8 +186,7 @@ if __name__ == '__main__':
         # Else, update epg in a thread
         else:
             # Starting GUI
-            EPGgui = XMLWindowEPG('epg.xml', settings.getAddonPath().decode("utf-8"))
+            EPGgui = XMLWindowEPG('epg.xml', settings.getAddonPath())
             EPGgui.doModal()
-            del EPGgui.editWindow 
             del EPGgui        
         

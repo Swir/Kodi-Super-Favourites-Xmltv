@@ -45,6 +45,7 @@ class EPGGridView(object):
     Defining grid view points.
     '''
     def __init__(self, window):
+    
         self.window = window
         self.start_time = self.stop_time = None
         self.start_channel_id = 0

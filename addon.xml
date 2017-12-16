@@ -2,12 +2,12 @@
 <addon id="plugin.program.super.favourites.xmltv" name="Super Favourites Xmltv" version="0.0.1" provider-name="Nux007">
 	<requires>
 		<import addon="xbmc.python" version="2.7.0"/>
-		<import addon="plugin.program.super.favourites" version="1.0.43" />
 	</requires>
-	<extension point="xbmc.python.pluginsource" library="addon.py">
+	<extension point="xbmc.python.script" library="addon.py">
 		<provides>executable</provides>
 	</extension>
 	<extension point="xbmc.service" library="service.py" start="login" />
+	
 	<extension point="xbmc.addon.metadata">
 		<platform>all</platform>
 		<summary lang="en">Super Favourites XMLTV</summary>
