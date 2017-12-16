@@ -104,7 +104,9 @@
     <string id="40017">Don't remind</string>
     <string id="40018">Don't hide</string> 
     <string id="40019">Program reminder:</string> 
-    <string id="40020">will start on</string>                     
+    <string id="40020">will start on</string> 
+    <string id="40021">Select iptv link</string> 
+    <string id="40022">No IPTV links found</string>                                                                                 
   
     <!-- --------------------------------------------- -->
     <!-- -------- Settings interface strings  -------- -->

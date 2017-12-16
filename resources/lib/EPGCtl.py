@@ -19,6 +19,7 @@ from resources.lib.strings import PROGRAM_NO_INFOS, ACTIONS_QUIT_WINDOW, \
      ACTIONS_PROGRAM_FORGET_REMIND, ACTIONS_UNHIDE_CHANNEL
      
 from resources.lib.superfavourites import SuperFavouritesXMLDialog
+from resources.lib.settings import getChannelsLogoPath
 
 
 ''' 
@@ -532,6 +533,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
     titleLabel = programLabel = None
     parent = None
     win_logo = None
+    win_sf   = None
         
     def __init__(self, strXMLname, strFallbackPath):       
         xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
@@ -577,6 +579,7 @@ class EditWindow(xbmcgui.WindowXMLDialog):
             del epgDb
         
         self.win_logo = LogoEditWindowXML('logo-edit-window.xml', settings.getAddonPath())
+        self.win_sf   = SuperFavouritesXMLDialog('superfavourites-window.xml', settings.getAddonPath())
 
 
         
@@ -748,13 +751,25 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                 epgDb.close()
                 del epgDb
             
-            '''
+            
             elif controlId == EditControls.PROGRAM_START:
-                sf_window = SuperFavouritesXMLDialog('superfavourites-window.xml', settings.getAddonPath())
-                sf_window.setChannel(self.id_channel)
-                sf_window.doModal()
-                del sf_window
-            '''
+                database, cursor = connectEpgDB()
+                request = "SELECT logo FROM channels WHERE id=%i" % self.id_channel
+                cursor.execute(request)
+                logo = cursor.fetchone()[0]
+                
+                del cursor
+                del database
+                
+                logo_channel = ""
+                if not logo is None:
+                    logo_channel = join(getChannelsLogoPath(), logo)
+                
+                self.win_sf.setChannel(self.id_channel, logo_channel)
+                self.win_sf.doModal()
+                
+            
+            
 '''
 Create a window that can be use in many configuration situations.
 '''

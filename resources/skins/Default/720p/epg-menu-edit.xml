@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window type="dialog">
-	<allowoverlay>no</allowoverlay>
+	<allowoverlay>yes</allowoverlay>
 	<defaultcontrol always="false">3998</defaultcontrol>
 	<coordinates>
 		<system>1</system>

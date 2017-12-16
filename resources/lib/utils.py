@@ -4,7 +4,7 @@ from os.path import isfile
 from xbmc import executebuiltin, log, LOGERROR, abortRequested
 from sqlite3 import connect as SqliteConnect, Error as SqliteError
 from datetime import datetime as dt
-from time import strptime as time_strptime, sleep
+from time import strptime as time_strptime
 from threading import Thread, Timer
 from datetime import datetime
 

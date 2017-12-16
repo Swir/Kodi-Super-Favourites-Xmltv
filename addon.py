@@ -17,9 +17,10 @@ class XMLWindowEPG(xbmcgui.WindowXMLDialog):
         
     '''
     Class init.
-    '''    
+    ''' 
+   
     def __init__(self, strXMLname, strFallbackPath):
-        xbmcgui.WindowXML.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=True)
+        xbmcgui.WindowXMLDialog.__init__(self, strXMLname, strFallbackPath, default='Default', defaultRes='720p', isMedia=False)
         
     
     '''
@@ -178,9 +179,8 @@ if __name__ == '__main__':
         # Else, update epg in a thread
         else:
             # Starting GUI
-            EPGgui = XMLWindowEPG('epg.xml', settings.getAddonPath())
+            EPGgui = XMLWindowEPG('epg.xml', settings.getAddonPath().decode("utf-8"))
             EPGgui.doModal()
-            del EPGgui.editWindow.win_logo
             del EPGgui.editWindow 
             del EPGgui        
         

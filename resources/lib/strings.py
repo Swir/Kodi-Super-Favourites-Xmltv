@@ -105,4 +105,6 @@ ACTIONS_PROGRAM_FORGET_REMIND = plugin.addon.getLocalizedString(40017)
 ACTIONS_UNHIDE_CHANNEL  = plugin.addon.getLocalizedString(40018)
 NOTIFY_PROGRAM_HEADER   = plugin.addon.getLocalizedString(40019)
 NOTIFY_WILL_START_ON    = plugin.addon.getLocalizedString(40020)
+ACTIONS_SELECT_STREAM   = plugin.addon.getLocalizedString(40021)
+ACTIONS_NO_LINKS_FOUND  = plugin.addon.getLocalizedString(40022)
 
