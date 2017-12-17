@@ -23,9 +23,14 @@ Le repository contenant l'addon peut être téléchargé ici:
 * Possibilité de modifier le logo depuis l'interface utilisateur
 * Configuration du background et autres
 
-## Configuration
+## Screenshots
+[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-1.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-1.png)
 
-## Utilisation
+[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-2.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-2.png)
+
+[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-3.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-3.png)
+
+## Configuration
 
 ## Contribuer
 Toute contribution est la bienvenue, sentez vous libre de cloner / forker le repository Super Favourites XMLTV, d'ajouter des fonctionnalités, de corriger les fichiers de langues, de corriger ou améliorer le code, d'ajouter de nouvelles langues, ... bref, ce repository est libre... A vous de jouer
