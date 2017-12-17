@@ -22,6 +22,7 @@ Le repository contenant l'addon peut être téléchargé ici:
 * Possibilité de masquer les chaines depuis l'interface utilisateur
 * Possibilité de modifier le logo depuis l'interface utilisateur
 * Configuration du background et autres
+* Modification timezone à partir de la configuration
 
 ## Screenshots
 [![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-1.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-1.png)
