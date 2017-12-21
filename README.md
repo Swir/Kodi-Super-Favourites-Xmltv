@@ -22,6 +22,7 @@ Le repository contenant l'addon peut être téléchargé ici:
 * Possibilité de masquer les chaines depuis l'interface utilisateur
 * Possibilité de modifier le logo depuis l'interface utilisateur
 * Configuration du background et autres
+* Modification timezone à partir de la configuration
 
 ## Screenshots
 [![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-1.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-1.png)
@@ -30,7 +31,8 @@ Le repository contenant l'addon peut être téléchargé ici:
 
 [![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-3.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-3.png)
 
-## Configuration
+## Installation et Configuration ( Vidéo )
+[![Video d'installation et configuration](http://img.youtube.com/vi/tOSudiUsm9Q/0.jpg)](https://youtu.be/tOSudiUsm9Q)
 
 ## Contribuer
 Toute contribution est la bienvenue, sentez vous libre de cloner / forker le repository Super Favourites XMLTV, d'ajouter des fonctionnalités, de corriger les fichiers de langues, de corriger ou améliorer le code, d'ajouter de nouvelles langues, ... bref, ce repository est libre... A vous de jouer
