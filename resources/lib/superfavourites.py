@@ -171,7 +171,7 @@ class SuperFavouritesXMLDialog(xbmcgui.WindowXMLDialog):
             for link in self.iptv_links: 
                 item = xbmcgui.ListItem(label=link["name"], iconImage=self.logo_channel)
                 self.container.addItem(item)
-                
+                 
         
     '''
     Set the channel ID
