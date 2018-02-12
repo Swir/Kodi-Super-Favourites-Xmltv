@@ -5,7 +5,7 @@ Cette addon fourni un mapping entre vos liens IPTV marqués avec Super Favourite
 Si vous souhaitez installer Super Favourites XMLTV, il est préférable d'installer notre repository, vous pourrez bénéficier automatiquement de la dernière version de l'addon, ainsi que de toutes les mises à jour.
 
 Le repository contenant l'addon peut être téléchargé ici: 
-[kodi.nux007.repository-0.0.1.zip](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_releases/kodi.nux007.repository/kodi.nux007.repository-0.0.1.zip)
+[kodi.nux007.repository-0.0.2.zip](https://github.com/Nux007/kodi-nux007-repository/blob/master/nux007.repository/nux007.repository-0.0.2.zip)
 
 ## Fonctionnalités
 * Lit votre fichier XMLTV et l'affiche sous forme d'un EPG simple d'utilisation.
@@ -25,11 +25,11 @@ Le repository contenant l'addon peut être téléchargé ici:
 * Modification timezone à partir de la configuration
 
 ## Screenshots
-[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-1.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-1.png)
+[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-1.png)](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-1.png)
 
-[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-2.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-2.png)
+[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-2.png)](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-2.png)
 
-[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-3.png)](https://github.com/Nux007/kodi-nux007-repository/raw/master/addons_infos/addons_screenshots/plugin.program.super.favourites.xmltv/screenshot-3.png)
+[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-3.png)](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-3.png)
 
 ## Installation et Configuration ( Vidéo )
 [![Video d'installation et configuration](http://img.youtube.com/vi/tOSudiUsm9Q/0.jpg)](https://youtu.be/tOSudiUsm9Q)
