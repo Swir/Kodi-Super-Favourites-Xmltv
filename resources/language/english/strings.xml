@@ -153,6 +153,7 @@
     <string id="200041">Where should I create sub folders that will contains IPTV channels</string>
     <string id="200042">Super Favourites IPTV base Folder</string>
     <string id="200043">Sub folders pattern</string>
+    <string id="200044">Auto create Super Favourites sub folders ( choose no to use existing ones )</string>
     
     <!-- Settings => Reminders -->
     <string id="200061">Programs reminders settings</string>

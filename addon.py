@@ -173,7 +173,10 @@ if __name__ == '__main__':
                 xbmc.sleep(1000)
                 # Super favourites folder init.
                 sf_folder = superfavourites.SuperFavouritesIptvFolder()
-                sf_folder.createSubFolders()
+                
+                if settings.autoCreateSFFolders():
+                    sf_folder.createSubFolders()
+                
                 # All is done, restart required
                 xbmcgui.Dialog().ok(strings.DIALOG_TITLE, strings.SFX_INIT_OK)
                 sf_folder.close()
@@ -188,5 +191,12 @@ if __name__ == '__main__':
             # Starting GUI
             EPGgui = XMLWindowEPG('epg.xml', settings.getAddonPath())
             EPGgui.doModal()
-            del EPGgui        
+            del EPGgui   
+        
+        try:
+            del cursor
+            del database
+            del epgDb
+        except:
+            pass     
         

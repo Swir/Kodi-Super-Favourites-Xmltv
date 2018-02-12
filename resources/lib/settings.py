@@ -134,6 +134,16 @@ def getSFFoldersPattern():
         return int(addon.getSetting('super.favourites.subfolders.pattern'))
     except ValueError:
         return AddonConst.SF_XMLTV_ID_PATTERN
+    
+    
+'''
+Return True to auto create Super Favourites IPTV Folders.
+'''
+def autoCreateSFFolders():
+    try:
+        return True if addon.getSetting("super.favourites.subfolders.create") == "true" else False
+    except:
+        return False
 
 
 '''

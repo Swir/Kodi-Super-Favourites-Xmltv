@@ -153,6 +153,7 @@
     <string id="200041">Ou créer les sous dossiers qui contiendront les chaines IPTV? (ex:TV) </string>
     <string id="200042">Dossier Super Favourites de base</string>
     <string id="200043">Pattern pour les sous dossiers</string>
+    <string id="200044">Auto create Super Favourites sub folders ( choose no to use existing ones )</string>
     
     <!-- Settings => Reminders -->
     <string id="200061">Paramètres pour les rappels de programmes</string>
