@@ -164,7 +164,18 @@ class EpgXml(object):
             return
         
         if isdir(dest):
+            import xbmc
+            xbmc.log("FOUND an xmltv file", xbmc.LOGERROR)
             paths = glob(join(dest, "*.xml"))
+            
+            # Including file format from some of biggest epg sources.
+            if os.exists(join(dest, "data")):
+                paths.append(join(dest, "data"))
+            if os.exists(join(dest, "epg")):
+                paths.append(join(dest, "epg"))
+            if os.exists(join(dest, "guide")):
+                paths.append(join(dest, "guide"))
+            
             if len(paths) <= 0:
                 notify(strings.ARCHIVE_NO_XMLTV_FOUND)
                 rmtree(dest)
@@ -182,6 +193,8 @@ class EpgXml(object):
                         rmtree(dest)
                         break
         else:
+            import xbmc
+            xbmc.log("FOUND an ERROR HERE", xbmc.LOGERROR)
             notify(strings.ARCHIVE_UNSUPPORTED_FORMAT)
     
     
