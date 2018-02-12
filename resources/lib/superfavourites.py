@@ -69,7 +69,7 @@ class SuperFavouritesIptvFolder(object):
             if DEBUG:
                 notify(SF_CHANNELS_INFOS_ERROR)
         progress.close()   
-        
+            
         
     '''
     Return the subfolder of given iptv channel.
@@ -86,6 +86,7 @@ class SuperFavouritesIptvFolder(object):
             sf_folder = join(xbmc.translatePath(getSFFolder()), pattern)
             
             if exists(sf_folder):
+                # linked stored inside SF/channel/faourites.xml ( containing all channels links )
                 xml_file = join(sf_folder, "favourites.xml")
                 if exists(xml_file):
                     xml = minidom.parse(xml_file)
@@ -97,9 +98,19 @@ class SuperFavouritesIptvFolder(object):
                         channel_data.append({"name":link_name, "action":link_action})
                     return channel_data
                 else:
-                    return []
+                    channel_data
             else:
-                return []
+                # The referenced folder points to an addon folder, so getting SF command
+                xml_file = join(xbmc.translatePath(getSFFolder()), "favourites.xml")
+                xml = minidom.parse(xml_file)
+                sf_commands = xml.getElementsByTagName("favourite")
+                
+                for action in sf_commands:
+                    if action.getAttribute("name") == pattern:
+                        link_action = action.firstChild.nodeValue
+                        channel_data.append({"name":"Open SF folder", "action":link_action})
+                    return channel_data 
+                
         except SqliteError:
             return []
         return []
@@ -157,8 +168,7 @@ class SuperFavouritesXMLDialog(xbmcgui.WindowXMLDialog):
             self.getControl(5000).setLabel(ACTIONS_NO_LINKS_FOUND)
         else:
             self.container.reset()
-            for link in self.iptv_links:
-                
+            for link in self.iptv_links: 
                 item = xbmcgui.ListItem(label=link["name"], iconImage=self.logo_channel)
                 self.container.addItem(item)
                 
@@ -185,9 +195,8 @@ class SuperFavouritesXMLDialog(xbmcgui.WindowXMLDialog):
         if action == xbmcgui.ACTION_SELECT_ITEM:
             itemPos = self.container.getSelectedPosition()
             if itemPos is not None and itemPos != -1:
-                #xbmc.executebuiltin(self.iptv_links[itemPos]["action"])
                 self.playCommand(self.iptv_links[itemPos]["action"])
-                
+            self.close()   
                 
     
     '''
@@ -238,9 +247,7 @@ class SuperFavouritesXMLDialog(xbmcgui.WindowXMLDialog):
 
 
     def playCommand(self, originalCmd, contentMode=False):
-        try:
-            xbmc.executebuiltin('Dialog.Close(busydialog)') #Isengard fix
-    
+        try:    
             cmd = self.tidy(originalCmd)
     
             #if in contentMode just do it

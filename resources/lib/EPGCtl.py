@@ -768,6 +768,8 @@ class EditWindow(xbmcgui.WindowXMLDialog):
                 
                 self.win_sf.setChannel(self.id_channel, logo_channel)
                 self.win_sf.doModal()
+                del self.win_sf
+                self.close()
                 
             
             
