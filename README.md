@@ -25,11 +25,11 @@ Le repository contenant l'addon peut être téléchargé ici:
 * Modification timezone à partir de la configuration
 
 ## Screenshots
-[![SFX Images]( kodi-nux007-repository/plugin.program.super.favourites.xmltv/resources/screenshot-1.png )](kodi-nux007-repository/plugin.program.super.favourites.xmltv/resources/screenshot-1.png)
+[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-1.png)](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-1.png)
 
 [![SFX Images](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-2.png)](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-2.png)
 
-[![SFX Images]( kodi-nux007-repository/plugin.program.super.favourites.xmltv/resources/screenshot-3.png )]( kodi-nux007-repository/plugin.program.super.favourites.xmltv/resources/screenshot-3.png )
+[![SFX Images](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-3.png)](https://github.com/Nux007/kodi-nux007-repository/blob/master/plugin.program.super.favourites.xmltv/resources/screenshot-3.png)
 
 ## Installation et Configuration ( Vidéo )
 [![Video d'installation et configuration](http://img.youtube.com/vi/tOSudiUsm9Q/0.jpg)](https://youtu.be/tOSudiUsm9Q)
