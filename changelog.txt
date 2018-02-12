@@ -1,1 +1,14 @@
-0.0.1 Dev relase Release
+0.1.1 of 12 / 02 / 2018
+--------------------------
+* Release candidate
+* Added multi profiles support.
+* Added an option to use existing iptv links SF directory instead of creating them.
+* Utilisation de la commande mise en favoris s'il ne s'agit pas d'un dossier contenant des liens iptv
+
+* N'afficher que les chaines qui ont des liens dans les dossier SF.
+
+
+
+0.0.1 of 05/ 05 / 2018
+---------------------------
+* Dev relase Release
