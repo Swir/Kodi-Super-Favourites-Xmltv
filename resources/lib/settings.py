@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from xbmcaddon import Addon
 from xbmc import translatePath
-from os.path import join
+from os import mkdir
+from os.path import join, exists
 from datetime import timedelta
 try:
     from resources.lib import strings
@@ -29,7 +30,7 @@ def checkMandatorySettings():
             if not getXMLTVURLLocal() :
                 return False, strings.XMLTV_NO_FILE_PROVIDED 
           
-        if getSFFolder() == 'special://home':
+        if getSFFolder() == 'special://profile':
             return False, strings.NO_SUPER_FAVOURITES_FOLDER
     except ValueError:
         return False, ""
@@ -64,7 +65,10 @@ def getAddonBackgroundsPath():
 Return the userdata related to the addon.
 ''' 
 def getAddonUserDataPath():
-    return getAddonPath(True).replace('addons', join('userdata', 'addon_data'), 1)
+    path = join(translatePath("special://profile/addon_data"), "plugin.program.super.favourites.xmltv")
+    if not exists(path):
+        mkdir(path)    
+    return path
 
 
 '''

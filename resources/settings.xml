@@ -43,7 +43,7 @@
     <category label="200004">  
         <!-- Super favourites folder -->
         <setting label="200041" type="lsep"/>
-        <setting id="super.favourites.folder" type="folder" source="auto" default="special://home" option="writeable" label="200042"/>      
+        <setting id="super.favourites.folder" type="folder" source="auto" default="special://profile" option="writeable" label="200042"/>      
         <setting id="super.favourites.subfolders.pattern" type="enum" label="200043" lvalues="200431|200432"/>
     </category>
     
